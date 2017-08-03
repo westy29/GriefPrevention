@@ -35,11 +35,14 @@ import org.bukkit.entity.Player;
 //the result is that those players see new blocks, but the world hasn't been changed.  other players can't see the new blocks, either.
 public class Visualization 
 {
-	public ArrayList<VisualizationElement> elements = new ArrayList<VisualizationElement>();
-	
+	private ArrayList<VisualizationElement> elements = new ArrayList<VisualizationElement>();
 
-	
-	//adds a claim's visualization to the current visualization
+    public ArrayList<VisualizationElement> getElements()
+    {
+        return elements;
+    }
+
+    //adds a claim's visualization to the current visualization
 	//handy for combining several visualizations together, as when visualization a top level claim with several subdivisions inside
 	//locality is a performance consideration.  only create visualization blocks for around 100 blocks of the locality
     private void addClaimElements(Claim claim, int height, VisualizationType visualizationType, Location locality)
@@ -58,30 +61,26 @@ public class Visualization
 		Material accentMaterial;
 		
 		ArrayList<VisualizationElement> newElements = new ArrayList<VisualizationElement>();
-		
-		if(visualizationType == VisualizationType.Claim)
-		{
-			cornerMaterial = Material.GLOWSTONE;
-			accentMaterial = Material.GOLD_BLOCK;
-		}
-		
-		else if(visualizationType == VisualizationType.AdminClaim)
+
+        switch (visualizationType)
         {
-            cornerMaterial = Material.GLOWSTONE;
-            accentMaterial = Material.PUMPKIN;
+            case Claim:
+                cornerMaterial = Material.GLOWSTONE;
+                accentMaterial = Material.GOLD_BLOCK;
+                break;
+            case AdminClaim:
+                cornerMaterial = Material.GLOWSTONE;
+                accentMaterial = Material.PUMPKIN;
+                break;
+            case RestoreNature:
+                cornerMaterial = Material.DIAMOND_BLOCK;
+                accentMaterial = Material.DIAMOND_BLOCK;
+                break;
+            default:
+                cornerMaterial = Material.GLOWING_REDSTONE_ORE;
+                accentMaterial = Material.NETHERRACK;
+                break;
         }
-		
-		else if(visualizationType == VisualizationType.RestoreNature)
-		{
-			cornerMaterial = Material.DIAMOND_BLOCK;
-			accentMaterial = Material.DIAMOND_BLOCK;
-		}
-		
-		else
-		{
-			cornerMaterial = Material.GLOWING_REDSTONE_ORE;
-			accentMaterial = Material.NETHERRACK;
-		}
 		
 		//initialize visualization elements without Y values and real data
 		//that will be added later for only the visualization elements within visualization range
@@ -174,7 +173,7 @@ public class Visualization
     }
 
 	//finds a block the player can probably see.  this is how visualizations "cling" to the ground or ceiling
-    private static Location getVisibleLocation(World world, int x, int y, int z, boolean waterIsTransparent)
+    private Location getVisibleLocation(World world, int x, int y, int z, boolean waterIsTransparent)
 	{
 		Block block = world.getBlockAt(x,  y, z);
 		BlockFace direction = (isTransparent(block, waterIsTransparent)) ? BlockFace.DOWN : BlockFace.UP;
@@ -190,7 +189,7 @@ public class Visualization
 	}
 	
 	//helper method for above.  allows visualization blocks to sit underneath partly transparent blocks like grass and fence
-	private static boolean isTransparent(Block block, boolean waterIsTransparent)
+	private boolean isTransparent(Block block, boolean waterIsTransparent)
 	{
 		switch (block.getType())
 		{
@@ -204,7 +203,7 @@ public class Visualization
         return block.getType().isTransparent();
     }
 
-    public static Visualization fromClaims(Iterable<Claim> claims, int height, VisualizationType type, Location locality)
+    public Visualization fromClaims(Iterable<Claim> claims, int height, VisualizationType type, Location locality)
     {
         Visualization visualization = new Visualization();
         

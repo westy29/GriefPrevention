@@ -5,6 +5,7 @@ import me.ryanhamshire.GriefPrevention.claim.Claim;
 import me.ryanhamshire.GriefPrevention.player.PlayerData;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
 
 /**
  * Created on 8/2/2017.
@@ -13,21 +14,29 @@ import org.bukkit.entity.Player;
  */
 public class VisualizationManager
 {
+    JavaPlugin instance;
+
+    public VisualizationManager(JavaPlugin plugin)
+    {
+        instance = plugin;
+    }
+
     //sends a visualization to a player
-    public static void Apply(Player player, Visualization visualization)
+    public void Apply(Player player, Visualization visualization)
     {
         //if he has any current visualization, clear it first
-        Visualization.Revert(player);
+        revert(player);
 
         //if he's online, create a task to send him the visualization
-        if(player.isOnline() && visualization.elements.size() > 0 && visualization.elements.get(0).location.getWorld().equals(player.getWorld()))
+        if(player.isOnline() && !visualization.getElements().isEmpty() && visualization.getElements().get(0).location.getWorld().equals(player.getWorld()))
         {
-            GriefPrevention.instance.getServer().getScheduler().scheduleSyncDelayedTask(GriefPrevention.instance, new VisualizationApplicationTask(player, playerData, visualization), 1L);
+            GriefPrevention.instance.getServer().getScheduler().scheduleSyncDelayedTask(instance, new VisualizationApplicationTask(player, playerData, visualization), 1L);
+
         }
     }
 
     //reverts a visualization by sending another block change list, this time with the real world block values
-    public static void Revert(Player player)
+    public void revert(Player player)
     {
         if(!player.isOnline()) return;
 

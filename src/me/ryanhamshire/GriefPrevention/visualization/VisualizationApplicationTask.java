@@ -40,16 +40,15 @@ class VisualizationApplicationTask implements Runnable
 	public void run()
 	{
 		//for each element (=block) of the visualization
-		for(int i = 0; i < visualization.elements.size(); i++)
+		for(VisualizationElement element : visualization.getElements())
 		{
-			VisualizationElement element = visualization.elements.get(i);
-			
 			//send the player a fake block change event
 			if(!element.location.getChunk().isLoaded()) continue;  //cheap distance check
 			player.sendBlockChange(element.location, element.visualizedMaterial, element.visualizedData);
 		}
 		
 		//remember the visualization applied to this player for later (so it can be inexpensively reverted)
+		//TODO: use metadata
 		playerData.currentVisualization = visualization;
 		
 		//schedule automatic visualization reversion in 60 seconds.
