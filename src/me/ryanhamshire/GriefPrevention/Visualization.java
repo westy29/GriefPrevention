@@ -39,13 +39,8 @@ public class Visualization
 	//sends a visualization to a player
 	public static void Apply(Player player, Visualization visualization)
 	{
-		PlayerData playerData = GriefPrevention.instance.dataStore.getPlayerData(player.getUniqueId());
-		
 		//if he has any current visualization, clear it first
-		if(playerData.currentVisualization != null)
-		{
 			Visualization.Revert(player);
-		}
 		
 		//if he's online, create a task to send him the visualization
 		if(player.isOnline() && visualization.elements.size() > 0 && visualization.elements.get(0).location.getWorld().equals(player.getWorld()))
@@ -105,14 +100,6 @@ public class Visualization
 		
 		Visualization visualization = new Visualization();
 		
-		//add subdivisions first
-		for(int i = 0; i < claim.children.size(); i++)
-		{
-			Claim child = claim.children.get(i);
-		    if(!child.inDataStore) continue;
-		    visualization.addClaimElements(child, height, VisualizationType.Subdivision, locality);
-		}
-		
 		//special visualization for administrative land claims
 		if(claim.isAdminClaim() && visualizationType == VisualizationType.Claim)
         {
@@ -128,7 +115,6 @@ public class Visualization
 	//adds a claim's visualization to the current visualization
 	//handy for combining several visualizations together, as when visualization a top level claim with several subdivisions inside
 	//locality is a performance consideration.  only create visualization blocks for around 100 blocks of the locality
-	@SuppressWarnings("deprecation")
     private void addClaimElements(Claim claim, int height, VisualizationType visualizationType, Location locality)
 	{
 		Location smallXsmallZ = claim.getLesserBoundaryCorner();
@@ -157,12 +143,6 @@ public class Visualization
             cornerMaterial = Material.GLOWSTONE;
             accentMaterial = Material.PUMPKIN;
         }
-		
-		else if(visualizationType == VisualizationType.Subdivision)
-		{
-			cornerMaterial = Material.IRON_BLOCK;
-			accentMaterial = Material.WOOL;
-		}
 		
 		else if(visualizationType == VisualizationType.RestoreNature)
 		{
@@ -285,41 +265,17 @@ public class Visualization
 	//helper method for above.  allows visualization blocks to sit underneath partly transparent blocks like grass and fence
 	private static boolean isTransparent(Block block, boolean waterIsTransparent)
 	{
-		//Blacklist
 		switch (block.getType())
 		{
+		    //Blacklist
 			case SNOW:
+            case CARPET:
 				return false;
+            case STATIONARY_WATER:
+                return waterIsTransparent;
 		}
-
-		//Whitelist TODO: some of this might already be included in isTransparent()
-		switch (block.getType())
-		{
-			case AIR:
-			case FENCE:
-			case ACACIA_FENCE:
-			case BIRCH_FENCE:
-			case DARK_OAK_FENCE:
-			case JUNGLE_FENCE:
-			case NETHER_FENCE:
-			case SPRUCE_FENCE:
-			case FENCE_GATE:
-			case ACACIA_FENCE_GATE:
-			case BIRCH_FENCE_GATE:
-			case DARK_OAK_FENCE_GATE:
-			case SPRUCE_FENCE_GATE:
-			case JUNGLE_FENCE_GATE:
-			case SIGN:
-			case SIGN_POST:
-			case WALL_SIGN:
-				return true;
-		}
-
-		if ((waterIsTransparent && block.getType() == Material.STATIONARY_WATER) ||
-				block.getType().isTransparent())
-			return true;
-		return false;
-	}
+        return block.getType().isTransparent();
+    }
 
     public static Visualization fromClaims(Iterable<Claim> claims, int height, VisualizationType type, Location locality)
     {
