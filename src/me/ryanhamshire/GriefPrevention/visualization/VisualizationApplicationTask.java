@@ -21,24 +21,29 @@
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.player.PlayerData;
 import org.bukkit.entity.Player;
+import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 //applies a visualization for a player by sending him block change packets
-class VisualizationApplicationTask implements Runnable 
+class VisualizationApplicationTask extends BukkitRunnable
 {
 	private Visualization visualization;
 	private Player player;
-	private PlayerData playerData;
+	private JavaPlugin instance;
 
-	public VisualizationApplicationTask(Player player, PlayerData playerData, Visualization visualization)
+	public VisualizationApplicationTask(Player player, Visualization visualization, JavaPlugin plugin)
 	{
 		this.visualization = visualization;
-		this.playerData = playerData;
 		this.player = player;
+		this.instance = plugin;
 	}
 
     @Override
 	public void run()
 	{
+		if (!player.isOnline())
+			return;
 		//for each element (=block) of the visualization
 		for(VisualizationElement element : visualization.getElements())
 		{
@@ -49,12 +54,7 @@ class VisualizationApplicationTask implements Runnable
 		
 		//remember the visualization applied to this player for later (so it can be inexpensively reverted)
 		//TODO: use metadata
-		playerData.currentVisualization = visualization;
-		
-		//schedule automatic visualization reversion in 60 seconds.
-		GriefPrevention.instance.getServer().getScheduler().scheduleSyncDelayedTask(
-	        GriefPrevention.instance, 
-	        new VisualizationReversionTask(player, playerData, visualization),
-	        20L * 60);  //60 seconds
+        player.setMetadata(VisualizationManager.METADATA_KEY, new FixedMetadataValue(instance, visualization));
+		//playerData.currentVisualization = visualization;
 	}
 }

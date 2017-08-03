@@ -29,6 +29,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
 
 //represents a visualization sent to a player
 //FEATURE: to show players visually where claim boundaries are, we send them fake block change packets
@@ -42,10 +43,17 @@ public class Visualization
         return elements;
     }
 
+    public World getWorld()
+    {
+        if (elements.isEmpty())
+            return null;
+        return elements.get(0).location.getWorld();
+    }
+
     //adds a claim's visualization to the current visualization
 	//handy for combining several visualizations together, as when visualization a top level claim with several subdivisions inside
 	//locality is a performance consideration.  only create visualization blocks for around 100 blocks of the locality
-    private void addClaimElements(Claim claim, int height, VisualizationType visualizationType, Location locality)
+    public void addClaimElements(Claim claim, int height, VisualizationType visualizationType, Location locality)
 	{
 		Location smallXsmallZ = claim.getLesserBoundaryCorner();
 		Location bigXbigZ = claim.getGreaterBoundaryCorner();
@@ -140,7 +148,7 @@ public class Visualization
 		for(int i = 0; i < newElements.size(); i++)
 		{
 		    VisualizationElement element = newElements.get(i);
-		    if(!claim.contains(element.location, true, false))
+		    if(!claim.contains(element.location, true))
 		    {
 		        newElements.remove(i--);
 		    }
@@ -160,7 +168,7 @@ public class Visualization
 	}
 	
 	//removes any elements which are out of visualization range
-	private void removeElementsOutOfRange(ArrayList<VisualizationElement> elements, int minx, int minz, int maxx, int maxz)
+	public void removeElementsOutOfRange(ArrayList<VisualizationElement> elements, int minx, int minz, int maxx, int maxz)
 	{
 	    for(int i = 0; i < elements.size(); i++)
 	    {
@@ -201,17 +209,5 @@ public class Visualization
                 return waterIsTransparent;
 		}
         return block.getType().isTransparent();
-    }
-
-    public Visualization fromClaims(Iterable<Claim> claims, int height, VisualizationType type, Location locality)
-    {
-        Visualization visualization = new Visualization();
-        
-        for(Claim claim : claims)
-        {
-            visualization.addClaimElements(claim, height, type, locality);
-        }
-        
-        return visualization;
     }
 }

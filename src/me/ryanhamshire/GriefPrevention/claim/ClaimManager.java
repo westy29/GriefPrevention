@@ -612,7 +612,7 @@ public class ClaimManager
             //inform about success, visualize, communicate remaining blocks available
             GriefPrevention.sendMessage(player, TextMode.Success, Messages.ClaimResizeSuccess, String.valueOf(claimBlocksRemaining));
             Visualization visualization = Visualization.FromClaim(result.claim, player.getEyeLocation().getBlockY(), VisualizationType.Claim, player.getLocation());
-            Visualization.Apply(player, visualization);
+            Visualization.apply(player, visualization);
 
             //if resizing someone else's claim, make a log entry
             if(!player.getUniqueId().equals(playerData.claimResizing.ownerID) && playerData.claimResizing.parent == null)
@@ -641,7 +641,7 @@ public class ClaimManager
 
                 //show the player the conflicting claim
                 Visualization visualization = Visualization.FromClaim(result.claim, player.getEyeLocation().getBlockY(), VisualizationType.ErrorClaim, player.getLocation());
-                Visualization.Apply(player, visualization);
+                Visualization.apply(player, visualization);
             }
             else
             {

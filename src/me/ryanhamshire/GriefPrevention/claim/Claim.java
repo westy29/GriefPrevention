@@ -231,10 +231,23 @@ public class Claim
 	{
 		return this.greaterBoundaryCorner.clone();
 	}
-	
-	//whether or not a location is in a claim
-	//ignoreHeight = true means location UNDER the claim will return TRUE
-	//excludeSubdivisions = true means that locations inside subdivisions of the claim will return FALSE
+
+	/**
+	 * whether or not a location is in a claim. Ignores height.
+	 * @param location
+	 * @return
+	 */
+	public boolean contains(Location location)
+	{
+		return contains(location, true);
+	}
+
+	/**
+	 * whether or not a location is in a claim
+	 * @param location
+	 * @param ignoreHeight true means location UNDER the claim will return TRUE
+	 * @return
+	 */
 	public boolean contains(Location location, boolean ignoreHeight)
 	{
 	    //not in the same world implies false

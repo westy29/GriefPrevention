@@ -787,7 +787,7 @@ public class GriefPrevention extends JavaPlugin
                     GriefPrevention.sendMessage(player, TextMode.Err, Messages.CreateClaimFailOverlapShort);
                     
                     Visualization visualization = Visualization.FromClaim(result.claim, player.getEyeLocation().getBlockY(), VisualizationType.ErrorClaim, player.getLocation());
-                    Visualization.Apply(player, visualization);
+                    Visualization.apply(player, visualization);
                 }
                 else
                 {
@@ -808,7 +808,7 @@ public class GriefPrevention extends JavaPlugin
                     GriefPrevention.sendMessage(player, TextMode.Instr, Messages.SurvivalBasicsVideo2, DataStore.SURVIVAL_VIDEO_URL);
                 }
                 Visualization visualization = Visualization.FromClaim(result.claim, player.getEyeLocation().getBlockY(), VisualizationType.Claim, player.getLocation());
-                Visualization.Apply(player, visualization);
+                Visualization.apply(player, visualization);
                 playerData.claimResizing = null;
                 playerData.lastShovelLocation = null;
                 

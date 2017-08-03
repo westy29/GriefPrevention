@@ -1730,7 +1730,7 @@ class PlayerEventHandler implements Listener
 
 			        //visualize boundaries
                     Visualization visualization = Visualization.fromClaims(claims, player.getEyeLocation().getBlockY(), VisualizationType.Claim, player.getLocation());
-                    Visualization.Apply(player, visualization);
+                    Visualization.apply(player, visualization);
 
                     instance.sendMessage(player, TextMode.Info, Messages.ShowNearbyClaims, String.valueOf(claims.size()));
 
@@ -1789,7 +1789,7 @@ class PlayerEventHandler implements Listener
                     // alert plugins of a visualization
                     Bukkit.getPluginManager().callEvent(new VisualizationEvent(player, claim));
 
-					Visualization.Apply(player, visualization);
+					Visualization.apply(player, visualization);
 
 					//if can resize this claim, tell about the boundaries
 					if(claim.allowEdit(player) == null)
@@ -1889,7 +1889,7 @@ class PlayerEventHandler implements Listener
                     // alert plugins of a visualization
                     Bukkit.getPluginManager().callEvent(new VisualizationEvent(player, claim));
 
-					Visualization.Apply(player, visualization);
+					Visualization.apply(player, visualization);
 
 					return;
 				}
@@ -2129,7 +2129,7 @@ class PlayerEventHandler implements Listener
                         // alert plugins of a visualization
                         Bukkit.getPluginManager().callEvent(new VisualizationEvent(player, claim));
 
-						Visualization.Apply(player, visualization);
+						Visualization.apply(player, visualization);
 					}
 				}
 
@@ -2142,7 +2142,7 @@ class PlayerEventHandler implements Listener
                     // alert plugins of a visualization
                     Bukkit.getPluginManager().callEvent(new VisualizationEvent(player, claim));
 
-					Visualization.Apply(player, visualization);
+					Visualization.apply(player, visualization);
 				}
 
 				return;
@@ -2181,7 +2181,7 @@ class PlayerEventHandler implements Listener
                 // alert plugins of a visualization
                 Bukkit.getPluginManager().callEvent(new VisualizationEvent(player, newClaim));
 
-				Visualization.Apply(player, visualization);
+				Visualization.apply(player, visualization);
 			}
 
 			//otherwise, he's trying to finish creating a claim by setting the other boundary corner
@@ -2269,7 +2269,7 @@ class PlayerEventHandler implements Listener
                         // alert plugins of a visualization
                         Bukkit.getPluginManager().callEvent(new VisualizationEvent(player, result.claim));
 
-    					Visualization.Apply(player, visualization);
+    					Visualization.apply(player, visualization);
 					}
 					else
 					{
@@ -2288,7 +2288,7 @@ class PlayerEventHandler implements Listener
                     // alert plugins of a visualization
                     Bukkit.getPluginManager().callEvent(new VisualizationEvent(player, result.claim));
 
-					Visualization.Apply(player, visualization);
+					Visualization.apply(player, visualization);
 					playerData.lastShovelLocation = null;
 
 					//if it's a big claim, tell the player about subdivisions

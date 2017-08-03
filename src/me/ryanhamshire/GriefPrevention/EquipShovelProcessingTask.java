@@ -77,7 +77,7 @@ class EquipShovelProcessingTask implements Runnable
 		if(claim != null && claim.allowEdit(player) == null)
 		{
 		    playerData.lastClaim = claim;
-		    Visualization.Apply(player, Visualization.FromClaim(claim, player.getEyeLocation().getBlockY(), VisualizationType.Claim, player.getLocation()));
+		    Visualization.apply(player, Visualization.FromClaim(claim, player.getEyeLocation().getBlockY(), VisualizationType.Claim, player.getLocation()));
 		}
 	}
 }

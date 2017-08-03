@@ -20,27 +20,23 @@
 
 import me.ryanhamshire.GriefPrevention.player.PlayerData;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 
 //applies a visualization for a player by sending him block change packets
-class VisualizationReversionTask implements Runnable 
+class VisualizationReversionTask extends BukkitRunnable
 {
-	private Visualization visualization;
 	private Player player;
-	private PlayerData playerData;
+	private VisualizationManager visualizationManager;
 
-	public VisualizationReversionTask(Player player, PlayerData playerData, Visualization visualization)
+	public VisualizationReversionTask(Player player, VisualizationManager visualizationManager)
 	{
-		this.visualization = visualization;
-		this.playerData = playerData;
 		this.player = player;
+		this.visualizationManager = visualizationManager;
 	}
 	
 	@Override
 	public void run()
 	{
-		//don't do anything if the player's current visualization is different from the one scheduled to revert
-	    if(playerData.currentVisualization != visualization) return;
-	    
-	    Visualization.Revert(player);
+	    visualizationManager.revert(player);
 	}
 }

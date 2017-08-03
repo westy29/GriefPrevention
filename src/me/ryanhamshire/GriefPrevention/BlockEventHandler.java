@@ -309,7 +309,7 @@ public class BlockEventHandler implements Listener
     					
     					//show the player the protected area
     					Visualization visualization = Visualization.FromClaim(result.claim, block.getY(), VisualizationType.Claim, player.getLocation());
-    					Visualization.Apply(player, visualization);
+    					Visualization.apply(player, visualization);
 					}
 				}
 				
@@ -361,7 +361,7 @@ public class BlockEventHandler implements Listener
     				if(playerData.lastClaim != null)
     				{
     				    Visualization visualization = Visualization.FromClaim(playerData.lastClaim, block.getY(), VisualizationType.Claim, player.getLocation());
-    				    Visualization.Apply(player, visualization);
+    				    Visualization.apply(player, visualization);
     				}
 			    }
 			}
