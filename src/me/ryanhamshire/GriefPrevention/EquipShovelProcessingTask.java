@@ -21,6 +21,8 @@ package me.ryanhamshire.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.claim.Claim;
 import me.ryanhamshire.GriefPrevention.message.Messages;
 import me.ryanhamshire.GriefPrevention.player.PlayerData;
+import me.ryanhamshire.GriefPrevention.visualization.Visualization;
+import me.ryanhamshire.GriefPrevention.visualization.VisualizationType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 

@@ -38,6 +38,8 @@ import me.ryanhamshire.GriefPrevention.claim.ClaimsMode;
 import me.ryanhamshire.GriefPrevention.events.VisualizationEvent;
 import me.ryanhamshire.GriefPrevention.message.Messages;
 import me.ryanhamshire.GriefPrevention.player.PlayerData;
+import me.ryanhamshire.GriefPrevention.visualization.Visualization;
+import me.ryanhamshire.GriefPrevention.visualization.VisualizationType;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;

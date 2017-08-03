@@ -41,6 +41,8 @@ import me.ryanhamshire.GriefPrevention.events.SaveTrappedPlayerEvent;
 
 import me.ryanhamshire.GriefPrevention.message.Messages;
 import me.ryanhamshire.GriefPrevention.player.PlayerData;
+import me.ryanhamshire.GriefPrevention.visualization.Visualization;
+import me.ryanhamshire.GriefPrevention.visualization.VisualizationType;
 import org.bukkit.Achievement;
 import org.bukkit.BanList;
 import org.bukkit.Bukkit;

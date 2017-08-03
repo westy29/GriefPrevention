@@ -25,6 +25,8 @@ import java.util.List;
 import me.ryanhamshire.GriefPrevention.claim.Claim;
 import me.ryanhamshire.GriefPrevention.message.Messages;
 import me.ryanhamshire.GriefPrevention.player.PlayerData;
+import me.ryanhamshire.GriefPrevention.visualization.Visualization;
+import me.ryanhamshire.GriefPrevention.visualization.VisualizationType;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
