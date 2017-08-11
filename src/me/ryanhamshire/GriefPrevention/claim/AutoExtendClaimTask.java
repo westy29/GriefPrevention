@@ -1,7 +1,8 @@
-package me.ryanhamshire.GriefPrevention;
+package me.ryanhamshire.GriefPrevention.claim;
 
 import java.util.ArrayList;
 
+import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.claim.Claim;
 import org.bukkit.Bukkit;
 import org.bukkit.ChunkSnapshot;

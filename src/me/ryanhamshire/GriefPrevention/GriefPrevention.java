@@ -33,9 +33,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import me.ryanhamshire.GriefPrevention.DataStore.NoTransferException;
+import me.ryanhamshire.GriefPrevention.claim.AutoExtendClaimTask;
 import me.ryanhamshire.GriefPrevention.claim.Claim;
 import me.ryanhamshire.GriefPrevention.claim.ClaimPermission;
 import me.ryanhamshire.GriefPrevention.claim.ClaimsMode;
+import me.ryanhamshire.GriefPrevention.claim.CreateClaimResult;
 import me.ryanhamshire.GriefPrevention.events.PreventBlockBreakEvent;
 import me.ryanhamshire.GriefPrevention.events.SaveTrappedPlayerEvent;
 
@@ -774,7 +776,7 @@ public class GriefPrevention extends JavaPlugin
                 return true;
             }
 
-            CreateClaimResult result = this.dataStore.createClaim(lc.getWorld(), 
+            CreateClaimResult result = this.dataStore.createClaim(lc.getWorld(),
                     lc.getBlockX(), gc.getBlockX(),
                     lc.getBlockY() - GriefPrevention.instance.config_claims_claimsExtendIntoGroundDistance - 1,
                     gc.getWorld().getHighestBlockYAt(gc) - GriefPrevention.instance.config_claims_claimsExtendIntoGroundDistance - 1,
