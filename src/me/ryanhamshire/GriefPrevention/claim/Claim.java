@@ -24,7 +24,6 @@ import org.bukkit.World;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -32,86 +31,66 @@ import java.util.Map;
 import java.util.UUID;
 
 //represents a player claim
-//creating an instance doesn't make an effective claim
-//only claims which have been added to the datastore have any effect
 public class Claim
 {
 	//two locations, which together define the boundaries of the claim
 	//note that the upper Y value is always ignored, because claims ALWAYS extend up to the sky
 	private Location lesserBoundaryCorner;
 	private Location greaterBoundaryCorner;
-	
-	//modification date.  this comes from the file timestamp during load, and is updated with runtime changes
-	//TODO: RoboMWM - is this even needed
-	private Date modifiedDate;
-	
-	//id number.  unique to this claim, never changes.
 	Long id = null;
-	
-	//ownerID.  for admin claims, this is NULL
-	//use getOwnerName() to get a friendly name (will be "an administrator" for admin claims)
-	private UUID ownerID;
+    private UUID ownerUUID;
+    private HashMap<UUID, ClaimPermission> playerIDToClaimPermissionMap = new HashMap<UUID, ClaimPermission>(); //permissions for this claim, see ClaimPermission class
+    private boolean naturalGriefAllowed = false;
 
-	public UUID getOwnerID()
-	{
-		return ownerID;
-	}
-	
-	//permissions for this claim, see ClaimPermission class
-	private HashMap<UUID, ClaimPermission> playerIDToClaimPermissionMap = new HashMap<UUID, ClaimPermission>();
-	
-	//whether or not this claim is in the data store
-	//if a claim instance isn't in the data store, it isn't "active" - players can't interract with it 
-	//why keep this?  so that claims which have been removed from the data store can be correctly 
-	//ignored even though they may have references floating around
-	//TODO: RoboMWM - probably should aim to remove this
-	private boolean inDataStore = false;
-
-	private boolean explosivesTemporarilyAllowed = false;
-
-	public boolean areExplosivesAllowed()
-	{
-		return explosivesTemporarilyAllowed;
-	}
-	
-	//whether or not this is an administrative claim
-	//administrative claims are created and maintained by players with the griefprevention.adminclaims permission.
-	public boolean isAdminClaim()
-	{
-		return (this.ownerID == null);
-	}
-	
-	//accessor for ID
+	/**
+     * Unique ID number of the claim. (Should) never change.
+	 * @return Unique ID of this claim.
+	 */
 	public Long getID()
 	{
 		return this.id;
 	}
 
-	//copy constructor
-	public Claim(Claim claim, UUID ownerID)
+	/**
+	 * Returns the UUID of the player that owns this claim. For admin claims, this will return null
+	 * @return the owner's UUID
+	 */
+	public UUID getOwnerUUID()
 	{
-		this.modifiedDate = Calendar.getInstance().getTime();
+		return ownerUUID;
+	}
+
+	public boolean areExplosivesAllowed()
+	{
+		return naturalGriefAllowed;
+	}
+
+	public void setNaturalGriefAllowed(boolean naturalGriefAllowed)
+	{
+		this.naturalGriefAllowed = naturalGriefAllowed;
+	}
+
+	//whether or not this is an administrative claim
+	//administrative claims are created and maintained by players with the griefprevention.adminclaims permission.
+	public boolean isAdminClaim()
+	{
+		return (this.ownerUUID == null);
+	}
+
+	//copy constructor
+	public Claim(Claim claim, UUID ownerUUID)
+	{
 		this.lesserBoundaryCorner = claim.lesserBoundaryCorner;
 		this.greaterBoundaryCorner = claim.greaterBoundaryCorner;
 		this.playerIDToClaimPermissionMap = claim.playerIDToClaimPermissionMap;
 		this.id = claim.id;
 
-		this.ownerID = ownerID;
-	}
-
-	//basic constructor, just notes the creation time
-	//see above declarations for other defaults
-	Claim()
-	{
-		this.modifiedDate = Calendar.getInstance().getTime();
+		this.ownerUUID = ownerUUID;
 	}
 	
 	//main constructor.  note that only creating a claim instance does nothing - a claim must be added to the data store to be effective
-	Claim(Location lesserBoundaryCorner, Location greaterBoundaryCorner, UUID ownerID, List<UUID> builderIDs, List<UUID> containerIDs, List<UUID> accessorIDs, List<UUID> managerIDs, Long id)
+	Claim(Location lesserBoundaryCorner, Location greaterBoundaryCorner, UUID ownerUUID, List<UUID> builderIDs, List<UUID> containerIDs, List<UUID> accessorIDs, List<UUID> managerIDs, Long id)
 	{
-		//modification date
-		this.modifiedDate = Calendar.getInstance().getTime();
-		
 		//id
 		this.id = id;
 		
@@ -120,7 +99,7 @@ public class Claim
 		this.greaterBoundaryCorner = greaterBoundaryCorner;
 		
 		//owner
-		this.ownerID = ownerID;
+		this.ownerUUID = ownerUUID;
 		
 		//other permissions
 		for(UUID builderID : builderIDs)
@@ -145,22 +124,37 @@ public class Claim
 	}
 	
 	//measurements.  all measurements are in blocks
+
+    /**
+     * @return Area of claim, in blocks
+     */
 	public int getArea()
 	{
 		return this.getWidth() * this.getHeight();
 	}
-	
+
+    /**
+     * @return Width of claim, in blocks
+     */
 	public int getWidth()
 	{
 		return this.greaterBoundaryCorner.getBlockX() - this.lesserBoundaryCorner.getBlockX() + 1;		
 	}
-	
+
+    /**
+     * @return Height of claim, in blocks
+     */
 	public int getHeight()
 	{
 		return this.greaterBoundaryCorner.getBlockZ() - this.lesserBoundaryCorner.getBlockZ() + 1;		
 	}
-	
-	//distance check for claims, distance in this case is a band around the outside of the claim rather then euclidean distance
+
+    /**
+     * Distance check for claims. Distance in this case is a band around the outside of the claim rather then euclidean distance
+     * @param location Location in question. Height (y value) is effectively ignored.
+     * @param howNear distance in blocks to check
+     * @return
+     */
 	public boolean isNear(Location location, int howNear)
 	{
 		Claim claim = new Claim
@@ -174,7 +168,7 @@ public class Claim
 	//grants a permission for a player or the public
 	public void setPermission(String playerID, ClaimPermission permissionLevel)
 	{
-		this.playerIDToClaimPermissionMap.put(UUID.fromString(playerID),  permissionLevel);
+		this.playerIDToClaimPermissionMap.put(UUID.fromString(playerID), permissionLevel);
 	}
 
 	//revokes a permission for a player or the public
@@ -218,22 +212,26 @@ public class Claim
 			}
 		}
 	}
-	
-	//returns a copy of the location representing lower x, y, z limits
+
+    /**
+     * @return a copy of the location representing lower x, y, z limits
+     */
 	public Location getLesserBoundaryCorner()
 	{
 		return this.lesserBoundaryCorner.clone();
 	}
-	
-	//returns a copy of the location representing upper x, y, z limits
-	//NOTE: remember upper Y will always be ignored, all claims always extend to the sky
+
+    /**
+     * NOTE: remember upper Y will always be ignored, all claims always extend to the sky
+     * @return returns a copy of the location representing upper x, y, z limits
+     */
 	public Location getGreaterBoundaryCorner()
 	{
 		return this.greaterBoundaryCorner.clone();
 	}
 
 	/**
-	 * whether or not a location is in a claim. Ignores height.
+	 * whether or not a location is in or under a claim. (Ignores height.)
 	 * @param location
 	 * @return
 	 */
@@ -258,16 +256,11 @@ public class Claim
 		double z = location.getZ();
 		
 		//main check
-		boolean inClaim = (ignoreHeight || y >= this.lesserBoundaryCorner.getY()) &&
+		return (ignoreHeight || y >= this.lesserBoundaryCorner.getY()) &&
 				x >= this.lesserBoundaryCorner.getX() &&
 				x < this.greaterBoundaryCorner.getX() + 1 &&
 				z >= this.lesserBoundaryCorner.getZ() &&
 				z < this.greaterBoundaryCorner.getZ() + 1;
-				
-		if(!inClaim) return false;
-		
-		//otherwise yes
-		return true;				
 	}
 	
 	//whether or not two claims overlap
