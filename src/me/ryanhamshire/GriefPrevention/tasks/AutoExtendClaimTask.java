@@ -32,7 +32,7 @@ class AutoExtendClaimTask implements Runnable
             Bukkit.getScheduler().runTask(GriefPrevention.instance, new ExecuteExtendClaimTask(claim, newY));
         }
     }
-    
+
     private int getLowestBuiltY()
     {
         int y = this.claim.getLesserBoundaryCorner().getBlockY();
