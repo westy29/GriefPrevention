@@ -1,5 +1,6 @@
 package me.ryanhamshire.GriefPrevention.claim;
 
+import me.ryanhamshire.GriefPrevention.DataStore;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.message.Messages;
 import me.ryanhamshire.GriefPrevention.player.PlayerData;
@@ -37,9 +38,15 @@ public class ClaimManager
     //in-memory cache for claim data
     ArrayList<Claim> claims = new ArrayList<Claim>();
     ConcurrentHashMap<Long, ArrayList<Claim>> chunksToClaimsMap = new ConcurrentHashMap<Long, ArrayList<Claim>>();
+    DataStore dataStore;
+
+    public ClaimManager(DataStore dataStore)
+    {
+        this.dataStore = dataStore;
+    }
 
     //next claim ID
-    Long nextClaimID = (long)0;
+    private Long nextClaimID = (long)0;
 
     public void changeClaimOwner(Claim claim, UUID newOwnerID)
     {
@@ -47,7 +54,7 @@ public class ClaimManager
         PlayerData ownerData = null;
         if(!claim.isAdminClaim())
         {
-            ownerData = this.getPlayerData(claim.ownerID);
+            ownerData = dataStore.getPlayerData(claim.ownerID);
         }
 
         //determine new owner

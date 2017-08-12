@@ -32,8 +32,7 @@ public interface DataStore
 	void writeClaimToStorage(Claim claim);
 	
 	//increments the claim ID and updates secondary storage to be sure it's saved
-	//As far as I know, 2 billion claim IDs _should_ be enough
-	int nextClaimID();
+	long nextClaimID();
 	
 	PlayerData getPlayerDataFromStorage(UUID playerID);
 	
