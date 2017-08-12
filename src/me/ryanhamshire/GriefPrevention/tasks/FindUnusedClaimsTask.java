@@ -16,10 +16,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
  
- package me.ryanhamshire.GriefPrevention;
+ package me.ryanhamshire.GriefPrevention.tasks;
 
 import java.util.Random;
 
+import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.claim.Claim;
 import org.bukkit.Bukkit;
 

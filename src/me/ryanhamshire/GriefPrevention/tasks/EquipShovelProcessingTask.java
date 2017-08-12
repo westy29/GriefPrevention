@@ -16,8 +16,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
  
-package me.ryanhamshire.GriefPrevention;
+package me.ryanhamshire.GriefPrevention.tasks;
 
+import me.ryanhamshire.GriefPrevention.DataStore;
+import me.ryanhamshire.GriefPrevention.GriefPrevention;
+import me.ryanhamshire.GriefPrevention.ShovelMode;
+import me.ryanhamshire.GriefPrevention.TextMode;
 import me.ryanhamshire.GriefPrevention.claim.Claim;
 import me.ryanhamshire.GriefPrevention.message.Messages;
 import me.ryanhamshire.GriefPrevention.player.PlayerData;
@@ -65,7 +69,7 @@ class EquipShovelProcessingTask implements Runnable
 		//link to a video demo of land claiming, based on world type
 		if(GriefPrevention.instance.creativeRulesApply(player.getLocation()))
 		{
-			GriefPrevention.sendMessage(player, TextMode.Instr, Messages.CreativeBasicsVideo2, DataStore.CREATIVE_VIDEO_URL);			
+			GriefPrevention.sendMessage(player, TextMode.Instr, Messages.CreativeBasicsVideo2, DataStore.CREATIVE_VIDEO_URL);
 		}
 		else if(GriefPrevention.instance.claimsEnabledForWorld(player.getLocation().getWorld()))
 		{

@@ -43,6 +43,9 @@ import me.ryanhamshire.GriefPrevention.events.SaveTrappedPlayerEvent;
 
 import me.ryanhamshire.GriefPrevention.message.Messages;
 import me.ryanhamshire.GriefPrevention.player.PlayerData;
+import me.ryanhamshire.GriefPrevention.tasks.DeliverClaimBlocksTask;
+import me.ryanhamshire.GriefPrevention.tasks.FindUnusedClaimsTask;
+import me.ryanhamshire.GriefPrevention.tasks.WelcomeTask;
 import me.ryanhamshire.GriefPrevention.visualization.Visualization;
 import me.ryanhamshire.GriefPrevention.visualization.VisualizationType;
 import org.bukkit.Achievement;
@@ -2900,37 +2903,6 @@ public class GriefPrevention extends JavaPlugin
 		//when done processing, this task will create a main thread task to actually update the world with processing results
 		RestoreNatureProcessingTask task = new RestoreNatureProcessingTask(snapshots, miny, chunk.getWorld().getEnvironment(), lesserBoundaryCorner.getBlock().getBiome(), lesserBoundaryCorner, greaterBoundaryCorner, this.getSeaLevel(chunk.getWorld()), aggressiveMode, GriefPrevention.instance.creativeRulesApply(lesserBoundaryCorner), playerReceivingVisualization);
 		GriefPrevention.instance.getServer().getScheduler().runTaskLaterAsynchronously(GriefPrevention.instance, task, delayInTicks);
-	}
-	
-	private void parseMaterialListFromConfig(List<String> stringsToParse, MaterialCollection materialCollection)
-	{
-		materialCollection.clear();
-		
-		//for each string in the list
-		for(int i = 0; i < stringsToParse.size(); i++)
-		{
-			//try to parse the string value into a material info
-			MaterialInfo materialInfo = MaterialInfo.fromString(stringsToParse.get(i));
-			
-			//null value returned indicates an error parsing the string from the config file
-			if(materialInfo == null)
-			{
-				//show error in log
-				GriefPrevention.AddLogEntry("ERROR: Unable to read a material entry from the config file.  Please update your config.yml.");
-				
-				//update string, which will go out to config file to help user find the error entry
-				if(!stringsToParse.get(i).contains("can't"))
-				{
-					stringsToParse.set(i, stringsToParse.get(i) + "     <-- can't understand this entry, see BukkitDev documentation");
-				}
-			}
-			
-			//otherwise store the valid entry in config data
-			else
-			{
-				materialCollection.Add(materialInfo);
-			}
-		}		
 	}
 	
 	public int getSeaLevel(World world)

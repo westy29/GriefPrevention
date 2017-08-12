@@ -16,8 +16,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
  
- package me.ryanhamshire.GriefPrevention;
+ package me.ryanhamshire.GriefPrevention.tasks;
 
+import me.ryanhamshire.GriefPrevention.CustomLogEntryTypes;
+import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.claim.Claim;
 import me.ryanhamshire.GriefPrevention.player.PlayerData;
 import org.bukkit.Bukkit;

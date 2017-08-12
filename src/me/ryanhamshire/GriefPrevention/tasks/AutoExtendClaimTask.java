@@ -1,4 +1,4 @@
-package me.ryanhamshire.GriefPrevention.claim;
+package me.ryanhamshire.GriefPrevention.tasks;
 
 import java.util.ArrayList;
 
@@ -32,8 +32,7 @@ class AutoExtendClaimTask implements Runnable
             Bukkit.getScheduler().runTask(GriefPrevention.instance, new ExecuteExtendClaimTask(claim, newY));
         }
     }
-
-    @SuppressWarnings("deprecation")
+    
     private int getLowestBuiltY()
     {
         int y = this.claim.getLesserBoundaryCorner().getBlockY();
