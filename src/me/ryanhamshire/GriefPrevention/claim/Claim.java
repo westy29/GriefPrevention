@@ -60,11 +60,18 @@ public class Claim
 		return ownerUUID;
 	}
 
-	public boolean areExplosivesAllowed()
+    /**
+     * The owner and managers can temporarily enable natural "grief" (explosions, fire spread, etc.)
+     * @return whether this claim is allowing natural grief to occur
+     */
+	public boolean isNaturalGriefAllowed()
 	{
 		return naturalGriefAllowed;
 	}
 
+    /**
+     * @param naturalGriefAllowed If true, "flags" the claim as allowing natural grief
+     */
 	public void setNaturalGriefAllowed(boolean naturalGriefAllowed)
 	{
 		this.naturalGriefAllowed = naturalGriefAllowed;
@@ -89,7 +96,7 @@ public class Claim
 	}
 	
 	//main constructor.  note that only creating a claim instance does nothing - a claim must be added to the data store to be effective
-	Claim(Location lesserBoundaryCorner, Location greaterBoundaryCorner, UUID ownerUUID, List<UUID> builderIDs, List<UUID> containerIDs, List<UUID> accessorIDs, List<UUID> managerIDs, Long id)
+	public Claim(Location lesserBoundaryCorner, Location greaterBoundaryCorner, UUID ownerUUID, List<UUID> builderIDs, List<UUID> containerIDs, List<UUID> accessorIDs, List<UUID> managerIDs, Long id)
 	{
 		//id
 		this.id = id;
@@ -184,7 +191,7 @@ public class Claim
 	}
 
 	//gets ALL permissions
-	//useful for  making copies of permissions during a claim resize and listing all permissions in a claim
+    @Deprecated
 	public void getPermissions(ArrayList<String> builders, ArrayList<String> containers, ArrayList<String> accessors, ArrayList<String> managers)
 	{
 		//loop through all the entries in the hash map
@@ -221,6 +228,17 @@ public class Claim
 		return this.lesserBoundaryCorner.clone();
 	}
 
+	//Used for resizing, obviously
+    public void setLesserBoundaryCorner(Location lesserBoundaryCorner)
+    {
+        this.lesserBoundaryCorner = lesserBoundaryCorner;
+    }
+
+    public void setGreaterBoundaryCorner(Location greaterBoundaryCorner)
+    {
+        this.greaterBoundaryCorner = greaterBoundaryCorner;
+    }
+
     /**
      * NOTE: remember upper Y will always be ignored, all claims always extend to the sky
      * @return returns a copy of the location representing upper x, y, z limits
@@ -247,24 +265,27 @@ public class Claim
 	 * @return
 	 */
 	public boolean contains(Location location, boolean ignoreHeight)
-	{
-	    //not in the same world implies false
-		if(!location.getWorld().equals(this.lesserBoundaryCorner.getWorld())) return false;
-		
-		double x = location.getX();
-		double y = location.getY();
-		double z = location.getZ();
-		
-		//main check
-		return (ignoreHeight || y >= this.lesserBoundaryCorner.getY()) &&
-				x >= this.lesserBoundaryCorner.getX() &&
-				x < this.greaterBoundaryCorner.getX() + 1 &&
-				z >= this.lesserBoundaryCorner.getZ() &&
-				z < this.greaterBoundaryCorner.getZ() + 1;
-	}
-	
-	//whether or not two claims overlap
-	//used internally to prevent overlaps when creating claims
+    {
+        //not in the same world implies false
+        if (!location.getWorld().equals(this.lesserBoundaryCorner.getWorld())) return false;
+
+        double x = location.getX();
+        double y = location.getY();
+        double z = location.getZ();
+
+        //main check
+        return (ignoreHeight || y >= this.lesserBoundaryCorner.getY()) &&
+                x >= this.lesserBoundaryCorner.getX() &&
+                x < this.greaterBoundaryCorner.getX() + 1 &&
+                z >= this.lesserBoundaryCorner.getZ() &&
+                z < this.greaterBoundaryCorner.getZ() + 1;
+    }
+
+    /**
+     * used internally to prevent overlaps when creating claims
+     * @param otherClaim
+     * @return whether or not two claims overlap
+     */
 	public boolean overlaps(Claim otherClaim)
 	{
 		//NOTE:  if trying to understand this makes your head hurt, don't feel bad - it hurts mine too.  
@@ -309,6 +330,9 @@ public class Claim
 		return false;
 	}
 
+    /**
+     * @return the chunks within this claim
+     */
     public ArrayList<Chunk> getChunks()
     {
         ArrayList<Chunk> chunks = new ArrayList<Chunk>();
