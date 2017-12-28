@@ -1,6 +1,6 @@
 package me.ryanhamshire.GriefPrevention.claim;
 
-import me.ryanhamshire.GriefPrevention.DataStore;
+import me.ryanhamshire.GriefPrevention.data.DataStore;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.message.Messages;
 import me.ryanhamshire.GriefPrevention.player.PlayerData;
@@ -44,9 +44,6 @@ public class ClaimManager
     {
         this.dataStore = dataStore;
     }
-
-    //next claim ID
-    private Long nextClaimID = (long)0;
 
     public void changeClaimOwner(Claim claim, UUID newOwnerID)
     {
@@ -118,9 +115,6 @@ public class ClaimManager
 
     void deleteClaim(Claim claim, boolean fireEvent, boolean releasePets)
     {
-        //mark as deleted so any references elsewhere can be ignored
-        claim.inDataStore = false;
-
         //remove from memory
         for(int i = 0; i < this.claims.size(); i++)
         {

@@ -21,7 +21,7 @@
 import java.util.Collection;
 
 import me.ryanhamshire.GriefPrevention.CustomLogEntryTypes;
-import me.ryanhamshire.GriefPrevention.DataStore;
+import me.ryanhamshire.GriefPrevention.data.DataStore;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.events.AccrueClaimBlocksEvent;
 import me.ryanhamshire.GriefPrevention.player.PlayerData;
