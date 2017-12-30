@@ -38,7 +38,7 @@ public class PlayerDataManager
     private void loadDataFromSecondaryStorage()
     {
         //reach out to secondary storage to get any data there
-        PlayerData storageData = GriefPrevention.instance.dataStore.getPlayerDataFromStorage(this.playerID);
+        PlayerData storageData = GriefPrevention.instance.dataStore.getPlayerData(this.playerID);
 
         if(this.accruedClaimBlocks == null)
         {

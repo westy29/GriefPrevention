@@ -41,7 +41,7 @@ class CleanupUnusedClaimPreTask implements Runnable
 	public void run()
 	{
 		//get the data
-	    PlayerData ownerData = GriefPrevention.instance.dataStore.getPlayerDataFromStorage(claim.ownerID);
+	    PlayerData ownerData = GriefPrevention.instance.dataStore.getPlayerData(claim.ownerID);
 	    OfflinePlayer ownerInfo = Bukkit.getServer().getOfflinePlayer(claim.ownerID);
 	    
 	    //expiration code uses last logout timestamp to decide whether to expire claims

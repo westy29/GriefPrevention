@@ -18,56 +18,108 @@
 
 package me.ryanhamshire.GriefPrevention.data;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.regex.Matcher;
 
 import me.ryanhamshire.GriefPrevention.CustomLogEntryTypes;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
-import me.ryanhamshire.GriefPrevention.UUIDFetcher;
 import me.ryanhamshire.GriefPrevention.claim.Claim;
 import me.ryanhamshire.GriefPrevention.player.PlayerData;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
-
-import com.google.common.io.Files;
 
 //manages data stored in the file system
 public class FlatFileDataStore implements DataStore
 {
-    private long nextClaimID; //Holds next available claim ID.
-	private final static String claimDataFolderPath = dataLayerFolderPath + File.separator + "ClaimData";
+    private GriefPrevention instance;
+    private long nextClaimId;
+
 	private final static String nextClaimIdFilePath = claimDataFolderPath + File.separator + "_nextClaimID";
 	private final static String schemaVersionFilePath = dataLayerFolderPath + File.separator + "_schemaVersion";
-    private final static String playerDataFolderPath = dataLayerFolderPath + File.separator + "PlayerData";
+
+	private File nextClaimIdFile;
+    private File claimDataFolder;
+    private File playerDataFolder;
     private final int latestSchemaVersion = 1;
-	
-	static boolean hasData()
-	{
-		File claimsDataFolder = new File(claimDataFolderPath);
-		
-		return claimsDataFolder.exists();
-	}
 
-	public long nextClaimID()
+    FlatFileDataStore(GriefPrevention griefPrevention) throws Exception
     {
-        //TODO: atomic modification
+        instance = griefPrevention;
+        claimDataFolder = new File(instance.getDataFolder(), "ClaimData");
+        playerDataFolder = new File(instance.getDataFolder(), "PlayerData");
 
-        this.nextClaimID++;
+        //Generate respective data folders
+        boolean newDataStore = false;
+        if(!playerDataFolder.exists() || !claimDataFolder.exists())
+        {
+            newDataStore = true;
+            playerDataFolder.mkdirs();
+            claimDataFolder.mkdirs();
+        }
+
+        System.curr
+
+        //load next claim id number TODO: sanity check with loaded claims
+        nextClaimIdFile = new File(claimDataFolder, "_nextClaimId");
+        if(nextClaimIdFile.exists())
+        {
+            BufferedReader inStream = null;
+            try
+            {
+                inStream = new BufferedReader(new FileReader(nextClaimIdFile.getAbsolutePath()));
+
+                //read the id
+                String line = inStream.readLine();
+
+                //try to parse into a long value
+                this.nextClaimId = Long.parseLong(line);
+            }
+            catch(Exception e){ }
+
+            try
+            {
+                if(inStream != null) inStream.close();
+            }
+            catch(IOException exception) {}
+        }
+
+        //load claims
+        //get a list of all the files in the claims data folder
+        files = claimDataFolder.listFiles();
+        this.loadClaimData(files);
+    }
+
+	public long nextClaimId()
+    {
+        //TODO: atomic modification?
+
+        this.nextClaimId++;
 
         BufferedWriter outStream = null;
 
         try
         {
             //open the file and write the new value
-            File nextClaimIdFile = new File(nextClaimIdFilePath);
+            File nextClaimIdFile = new File(claimDataFolder.get);
             nextClaimIdFile.createNewFile();
             outStream = new BufferedWriter(new FileWriter(nextClaimIdFile));
 
-            outStream.write(String.valueOf(this.nextClaimID));
+            outStream.write(String.valueOf(this.nextClaimId));
         }
 
         //if any problem, log it
@@ -84,51 +136,10 @@ public class FlatFileDataStore implements DataStore
         }
         catch(IOException exception) {}
 
-        return nextClaimID;
+        return nextClaimId;
     }
 
-	FlatFileDataStore(GriefPrevention instance) throws Exception
-	{
-        //create data folders
-        boolean newDataStore = false;
-        File playerDataFolder = new File(playerDataFolderPath);
-        File claimDataFolder = new File(claimDataFolderPath);
-        if(!playerDataFolder.exists() || !claimDataFolder.exists())
-        {
-            newDataStore = true;
-            playerDataFolder.mkdirs();
-            claimDataFolder.mkdirs();
-        }
 
-        //load next claim id number TODO: sanity check with loaded claims
-        File nextClaimIdFile = new File(nextClaimIdFilePath);
-        if(nextClaimIdFile.exists())
-        {
-            BufferedReader inStream = null;
-            try
-            {
-                inStream = new BufferedReader(new FileReader(nextClaimIdFile.getAbsolutePath()));
-
-                //read the id
-                String line = inStream.readLine();
-
-                //try to parse into a long value
-                this.nextClaimID = Long.parseLong(line);
-            }
-            catch(Exception e){ }
-
-            try
-            {
-                if(inStream != null) inStream.close();
-            }
-            catch(IOException exception) {}
-        }
-
-        //load claims
-        //get a list of all the files in the claims data folder
-        files = claimDataFolder.listFiles();
-        this.loadClaimData(files);
-	}
 	
 	void loadClaimData(File [] files) throws Exception
 	{
@@ -253,7 +264,7 @@ public class FlatFileDataStore implements DataStore
 	}
 	
 	@Override
-	public void writeClaimToStorage(Claim claim)
+	public void saveClaim(Claim claim)
 	{
 		String claimID = String.valueOf(claim.getID());
 		
@@ -278,7 +289,7 @@ public class FlatFileDataStore implements DataStore
 	
 	//deletes a claim from the file system
 	@Override
-	public void deleteClaimFromSecondaryStorage(Claim claim)
+	public void deleteClaim(Claim claim)
 	{
 		String claimID = String.valueOf(claim.getID());
 		
@@ -291,7 +302,7 @@ public class FlatFileDataStore implements DataStore
 	}
 	
 	@Override
-	synchronized PlayerData getPlayerDataFromStorage(UUID playerID)
+	synchronized PlayerData getPlayerData(UUID playerID)
 	{
 		File playerFile = new File(playerDataFolderPath + File.separator + playerID.toString());
 					

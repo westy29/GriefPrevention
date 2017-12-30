@@ -28,21 +28,43 @@ import java.util.UUID;
  */
 public interface DataStore
 {
-	//pattern for unique user identifiers (UUIDs)
-	//protected final static Pattern uuidpattern = Pattern.compile("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}");
-	
-	void writeClaimToStorage(Claim claim);
-	
-	//increments the claim ID and updates secondary storage to be sure it's saved
-	long nextClaimID();
-	
-	PlayerData getPlayerDataFromStorage(UUID playerID);
-	
-	void deleteClaimFromSecondaryStorage(Claim claim);
+    //pattern for unique user identifiers (UUIDs)
+    //protected final static Pattern uuidpattern = Pattern.compile("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}");
 
-    //saves changes to player data to storage.
+    /**
+     * Saves claim to storage
+     *
+     * @param claim
+     */
+    void saveClaim(Claim claim);
+
+    /**
+     * Deletes claim from storage
+     *
+     * @param claim
+     */
+    void deleteClaim(Claim claim);
+
+    /**
+     * Gets and increments the next available claim ID
+     *
+     * @return the next available claim ID. -1 if there's an issue
+     */
+    long nextClaimId();
+
+    /**
+     * Retrieves the playerData for the specified player from storage
+     *
+     * @param playerID
+     * @return
+     */
+    PlayerData getPlayerData(UUID playerID);
+
+    /**
+     * Saves the playerData to storage
+     *
+     * @param playerID
+     * @param playerData
+     */
     void savePlayerData(UUID playerID, PlayerData playerData);
-
-	//Generally used when the server shuts down.
-    void savePlayerDataSync(UUID playerID, PlayerData playerData);
 }
