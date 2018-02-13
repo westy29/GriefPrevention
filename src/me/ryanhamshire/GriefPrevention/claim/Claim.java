@@ -23,10 +23,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -39,8 +36,13 @@ public class Claim
 	private Location greaterBoundaryCorner;
 	Long id = null;
     private UUID ownerUUID;
-    private HashMap<UUID, ClaimPermission> playerIDToClaimPermissionMap = new HashMap<UUID, ClaimPermission>(); //permissions for this claim, see ClaimPermission class
+    private Map<UUID, ClaimPermission> trustees;
     private boolean naturalGriefAllowed = false;
+
+	public Map<UUID, ClaimPermission> getTrustees()
+	{
+		return trustees;
+	}
 
 	/**
      * Unique ID number of the claim. (Should) never change.
@@ -89,14 +91,14 @@ public class Claim
 	{
 		this.lesserBoundaryCorner = claim.lesserBoundaryCorner;
 		this.greaterBoundaryCorner = claim.greaterBoundaryCorner;
-		this.playerIDToClaimPermissionMap = claim.playerIDToClaimPermissionMap;
+		this.trustees = claim.trustees;
 		this.id = claim.id;
 
 		this.ownerUUID = ownerUUID;
 	}
 	
 	//main constructor.  note that only creating a claim instance does nothing - a claim must be added to the storage store to be effective
-	public Claim(Location lesserBoundaryCorner, Location greaterBoundaryCorner, UUID ownerUUID, List<UUID> builderIDs, List<UUID> containerIDs, List<UUID> accessorIDs, List<UUID> managerIDs, Long id)
+	public Claim(Location lesserBoundaryCorner, Location greaterBoundaryCorner, UUID ownerUUID, Map<UUID, ClaimPermission> trustees, Long id)
 	{
 		//id
 		this.id = id;
@@ -109,25 +111,7 @@ public class Claim
 		this.ownerUUID = ownerUUID;
 		
 		//other permissions
-		for(UUID builderID : builderIDs)
-		{
-			this.playerIDToClaimPermissionMap.put(builderID, ClaimPermission.Build);
-		}
-		
-		for(UUID containerID : containerIDs)
-		{
-			this.playerIDToClaimPermissionMap.put(containerID, ClaimPermission.Inventory);
-		}
-		
-		for(UUID accessorID : accessorIDs)
-		{
-			this.playerIDToClaimPermissionMap.put(accessorID, ClaimPermission.Access);
-		}
-		
-		for(UUID managerID : managerIDs)
-		{
-			this.playerIDToClaimPermissionMap.put(managerID, ClaimPermission.Manage);
-		}
+		this.trustees = trustees;
 	}
 	
 	//measurements.  all measurements are in blocks
@@ -175,19 +159,19 @@ public class Claim
 	//grants a permission for a player or the public
 	public void setPermission(String playerID, ClaimPermission permissionLevel)
 	{
-		this.playerIDToClaimPermissionMap.put(UUID.fromString(playerID), permissionLevel);
+		this.trustees.put(UUID.fromString(playerID), permissionLevel);
 	}
 
 	//revokes a permission for a player or the public
 	public void dropPermission(String playerID)
 	{
-		this.playerIDToClaimPermissionMap.remove(playerID.toLowerCase());
+		this.trustees.remove(playerID.toLowerCase());
 	}
 
 	//clears all permissions (except owner of course)
 	public void clearPermissions()
 	{
-		this.playerIDToClaimPermissionMap.clear();
+		this.trustees.clear();
 	}
 
 	//gets ALL permissions
@@ -195,25 +179,25 @@ public class Claim
 	public void getPermissions(ArrayList<String> builders, ArrayList<String> containers, ArrayList<String> accessors, ArrayList<String> managers)
 	{
 		//loop through all the entries in the hash map
-		Iterator<Map.Entry<UUID, ClaimPermission>> mappingsIterator = this.playerIDToClaimPermissionMap.entrySet().iterator();
+		Iterator<Map.Entry<UUID, ClaimPermission>> mappingsIterator = this.trustees.entrySet().iterator();
 		while(mappingsIterator.hasNext())
 		{
 			Map.Entry<UUID, ClaimPermission> entry = mappingsIterator.next();
 
 			//build up a list for each permission level
-			if(entry.getValue() == ClaimPermission.Build)
+			if(entry.getValue() == ClaimPermission.BUILD)
 			{
 				builders.add(entry.getKey().toString());
 			}
-			else if(entry.getValue() == ClaimPermission.Inventory)
+			else if(entry.getValue() == ClaimPermission.CONTAINER)
 			{
 				containers.add(entry.getKey().toString());
 			}
-			else if (entry.getValue() == ClaimPermission.Access)
+			else if (entry.getValue() == ClaimPermission.ACCESS)
 			{
 				accessors.add(entry.getKey().toString());
 			}
-			else if (entry.getValue() == ClaimPermission.Manage)
+			else if (entry.getValue() == ClaimPermission.MANAGE)
 			{
 				managers.add(entry.getKey().toString());
 			}

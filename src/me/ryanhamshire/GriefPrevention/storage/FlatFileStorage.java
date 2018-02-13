@@ -28,18 +28,24 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import me.ryanhamshire.GriefPrevention.CustomLogEntryTypes;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.claim.Claim;
+import me.ryanhamshire.GriefPrevention.claim.ClaimPermission;
 import me.ryanhamshire.GriefPrevention.player.PlayerData;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -49,10 +55,6 @@ public class FlatFileStorage implements Storage
     private GriefPrevention instance;
     private long nextClaimId;
 
-	private final static String nextClaimIdFilePath = claimDataFolderPath + File.separator + "_nextClaimID";
-	private final static String schemaVersionFilePath = dataLayerFolderPath + File.separator + "_schemaVersion";
-
-	private File nextClaimIdFile;
     private File claimDataFolder;
     private File playerDataFolder;
     private final int latestSchemaVersion = 1;
@@ -72,140 +74,73 @@ public class FlatFileStorage implements Storage
             claimDataFolder.mkdirs();
         }
 
-        System.curr
-
-        //load next claim id number TODO: sanity check with loaded claims
-        nextClaimIdFile = new File(claimDataFolder, "_nextClaimId");
-        if(nextClaimIdFile.exists())
-        {
-            BufferedReader inStream = null;
-            try
-            {
-                inStream = new BufferedReader(new FileReader(nextClaimIdFile.getAbsolutePath()));
-
-                //read the id
-                String line = inStream.readLine();
-
-                //try to parse into a long value
-                this.nextClaimId = Long.parseLong(line);
-            }
-            catch(Exception e){ }
-
-            try
-            {
-                if(inStream != null) inStream.close();
-            }
-            catch(IOException exception) {}
-        }
-
-        //load claims
-        //get a list of all the files in the claims storage folder
-        files = claimDataFolder.listFiles();
-        this.loadClaimData(files);
+        this.nextClaimId = System.currentTimeMillis();
     }
 
+    /**
+     *
+     * @return the "next" available claim ID.
+     */
 	public long nextClaimId()
     {
-        //TODO: atomic modification?
-
-        this.nextClaimId++;
-
-        BufferedWriter outStream = null;
-
-        try
-        {
-            //open the file and write the new value
-            File nextClaimIdFile = new File(claimDataFolder.get);
-            nextClaimIdFile.createNewFile();
-            outStream = new BufferedWriter(new FileWriter(nextClaimIdFile));
-
-            outStream.write(String.valueOf(this.nextClaimId));
-        }
-
-        //if any problem, log it
-        catch(Exception e)
-        {
-            GriefPrevention.AddLogEntry("Unexpected exception saving next claim ID: " + e.getMessage());
-            e.printStackTrace();
-        }
-
-        //close the file
-        try
-        {
-            if(outStream != null) outStream.close();
-        }
-        catch(IOException exception) {}
-
-        return nextClaimId;
+        long currentTime = System.currentTimeMillis();
+        if (currentTime == nextClaimId)
+            ++currentTime;
+        nextClaimId = currentTime;
+        return currentTime;
     }
 
-
-	
-	void loadClaimData(File [] files) throws Exception
+	public Set<Claim> getClaims()
 	{
+        File[] files = claimDataFolder.listFiles();
+        Set<Claim> claims = new HashSet<>();
 	    ConcurrentHashMap<Claim, Long> orphans = new ConcurrentHashMap<Claim, Long>();
         for(int i = 0; i < files.length; i++)
         {           
-            if(files[i].isFile())  //avoids folders
+            if(!files[i].isFile())  //avoids folders
+                continue;
+
+            //the filename is the claim ID.  try to parse it
+            long claimID;
+            try
             {
-                //skip any file starting with an underscore, to avoid special files not representing land claims
-                if(files[i].getName().startsWith("_")) continue;
-                
-                //the filename is the claim ID.  try to parse it
-                long claimID;
-                
-                try
-                {
-                    claimID = Long.parseLong(files[i].getName().split("\\.")[0]);
-                }
-                catch(Exception e)
-                {
-                    //TODO: log
-                    continue;
-                }
-                
-                try
-                {
-                    Claim claim = this.loadClaim(files[i], out_parentID, claimID);
-                    //this.addClaim(claim, false); //TODO: call ClaimManager
-                }
-                
-                //if there's any problem with the file's content, log an error message and skip it
-                catch(Exception e)
-                {
-                    StringWriter errors = new StringWriter();
-                    e.printStackTrace(new PrintWriter(errors));
-                    GriefPrevention.AddLogEntry(files[i].getName() + " " + errors.toString(), CustomLogEntryTypes.Exception);
-                    continue;
-                }
+
+            }
+            catch(Exception e)
+            {
+                //TODO: log
+                continue;
+            }
+
+            try
+            {
+                claims.add(this.loadClaim(files[i]));
+            }
+            //if there's any problem with the file's content, log an error message and skip it
+            catch(Exception e)
+            {
+                StringWriter errors = new StringWriter();
+                e.printStackTrace(new PrintWriter(errors));
+                instance.AddLogEntry("Could not load claim " + files[i].getName() + " " + errors.toString(),
+                        CustomLogEntryTypes.Exception);
+                continue;
             }
         }
-	}
+        return claims;
+    }
 	
-	Claim loadClaim(File file, ArrayList<Long> out_parentID, long claimID) throws IOException, InvalidConfigurationException, Exception
+	Claim loadClaim(File file) throws ClassCastException, NumberFormatException
 	{
-	    List<String> lines = Files.readLines(file, Charset.forName("UTF-8"));
-        StringBuilder builder = new StringBuilder();
-        for(String line : lines)
-        {
-            builder.append(line).append('\n');
-        }
-        
-        return this.loadClaim(builder.toString(), out_parentID, file.lastModified(), claimID, Bukkit.getServer().getWorlds());
-	}
-	
-	Claim loadClaim(String input, ArrayList<Long> out_parentID, long lastModifiedDate, long claimID, List<World> validWorlds) throws InvalidConfigurationException, Exception
-	{
-	    Claim claim = null;
-	    YamlConfiguration yaml = new YamlConfiguration();
-        yaml.loadFromString(input);
+        Claim claim;
+        long claimID = Long.parseLong(file.getName().split("\\.")[0]);
+	    YamlConfiguration yaml = YamlConfiguration.loadConfiguration(file);
         
         //boundaries
-        Location lesserBoundaryCorner = this.locationFromString(yaml.getString("Lesser Boundary Corner"), validWorlds);
-        Location greaterBoundaryCorner = this.locationFromString(yaml.getString("Greater Boundary Corner"), validWorlds);
+        Location lesserBoundaryCorner = (Location)yaml.get("lesserBoundaryCorner");
+        Location greaterBoundaryCorner = (Location)yaml.get("greaterBoundaryCorner");
         
         //owner
-        String ownerIdentifier = yaml.getString("Owner");
+        String ownerIdentifier = yaml.getString("owner");
         UUID ownerID = null;
         if(!ownerIdentifier.isEmpty())
         {
@@ -219,82 +154,50 @@ public class FlatFileStorage implements Storage
                 GriefPrevention.AddLogEntry("  Converted land claim to administrative @ " + lesserBoundaryCorner.toString());
             }
         }
-        
-        List<String> builders = yaml.getStringList("Builders");
-        
-        List<String> containers = yaml.getStringList("Containers");
-        
-        List<String> accessors = yaml.getStringList("Accessors");
-        
-        List<String> managers = yaml.getStringList("Managers");
-        
-        out_parentID.add(yaml.getLong("Parent Claim ID", -1L));
+
+        Map<UUID, ClaimPermission> trustees = new HashMap<>();
+        ConfigurationSection trusteesSection = yaml.getConfigurationSection("trustees");
+
+        for (String trustee : trusteesSection.getKeys(false))
+        {
+            trustees.put(UUID.fromString(trustee), ClaimPermission.valueOf(trusteesSection.getString(trustee)));
+        }
         
         //instantiate
-        claim = new Claim(lesserBoundaryCorner, greaterBoundaryCorner, ownerID, builders, containers, accessors, managers, claimID);
+        claim = new Claim(lesserBoundaryCorner, greaterBoundaryCorner, ownerID, trustees, claimID);
         
         return claim;
 	}
-	
-	String getYamlForClaim(Claim claim)
-	{
-        YamlConfiguration yaml = new YamlConfiguration();
-        
-        //boundaries
-        yaml.set("Lesser Boundary Corner",  this.locationToString(claim.lesserBoundaryCorner));
-        yaml.set("Greater Boundary Corner",  this.locationToString(claim.greaterBoundaryCorner));
-        
-        //owner
-        String ownerID = "";
-        if(claim.ownerID != null) ownerID = claim.ownerID.toString();
-        yaml.set("Owner", ownerID);
-        
-        ArrayList<String> builders = new ArrayList<String>();
-        ArrayList<String> containers = new ArrayList<String>();
-        ArrayList<String> accessors = new ArrayList<String>();
-        ArrayList<String> managers = new ArrayList<String>();
-        claim.getPermissions(builders, containers, accessors, managers);
-        
-        yaml.set("Builders", builders);
-        yaml.set("Containers", containers);
-        yaml.set("Accessors", accessors);
-        yaml.set("Managers", managers);
-        
-        return yaml.saveToString();
-	}
-	
-	@Override
+
+	private File getClaimFile(Claim claim) throws NumberFormatException
+    {
+        return new File(claimDataFolder.getPath() + File.separator + Long.toString(claim.getID()) + ".yml");
+    }
+
 	public void saveClaim(Claim claim)
 	{
-		String claimID = String.valueOf(claim.getID());
-		
-		String yaml = this.getYamlForClaim(claim);
-		
+		YamlConfiguration yaml = new YamlConfiguration();
+		yaml.set("lesserBoundaryCorner", claim.getLesserBoundaryCorner().toString());
+        yaml.set("greaterBoundaryCorner", claim.getGreaterBoundaryCorner().toString());
+        yaml.set("owner", claim.getOwnerUUID());
+        yaml.set("trustees", claim.getTrustees()); //TODO: does this store enum's string or int value??
+
 		try
 		{
-			//open the claim's file						
-			File claimFile = new File(claimDataFolderPath + File.separator + claimID + ".yml");
-			claimFile.createNewFile();
-			Files.write(yaml.getBytes("UTF-8"), claimFile);
-		}		
-		
-		//if any problem, log it
+			yaml.save(getClaimFile(claim));
+		}
 		catch(Exception e)
 		{
 		    StringWriter errors = new StringWriter();
             e.printStackTrace(new PrintWriter(errors));
-            GriefPrevention.AddLogEntry(claimID + " " + errors.toString(), CustomLogEntryTypes.Exception);
+            GriefPrevention.AddLogEntry("Unable to save claim " + claim.getID() + " " + errors.toString(),
+                    CustomLogEntryTypes.Exception);
 		}
 	}
-	
-	//deletes a claim from the file system
-	@Override
+
 	public void deleteClaim(Claim claim)
 	{
-		String claimID = String.valueOf(claim.getID());
-		
-		//remove from disk
-		File claimFile = new File(claimDataFolderPath + File.separator + claimID + ".yml");
+		File claimFile = getClaimFile(claim);
 		if(claimFile.exists() && !claimFile.delete())
 		{
 			GriefPrevention.AddLogEntry("Error: Unable to delete claim file \"" + claimFile.getAbsolutePath() + "\".");
@@ -403,71 +306,6 @@ public class FlatFileStorage implements Storage
 			e.printStackTrace();
 		}
 	}
-
-    @Override
-    int getSchemaVersionFromStorage()
-    {
-        File schemaVersionFile = new File(schemaVersionFilePath);
-        if(schemaVersionFile.exists())
-        {
-            BufferedReader inStream = null;
-            int schemaVersion = 0;
-            try
-            {
-                inStream = new BufferedReader(new FileReader(schemaVersionFile.getAbsolutePath()));
-                
-                //read the version number
-                String line = inStream.readLine();
-                
-                //try to parse into an int value
-                schemaVersion = Integer.parseInt(line);
-            }
-            catch(Exception e){ }
-            
-            try
-            {
-                if(inStream != null) inStream.close();                  
-            }
-            catch(IOException exception) {}
-            
-            return schemaVersion;
-        }
-        else
-        {
-            this.updateSchemaVersionInStorage(0);
-            return 0;
-        }
-    }
-
-    @Override
-    void updateSchemaVersionInStorage(int versionToSet)
-    {
-        BufferedWriter outStream = null;
-        
-        try
-        {
-            //open the file and write the new value
-            File schemaVersionFile = new File(schemaVersionFilePath);
-            schemaVersionFile.createNewFile();
-            outStream = new BufferedWriter(new FileWriter(schemaVersionFile));
-            
-            outStream.write(String.valueOf(versionToSet));
-        }       
-        
-        //if any problem, log it
-        catch(Exception e)
-        {
-            GriefPrevention.AddLogEntry("Unexpected exception saving schema version: " + e.getMessage());
-        }
-        
-        //close the file
-        try
-        {
-            if(outStream != null) outStream.close();
-        }
-        catch(IOException exception) {}
-        
-    }
 
     @Override
     public void savePlayerData(UUID playerID, PlayerData playerData)

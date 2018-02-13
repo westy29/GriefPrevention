@@ -35,14 +35,14 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ClaimManager
 {
-    //in-memory cache for claim storage
-    ArrayList<Claim> claims = new ArrayList<Claim>();
-    ConcurrentHashMap<Long, ArrayList<Claim>> chunksToClaimsMap = new ConcurrentHashMap<Long, ArrayList<Claim>>();
-    Storage storage;
+    private Set<Claim> claims;
+    private ConcurrentHashMap<Long, ArrayList<Claim>> chunksToClaimsMap = new ConcurrentHashMap<Long, ArrayList<Claim>>();
+    private Storage storage;
 
     public ClaimManager(Storage storage)
     {
         this.storage = storage;
+        claims.addAll(storage.getClaims());
     }
 
     public void changeClaimOwner(Claim claim, UUID newOwnerID)
@@ -493,13 +493,13 @@ public class ClaimManager
             claim.getPermissions(builders, containers, accessors, managers);
 
             for(int i = 0; i < builders.size(); i++)
-                result.claim.setPermission(builders.get(i), ClaimPermission.Build);
+                result.claim.setPermission(builders.get(i), ClaimPermission.BUILD);
 
             for(int i = 0; i < containers.size(); i++)
-                result.claim.setPermission(containers.get(i), ClaimPermission.Inventory);
+                result.claim.setPermission(containers.get(i), ClaimPermission.CONTAINER);
 
             for(int i = 0; i < accessors.size(); i++)
-                result.claim.setPermission(accessors.get(i), ClaimPermission.Access);
+                result.claim.setPermission(accessors.get(i), ClaimPermission.ACCESS);
 
             for(int i = 0; i < managers.size(); i++)
             {

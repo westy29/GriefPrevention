@@ -21,6 +21,8 @@ package me.ryanhamshire.GriefPrevention.storage;
 import me.ryanhamshire.GriefPrevention.claim.Claim;
 import me.ryanhamshire.GriefPrevention.player.PlayerData;
 
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -30,6 +32,12 @@ public interface Storage
 {
     //pattern for unique user identifiers (UUIDs)
     //protected final static Pattern uuidpattern = Pattern.compile("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}");
+
+    /**
+     * Retrieves all claims in storage
+     * @return a list of all claims
+     */
+    Set<Claim> getClaims();
 
     /**
      * Saves claim to storage

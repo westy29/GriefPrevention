@@ -1063,7 +1063,7 @@ public class GriefPrevention extends JavaPlugin
 			if(args.length != 1) return false;
 			
 			//most trust commands use this helper method, it keeps them consistent
-			this.handleTrustCommand(player, ClaimPermission.Build, args[0]);
+			this.handleTrustCommand(player, ClaimPermission.BUILD, args[0]);
 			
 			return true;
 		}
@@ -1359,7 +1359,7 @@ public class GriefPrevention extends JavaPlugin
 			//requires exactly one parameter, the other player's name
 			if(args.length != 1) return false;
 			
-			this.handleTrustCommand(player, ClaimPermission.Access, args[0]);
+			this.handleTrustCommand(player, ClaimPermission.ACCESS, args[0]);
 			
 			return true;
 		}
@@ -1370,7 +1370,7 @@ public class GriefPrevention extends JavaPlugin
 			//requires exactly one parameter, the other player's name
 			if(args.length != 1) return false;
 			
-			this.handleTrustCommand(player, ClaimPermission.Inventory, args[0]);
+			this.handleTrustCommand(player, ClaimPermission.CONTAINER, args[0]);
 			
 			return true;
 		}
@@ -2425,10 +2425,10 @@ public class GriefPrevention extends JavaPlugin
 			{
 				switch(permissionLevel)
 				{
-					case Access:
+					case ACCESS:
 						errorMessage = claim.allowAccess(player);
 						break;
-					case Inventory:
+					case CONTAINER:
 						errorMessage = claim.allowContainers(player);
 						break;
 					default:
@@ -2488,15 +2488,15 @@ public class GriefPrevention extends JavaPlugin
 		{
 			permissionDescription = this.storage.getMessage(Messages.PermissionsPermission);
 		}
-		else if(permissionLevel == ClaimPermission.Build)
+		else if(permissionLevel == ClaimPermission.BUILD)
 		{
 			permissionDescription = this.storage.getMessage(Messages.BuildPermission);
 		}		
-		else if(permissionLevel == ClaimPermission.Access)
+		else if(permissionLevel == ClaimPermission.ACCESS)
 		{
 			permissionDescription = this.storage.getMessage(Messages.AccessPermission);
 		}
-		else //ClaimPermission.Inventory
+		else //ClaimPermission.CONTAINER
 		{
 			permissionDescription = this.storage.getMessage(Messages.ContainersPermission);
 		}
