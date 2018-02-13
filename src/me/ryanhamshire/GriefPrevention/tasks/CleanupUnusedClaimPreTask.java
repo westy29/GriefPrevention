@@ -25,8 +25,8 @@ import me.ryanhamshire.GriefPrevention.player.PlayerData;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 
-//asynchronously loads player data without caching it in the datastore, then
-//passes those data to a claim cleanup task which might decide to delete a claim for inactivity
+//asynchronously loads player storage without caching it in the datastore, then
+//passes those storage to a claim cleanup task which might decide to delete a claim for inactivity
 
 class CleanupUnusedClaimPreTask implements Runnable 
 {	
@@ -40,8 +40,8 @@ class CleanupUnusedClaimPreTask implements Runnable
 	@Override
 	public void run()
 	{
-		//get the data
-	    PlayerData ownerData = GriefPrevention.instance.dataStore.getPlayerData(claim.ownerID);
+		//get the storage
+	    PlayerData ownerData = GriefPrevention.instance.storage.getPlayerData(claim.ownerID);
 	    OfflinePlayer ownerInfo = Bukkit.getServer().getOfflinePlayer(claim.ownerID);
 	    
 	    //expiration code uses last logout timestamp to decide whether to expire claims
@@ -49,7 +49,7 @@ class CleanupUnusedClaimPreTask implements Runnable
 	    if(ownerInfo.isOnline()) return;
 		if(ownerInfo.getLastPlayed() <= 0) return;
 	    
-	    GriefPrevention.AddLogEntry("Looking for expired claims.  Checking data for " + claim.ownerID.toString(), CustomLogEntryTypes.Debug, true);
+	    GriefPrevention.AddLogEntry("Looking for expired claims.  Checking storage for " + claim.ownerID.toString(), CustomLogEntryTypes.Debug, true);
 	    
 	    //skip claims belonging to exempted players based on block totals in config
 	    int bonusBlocks = ownerData.getBonusClaimBlocks();

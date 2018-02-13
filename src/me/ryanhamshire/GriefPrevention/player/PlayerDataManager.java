@@ -11,11 +11,11 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class PlayerDataManager
 {
-    //in-memory cache for player data
+    //in-memory cache for player storage
     private ConcurrentHashMap<UUID, PlayerData> playerNameToPlayerDataMap = new ConcurrentHashMap<UUID, PlayerData>();
 
-    //retrieves player data from memory or secondary storage, as necessary
-    //if the player has never been on the server before, this will return a fresh player data with default values
+    //retrieves player storage from memory or secondary storage, as necessary
+    //if the player has never been on the server before, this will return a fresh player storage with default values
     public PlayerData getPlayerData(UUID playerID)
     {
         //first, look in memory
@@ -28,7 +28,7 @@ public class PlayerDataManager
             playerData = new PlayerData();
             playerData.playerID = playerID;
 
-            //shove that new player data into the hash map cache
+            //shove that new player storage into the hash map cache
             this.playerNameToPlayerDataMap.put(playerID, playerData);
         }
 
@@ -37,8 +37,8 @@ public class PlayerDataManager
 
     private void loadDataFromSecondaryStorage()
     {
-        //reach out to secondary storage to get any data there
-        PlayerData storageData = GriefPrevention.instance.dataStore.getPlayerData(this.playerID);
+        //reach out to secondary storage to get any storage there
+        PlayerData storageData = GriefPrevention.instance.storage.getPlayerData(this.playerID);
 
         if(this.accruedClaimBlocks == null)
         {

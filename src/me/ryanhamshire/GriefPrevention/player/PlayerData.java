@@ -22,7 +22,7 @@ import java.util.UUID;
 import java.util.Vector;
 
 import me.ryanhamshire.GriefPrevention.CustomLogEntryTypes;
-import me.ryanhamshire.GriefPrevention.data.DataStore;
+import me.ryanhamshire.GriefPrevention.storage.Storage;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.ShovelMode;
 import me.ryanhamshire.GriefPrevention.visualization.Visualization;
@@ -30,7 +30,7 @@ import me.ryanhamshire.GriefPrevention.claim.Claim;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 
-//holds all of GriefPrevention's player-tied data
+//holds all of GriefPrevention's player-tied storage
 public class PlayerData 
 {
 	//the player's ID
@@ -42,7 +42,7 @@ public class PlayerData
 	//how many claim blocks the player has earned via play time
 	private Integer accruedClaimBlocks = null;
 	
-	//temporary holding area to avoid opening data files too early
+	//temporary holding area to avoid opening storage files too early
 	private int newlyAccruedClaimBlocks = 0;
 	
 	//where this player was the last time we checked on him for earning claim blocks
@@ -100,12 +100,12 @@ public class PlayerData
 		}
 		
 		//add any blocks this player might have based on group membership (permissions)
-		remainingBlocks += GriefPrevention.instance.dataStore.getGroupBonusBlocks(this.playerID);
+		remainingBlocks += GriefPrevention.instance.storage.getGroupBonusBlocks(this.playerID);
 		
 		return remainingBlocks;
 	}
 	
-	//don't load data from secondary storage until it's needed
+	//don't load storage from secondary storage until it's needed
 	public int getAccruedClaimBlocks()
 	{
 	    if(this.accruedClaimBlocks == null) this.loadDataFromSecondaryStorage();
@@ -158,14 +158,14 @@ public class PlayerData
             this.claims = new Vector<Claim>();
             
             //find all the claims belonging to this player and note them for future reference
-            DataStore dataStore = GriefPrevention.instance.dataStore;
+            Storage storage = GriefPrevention.instance.storage;
             int totalClaimsArea = 0;
-            for(int i = 0; i < dataStore.claims.size(); i++)
+            for(int i = 0; i < storage.claims.size(); i++)
             {
-                Claim claim = dataStore.claims.get(i);
+                Claim claim = storage.claims.get(i);
                 if(!claim.inDataStore)
                 {
-                    dataStore.claims.remove(i--);
+                    storage.claims.remove(i--);
                     continue;
                 }
                 if(playerID.equals(claim.ownerID))
@@ -179,7 +179,7 @@ public class PlayerData
             this.loadDataFromSecondaryStorage();
             
             //if total claimed area is more than total blocks available
-            int totalBlocks = this.accruedClaimBlocks + this.getBonusClaimBlocks() + GriefPrevention.instance.dataStore.getGroupBonusBlocks(this.playerID);
+            int totalBlocks = this.accruedClaimBlocks + this.getBonusClaimBlocks() + GriefPrevention.instance.storage.getGroupBonusBlocks(this.playerID);
             if(totalBlocks < totalClaimsArea)
             {
                 OfflinePlayer player = GriefPrevention.instance.getServer().getOfflinePlayer(this.playerID);
@@ -201,7 +201,7 @@ public class PlayerData
                 this.accruedClaimBlocks = Math.min(accruedLimit, this.accruedClaimBlocks);
                 
                 //if that didn't fix it, then make up the difference with bonus blocks
-                totalBlocks = this.accruedClaimBlocks + this.getBonusClaimBlocks() + GriefPrevention.instance.dataStore.getGroupBonusBlocks(this.playerID);
+                totalBlocks = this.accruedClaimBlocks + this.getBonusClaimBlocks() + GriefPrevention.instance.storage.getGroupBonusBlocks(this.playerID);
                 if(totalBlocks < totalClaimsArea)
                 {
                     this.bonusClaimBlocks += totalClaimsArea - totalBlocks;

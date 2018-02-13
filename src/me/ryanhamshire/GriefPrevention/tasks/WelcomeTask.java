@@ -1,6 +1,6 @@
 package me.ryanhamshire.GriefPrevention.tasks;
 
-import me.ryanhamshire.GriefPrevention.data.DataStore;
+import me.ryanhamshire.GriefPrevention.storage.Storage;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.TextMode;
 import me.ryanhamshire.GriefPrevention.message.Messages;
@@ -28,7 +28,7 @@ public class WelcomeTask implements Runnable
         
         //offer advice and a helpful link
         GriefPrevention.sendMessage(player, TextMode.Instr, Messages.AvoidGriefClaimLand);
-        GriefPrevention.sendMessage(player, TextMode.Instr, Messages.SurvivalBasicsVideo2, DataStore.SURVIVAL_VIDEO_URL);
+        GriefPrevention.sendMessage(player, TextMode.Instr, Messages.SurvivalBasicsVideo2, Storage.SURVIVAL_VIDEO_URL);
         
         //give the player a reference book for later
         if(GriefPrevention.instance.config_claims_supplyPlayerManual)
@@ -36,12 +36,12 @@ public class WelcomeTask implements Runnable
             ItemFactory factory = Bukkit.getItemFactory();
             BookMeta meta = (BookMeta) factory.getItemMeta(Material.WRITTEN_BOOK);
 
-            DataStore datastore = GriefPrevention.instance.dataStore;
+            Storage datastore = GriefPrevention.instance.storage;
             meta.setAuthor(datastore.getMessage(Messages.BookAuthor));
             meta.setTitle(datastore.getMessage(Messages.BookTitle));
             
             StringBuilder page1 = new StringBuilder();
-            String URL = datastore.getMessage(Messages.BookLink, DataStore.SURVIVAL_VIDEO_URL);
+            String URL = datastore.getMessage(Messages.BookLink, Storage.SURVIVAL_VIDEO_URL);
             String intro = datastore.getMessage(Messages.BookIntro);
             
             page1.append(URL).append("\n\n");

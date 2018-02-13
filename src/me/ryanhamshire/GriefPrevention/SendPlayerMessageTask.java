@@ -49,7 +49,7 @@ class SendPlayerMessageTask implements Runnable
 	    //if the player is dead, save it for after his respawn
 	    if(this.player.isDead())
 	    {
-	        PlayerData playerData = GriefPrevention.instance.dataStore.getPlayerData(this.player.getUniqueId());
+	        PlayerData playerData = GriefPrevention.instance.storage.getPlayerData(this.player.getUniqueId());
 	        playerData.messageOnRespawn = this.color + this.message;
 	    }
 	    

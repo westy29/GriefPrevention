@@ -37,14 +37,14 @@ class FindUnusedClaimsTask implements Runnable
 	FindUnusedClaimsTask()
 	{
 		//start scanning in a random spot
-		if(GriefPrevention.instance.dataStore.claims.size() == 0)
+		if(GriefPrevention.instance.storage.claims.size() == 0)
 		{
 			this.nextClaimIndex = 0;
 		}
 		else
 		{
 			Random randomNumberGenerator = new Random();
-			this.nextClaimIndex = randomNumberGenerator.nextInt(GriefPrevention.instance.dataStore.claims.size());
+			this.nextClaimIndex = randomNumberGenerator.nextInt(GriefPrevention.instance.storage.claims.size());
 		}
 	}
 	
@@ -52,13 +52,13 @@ class FindUnusedClaimsTask implements Runnable
 	public void run()
 	{
 		//don't do anything when there are no claims
-		if(GriefPrevention.instance.dataStore.claims.size() == 0) return;
+		if(GriefPrevention.instance.storage.claims.size() == 0) return;
 
 		//wrap search around to beginning
-		if(this.nextClaimIndex >= GriefPrevention.instance.dataStore.claims.size()) this.nextClaimIndex = 0;
+		if(this.nextClaimIndex >= GriefPrevention.instance.storage.claims.size()) this.nextClaimIndex = 0;
 		
 		//decide which claim to check next
-		Claim claim = GriefPrevention.instance.dataStore.claims.get(this.nextClaimIndex++);
+		Claim claim = GriefPrevention.instance.storage.claims.get(this.nextClaimIndex++);
 		
 		//skip administrative claims
 		if(claim.isAdminClaim()) return;

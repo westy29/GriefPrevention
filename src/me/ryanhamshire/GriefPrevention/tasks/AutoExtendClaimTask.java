@@ -90,7 +90,7 @@ class AutoExtendClaimTask implements Runnable
         @Override
         public void run()
         {
-            GriefPrevention.instance.dataStore.extendClaim(claim, newY);
+            GriefPrevention.instance.storage.extendClaim(claim, newY);
         }
     }
 

@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ryanhamshire.GriefPrevention.data;
+package me.ryanhamshire.GriefPrevention.storage;
 
 import me.ryanhamshire.GriefPrevention.claim.Claim;
 import me.ryanhamshire.GriefPrevention.player.PlayerData;
@@ -24,9 +24,9 @@ import me.ryanhamshire.GriefPrevention.player.PlayerData;
 import java.util.UUID;
 
 /**
- * Stores and retrieves data from storage.
+ * Stores and retrieves storage from storage.
  */
-public interface DataStore
+public interface Storage
 {
     //pattern for unique user identifiers (UUIDs)
     //protected final static Pattern uuidpattern = Pattern.compile("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}");

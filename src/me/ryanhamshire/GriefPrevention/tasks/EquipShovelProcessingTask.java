@@ -18,7 +18,7 @@
  
 package me.ryanhamshire.GriefPrevention.tasks;
 
-import me.ryanhamshire.GriefPrevention.data.DataStore;
+import me.ryanhamshire.GriefPrevention.storage.Storage;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.ShovelMode;
 import me.ryanhamshire.GriefPrevention.TextMode;
@@ -35,7 +35,7 @@ import org.bukkit.inventory.EquipmentSlot;
 //otherwise, it's spammy when players mouse-wheel past the shovel in their hot bars
 class EquipShovelProcessingTask implements Runnable 
 {
-	//player data
+	//player storage
 	private Player player;
 	
 	public EquipShovelProcessingTask(Player player)
@@ -49,7 +49,7 @@ class EquipShovelProcessingTask implements Runnable
 		//if he's not holding the golden shovel anymore, do nothing
 		if(GriefPrevention.instance.getItemInHand(player, EquipmentSlot.HAND).getType() != GriefPrevention.instance.config_claims_modificationTool) return;
 		
-		PlayerData playerData = GriefPrevention.instance.dataStore.getPlayerData(player.getUniqueId());
+		PlayerData playerData = GriefPrevention.instance.storage.getPlayerData(player.getUniqueId());
 		
         //reset any work he might have been doing
         playerData.lastShovelLocation = null;
@@ -69,15 +69,15 @@ class EquipShovelProcessingTask implements Runnable
 		//link to a video demo of land claiming, based on world type
 		if(GriefPrevention.instance.creativeRulesApply(player.getLocation()))
 		{
-			GriefPrevention.sendMessage(player, TextMode.Instr, Messages.CreativeBasicsVideo2, DataStore.CREATIVE_VIDEO_URL);
+			GriefPrevention.sendMessage(player, TextMode.Instr, Messages.CreativeBasicsVideo2, Storage.CREATIVE_VIDEO_URL);
 		}
 		else if(GriefPrevention.instance.claimsEnabledForWorld(player.getLocation().getWorld()))
 		{
-			GriefPrevention.sendMessage(player, TextMode.Instr, Messages.SurvivalBasicsVideo2, DataStore.SURVIVAL_VIDEO_URL);
+			GriefPrevention.sendMessage(player, TextMode.Instr, Messages.SurvivalBasicsVideo2, Storage.SURVIVAL_VIDEO_URL);
 		}
 		
 		//if standing in a claim owned by the player, visualize it
-		Claim claim = GriefPrevention.instance.dataStore.getClaimAt(player.getLocation(), true, playerData.lastClaim);
+		Claim claim = GriefPrevention.instance.storage.getClaimAt(player.getLocation(), true, playerData.lastClaim);
 		if(claim != null && claim.allowEdit(player) == null)
 		{
 		    playerData.lastClaim = claim;

@@ -26,7 +26,7 @@ import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import me.ryanhamshire.GriefPrevention.data.DataStore;
+import me.ryanhamshire.GriefPrevention.storage.Storage;
 import org.bukkit.scheduler.BukkitScheduler;
 
 import com.google.common.io.Files;
@@ -35,7 +35,7 @@ class CustomLogger
 {
     private final SimpleDateFormat timestampFormat = new SimpleDateFormat("HH:mm");
     private final SimpleDateFormat filenameFormat = new SimpleDateFormat("yyyy_MM_dd");
-    private final String logFolderPath = DataStore.dataLayerFolderPath + File.separator + "Logs";
+    private final String logFolderPath = Storage.dataLayerFolderPath + File.separator + "Logs";
     private final int secondsBetweenWrites = 300;
     
     //stringbuilder is not thread safe, stringbuffer is

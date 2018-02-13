@@ -21,7 +21,7 @@
 import java.util.Collection;
 
 import me.ryanhamshire.GriefPrevention.CustomLogEntryTypes;
-import me.ryanhamshire.GriefPrevention.data.DataStore;
+import me.ryanhamshire.GriefPrevention.storage.Storage;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.events.AccrueClaimBlocksEvent;
 import me.ryanhamshire.GriefPrevention.player.PlayerData;
@@ -69,8 +69,8 @@ class DeliverClaimBlocksTask implements Runnable
                 return;
             }
 	        
-	        DataStore dataStore = instance.dataStore;
-            PlayerData playerData = dataStore.getPlayerData(player.getUniqueId());
+	        Storage storage = instance.storage;
+            PlayerData playerData = storage.getPlayerData(player.getUniqueId());
             
             Location lastLocation = playerData.lastAfkCheckLocation;
             try
@@ -97,9 +97,9 @@ class DeliverClaimBlocksTask implements Runnable
                         playerData.accrueBlocks(accrualRate);
                         GriefPrevention.AddLogEntry("Delivering " + event.getBlocksToAccrue() + " blocks to " + player.getName(), CustomLogEntryTypes.Debug, true);
 
-                        //intentionally NOT saving data here to reduce overall secondary storage access frequency
-                        //many other operations will cause this player's data to save, including his eventual logout
-                        //dataStore.savePlayerData(player.getUniqueIdentifier(), playerData);
+                        //intentionally NOT saving storage here to reduce overall secondary storage access frequency
+                        //many other operations will cause this player's storage to save, including his eventual logout
+                        //storage.savePlayerData(player.getUniqueIdentifier(), playerData);
                     }
                 }
                 else

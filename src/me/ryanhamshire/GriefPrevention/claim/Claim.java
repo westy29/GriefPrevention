@@ -95,7 +95,7 @@ public class Claim
 		this.ownerUUID = ownerUUID;
 	}
 	
-	//main constructor.  note that only creating a claim instance does nothing - a claim must be added to the data store to be effective
+	//main constructor.  note that only creating a claim instance does nothing - a claim must be added to the storage store to be effective
 	public Claim(Location lesserBoundaryCorner, Location greaterBoundaryCorner, UUID ownerUUID, List<UUID> builderIDs, List<UUID> containerIDs, List<UUID> accessorIDs, List<UUID> managerIDs, Long id)
 	{
 		//id

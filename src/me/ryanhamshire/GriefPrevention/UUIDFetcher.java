@@ -51,7 +51,7 @@ class UUIDFetcher {
         
         GriefPrevention.AddLogEntry("UUID conversion process started.  Please be patient - this may take a while.");
         
-        GriefPrevention.AddLogEntry("Mining your local world data to save calls to Mojang...");
+        GriefPrevention.AddLogEntry("Mining your local world storage to save calls to Mojang...");
         OfflinePlayer [] players = GriefPrevention.instance.getServer().getOfflinePlayers();
         for(OfflinePlayer player : players)
         {
@@ -63,8 +63,8 @@ class UUIDFetcher {
             }
         }
         
-        //try to get correct casing from local data
-        GriefPrevention.AddLogEntry("Checking local server data to get correct casing for player names...");
+        //try to get correct casing from local storage
+        GriefPrevention.AddLogEntry("Checking local server storage to get correct casing for player names...");
         for(int i = 0; i < names.size(); i++)
         {
             String name = names.get(i);
@@ -77,7 +77,7 @@ class UUIDFetcher {
         }
         
         //look for local uuid's first
-        GriefPrevention.AddLogEntry("Checking local server data for UUIDs already seen...");
+        GriefPrevention.AddLogEntry("Checking local server storage for UUIDs already seen...");
         for(int i = 0; i < names.size(); i++)
         {
             String name = names.get(i);

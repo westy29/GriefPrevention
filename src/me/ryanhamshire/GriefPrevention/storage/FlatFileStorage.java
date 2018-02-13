@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ryanhamshire.GriefPrevention.data;
+package me.ryanhamshire.GriefPrevention.storage;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -43,8 +43,8 @@ import org.bukkit.World;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 
-//manages data stored in the file system
-public class FlatFileDataStore implements DataStore
+//manages storage stored in the file system
+public class FlatFileStorage implements Storage
 {
     private GriefPrevention instance;
     private long nextClaimId;
@@ -57,13 +57,13 @@ public class FlatFileDataStore implements DataStore
     private File playerDataFolder;
     private final int latestSchemaVersion = 1;
 
-    FlatFileDataStore(GriefPrevention griefPrevention) throws Exception
+    FlatFileStorage(GriefPrevention griefPrevention) throws Exception
     {
         instance = griefPrevention;
         claimDataFolder = new File(instance.getDataFolder(), "ClaimData");
         playerDataFolder = new File(instance.getDataFolder(), "PlayerData");
 
-        //Generate respective data folders
+        //Generate respective storage folders
         boolean newDataStore = false;
         if(!playerDataFolder.exists() || !claimDataFolder.exists())
         {
@@ -99,7 +99,7 @@ public class FlatFileDataStore implements DataStore
         }
 
         //load claims
-        //get a list of all the files in the claims data folder
+        //get a list of all the files in the claims storage folder
         files = claimDataFolder.listFiles();
         this.loadClaimData(files);
     }
@@ -370,11 +370,11 @@ public class FlatFileDataStore implements DataStore
 		return playerData;
 	}
 	
-	//saves changes to player data.
+	//saves changes to player storage.
 	@Override
 	public void savePlayerDataSync(UUID playerID, PlayerData playerData)
 	{
-		//never save data for the "administrative" account.  null for claim owner ID indicates administrative account
+		//never save storage for the "administrative" account.  null for claim owner ID indicates administrative account
 		if(playerID == null) return;
 		
 		StringBuilder fileContent = new StringBuilder();
@@ -391,7 +391,7 @@ public class FlatFileDataStore implements DataStore
 			//third line is blank
 			fileContent.append("\n");
 			
-			//write data to file
+			//write storage to file
             File playerDataFile = new File(playerDataFolderPath + File.separator + playerID.toString());
             Files.write(fileContent.toString().getBytes("UTF-8"), playerDataFile);
 		}		
@@ -399,7 +399,7 @@ public class FlatFileDataStore implements DataStore
 		//if any problem, log it
 		catch(Exception e)
 		{
-			GriefPrevention.AddLogEntry("GriefPrevention: Unexpected exception saving data for player \"" + playerID.toString() + "\": " + e.getMessage());
+			GriefPrevention.AddLogEntry("GriefPrevention: Unexpected exception saving storage for player \"" + playerID.toString() + "\": " + e.getMessage());
 			e.printStackTrace();
 		}
 	}
@@ -488,7 +488,7 @@ public class FlatFileDataStore implements DataStore
 
         public void run()
         {
-            //ensure player data is already read from file before trying to save
+            //ensure player storage is already read from file before trying to save
             playerData.getAccruedClaimBlocks();
             playerData.getClaims();
             savePlayerDataSync(this.playerID, this.playerData);

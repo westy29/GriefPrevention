@@ -1,6 +1,6 @@
 package me.ryanhamshire.GriefPrevention.claim;
 
-import me.ryanhamshire.GriefPrevention.data.DataStore;
+import me.ryanhamshire.GriefPrevention.storage.Storage;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.message.Messages;
 import me.ryanhamshire.GriefPrevention.player.PlayerData;
@@ -35,14 +35,14 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ClaimManager
 {
-    //in-memory cache for claim data
+    //in-memory cache for claim storage
     ArrayList<Claim> claims = new ArrayList<Claim>();
     ConcurrentHashMap<Long, ArrayList<Claim>> chunksToClaimsMap = new ConcurrentHashMap<Long, ArrayList<Claim>>();
-    DataStore dataStore;
+    Storage storage;
 
-    public ClaimManager(DataStore dataStore)
+    public ClaimManager(Storage storage)
     {
-        this.dataStore = dataStore;
+        this.storage = storage;
     }
 
     public void changeClaimOwner(Claim claim, UUID newOwnerID)
@@ -51,7 +51,7 @@ public class ClaimManager
         PlayerData ownerData = null;
         if(!claim.isAdminClaim())
         {
-            ownerData = dataStore.getPlayerData(claim.ownerID);
+            ownerData = storage.getPlayerData(claim.ownerID);
         }
 
         //determine new owner
@@ -145,7 +145,7 @@ public class ClaimManager
         //remove from secondary storage
         this.deleteClaimFromSecondaryStorage(claim);
 
-        //update player data
+        //update player storage
         if(claim.ownerID != null)
         {
             PlayerData ownerData = this.getPlayerData(claim.ownerID);
@@ -208,7 +208,7 @@ public class ClaimManager
 
     //Utilities useful for claims
 
-    //turns a location into a string, useful in data storage
+    //turns a location into a string, useful in storage storage
     private String locationStringDelimiter = ";";
     String locationToString(Location location)
     {
@@ -422,7 +422,7 @@ public class ClaimManager
             }
         }
 
-        //otherwise add this new claim to the data store to make it effective
+        //otherwise add this new claim to the storage store to make it effective
         this.addClaim(newClaim, true);
 
         //then return success along with reference to new claim
@@ -580,7 +580,7 @@ public class ClaimManager
         }
 
         //ask the datastore to try and resize the claim, this checks for conflicts with other claims
-        CreateClaimResult result = GriefPrevention.instance.dataStore.resizeClaim(playerData.claimResizing, newx1, newx2, newy1, newy2, newz1, newz2, player);
+        CreateClaimResult result = GriefPrevention.instance.storage.resizeClaim(playerData.claimResizing, newx1, newx2, newy1, newy2, newz1, newz2, player);
 
         if(result.succeeded)
         {

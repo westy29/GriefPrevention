@@ -36,7 +36,7 @@ class PlayerRescueTask implements Runnable
 	//rescue destination, may be decided at instantiation or at execution
     private Location destination;
 	
-	//player data
+	//player storage
 	private Player player;
 	
 	public PlayerRescueTask(Player player, Location location, Location destination)
@@ -53,7 +53,7 @@ class PlayerRescueTask implements Runnable
 		if(!player.isOnline()) return;
 		
 		//he no longer has a pending /trapped slash command, so he can try to use it again now
-		PlayerData playerData = GriefPrevention.instance.dataStore.getPlayerData(player.getUniqueId());
+		PlayerData playerData = GriefPrevention.instance.storage.getPlayerData(player.getUniqueId());
 		playerData.pendingTrapped = false;
 		
 		//if the player moved three or more blocks from where he used /trapped, admonish him and don't save him

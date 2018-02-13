@@ -27,7 +27,7 @@ import java.util.UUID;
 
 import me.ryanhamshire.GriefPrevention.claim.Claim;
 import me.ryanhamshire.GriefPrevention.claim.ClaimsMode;
-import me.ryanhamshire.GriefPrevention.data.DataStore;
+import me.ryanhamshire.GriefPrevention.storage.Storage;
 import me.ryanhamshire.GriefPrevention.message.Messages;
 import me.ryanhamshire.GriefPrevention.player.PlayerData;
 import org.bukkit.Bukkit;
@@ -84,12 +84,12 @@ import org.bukkit.util.Vector;
 public class EntityEventHandler implements Listener
 {
     //convenience reference for the singleton datastore
-    private DataStore dataStore;
+    private Storage storage;
     GriefPrevention instance;
 
-    public EntityEventHandler(DataStore dataStore, GriefPrevention plugin)
+    public EntityEventHandler(Storage storage, GriefPrevention plugin)
     {
-        this.dataStore = dataStore;
+        this.storage = storage;
         instance = plugin;
     }
 
@@ -183,7 +183,7 @@ public class EntityEventHandler implements Listener
                     }
 
                     //in other worlds, if landing in land claim, only allow if source was also in the land claim
-                    Claim claim = this.dataStore.getClaimAt(newLocation, false, null);
+                    Claim claim = this.storage.getClaimAt(newLocation, false, null);
                     if (claim != null && !claim.contains(originalLocation, false, false))
                     {
                         //when not allowed, drop as item instead of forming a block
@@ -281,7 +281,7 @@ public class EntityEventHandler implements Listener
             }
 
             //is it in a land claim?
-            Claim claim = this.dataStore.getClaimAt(block.getLocation(), false, cachedClaim);
+            Claim claim = this.storage.getClaimAt(block.getLocation(), false, cachedClaim);
             if (claim != null)
             {
                 cachedClaim = claim;
@@ -319,7 +319,7 @@ public class EntityEventHandler implements Listener
         if (event.getEntity().getType() == EntityType.ENDERMAN)
         {
             //and the block is claimed
-            if (this.dataStore.getClaimAt(event.getBlock().getLocation(), false, null) != null)
+            if (this.storage.getClaimAt(event.getBlock().getLocation(), false, null) != null)
             {
                 //he doesn't get to steal it
                 event.setCancelled(true);
@@ -393,8 +393,8 @@ public class EntityEventHandler implements Listener
         //otherwise, apply entity-count limitations for creative worlds
         else if (GriefPrevention.instance.creativeRulesApply(event.getEntity().getLocation()))
         {
-            PlayerData playerData = this.dataStore.getPlayerData(event.getPlayer().getUniqueId());
-            Claim claim = this.dataStore.getClaimAt(event.getBlock().getLocation(), false, playerData.lastClaim);
+            PlayerData playerData = this.storage.getPlayerData(event.getPlayer().getUniqueId());
+            Claim claim = this.storage.getClaimAt(event.getBlock().getLocation(), false, playerData.lastClaim);
             if (claim == null) return;
 
             String noEntitiesReason = claim.allowMoreEntities(false);
@@ -502,7 +502,7 @@ public class EntityEventHandler implements Listener
             if (damageSource.getType() == EntityType.AREA_EFFECT_CLOUD && event.getEntityType() == EntityType.PLAYER && GriefPrevention.instance.pvpRulesApply(event.getEntity().getWorld()))
             {
                 Player damaged = (Player) event.getEntity();
-                PlayerData damagedData = GriefPrevention.instance.dataStore.getPlayerData(damaged.getUniqueId());
+                PlayerData damagedData = GriefPrevention.instance.storage.getPlayerData(damaged.getUniqueId());
 
                 //case 1: recently spawned
                 if (GriefPrevention.instance.config_pvp_protectFreshSpawns && damagedData.pvpImmune)
@@ -514,7 +514,7 @@ public class EntityEventHandler implements Listener
                 //case 2: in a pvp safe zone
                 else
                 {
-                    Claim damagedClaim = GriefPrevention.instance.dataStore.getClaimAt(damaged.getLocation(), false, damagedData.lastClaim);
+                    Claim damagedClaim = GriefPrevention.instance.storage.getClaimAt(damaged.getLocation(), false, damagedData.lastClaim);
                     if (damagedClaim != null)
                     {
                         damagedData.lastClaim = damagedClaim;
@@ -551,11 +551,11 @@ public class EntityEventHandler implements Listener
                     if (pet.isTamed() && pet.getOwner() != null)
                     {
                         //if defender is NOT in pvp combat and not immune to pvp right now due to recent respawn
-                        PlayerData defenderData = GriefPrevention.instance.dataStore.getPlayerData(event.getEntity().getUniqueId());
+                        PlayerData defenderData = GriefPrevention.instance.storage.getPlayerData(event.getEntity().getUniqueId());
                         if (!defenderData.pvpImmune && !defenderData.inPvpCombat())
                         {
                             //if defender is not in a protected area
-                            Claim defenderClaim = this.dataStore.getClaimAt(defender.getLocation(), false, defenderData.lastClaim);
+                            Claim defenderClaim = this.storage.getClaimAt(defender.getLocation(), false, defenderData.lastClaim);
                             if (defenderClaim != null &&
                                     !defenderData.inPvpCombat() &&
                                     GriefPrevention.instance.claimIsPvPSafeZone(defenderClaim))
@@ -597,11 +597,11 @@ public class EntityEventHandler implements Listener
                 PlayerData playerData = null;
                 if (attacker != null)
                 {
-                    playerData = this.dataStore.getPlayerData(attacker.getUniqueId());
+                    playerData = this.storage.getPlayerData(attacker.getUniqueId());
                     cachedClaim = playerData.lastClaim;
                 }
 
-                Claim claim = this.dataStore.getClaimAt(event.getEntity().getLocation(), false, cachedClaim);
+                Claim claim = this.storage.getClaimAt(event.getEntity().getLocation(), false, cachedClaim);
 
                 //if it's claimed
                 if (claim != null)
@@ -654,10 +654,10 @@ public class EntityEventHandler implements Listener
                             OfflinePlayer owner = GriefPrevention.instance.getServer().getOfflinePlayer(ownerID);
                             String ownerName = owner.getName();
                             if (ownerName == null) ownerName = "someone";
-                            String message = GriefPrevention.instance.dataStore.getMessage(Messages.NoDamageClaimedEntity, ownerName);
+                            String message = GriefPrevention.instance.storage.getMessage(Messages.NoDamageClaimedEntity, ownerName);
                             if (attacker.hasPermission("griefprevention.ignoreclaims"))
                             {
-                                message += "  " + GriefPrevention.instance.dataStore.getMessage(Messages.IgnoreClaimsAdvertisement);
+                                message += "  " + GriefPrevention.instance.storage.getMessage(Messages.IgnoreClaimsAdvertisement);
                             }
                             if (sendErrorMessagesToPlayers)
                             {
@@ -705,11 +705,11 @@ public class EntityEventHandler implements Listener
 
                 if (attacker != null)
                 {
-                    playerData = this.dataStore.getPlayerData(attacker.getUniqueId());
+                    playerData = this.storage.getPlayerData(attacker.getUniqueId());
                     cachedClaim = playerData.lastClaim;
                 }
 
-                Claim claim = this.dataStore.getClaimAt(event.getEntity().getLocation(), false, cachedClaim);
+                Claim claim = this.storage.getClaimAt(event.getEntity().getLocation(), false, cachedClaim);
 
                 //if it's claimed
                 if (claim != null)
@@ -749,10 +749,10 @@ public class EntityEventHandler implements Listener
 
                             if (sendErrorMessagesToPlayers)
                             {
-                                String message = GriefPrevention.instance.dataStore.getMessage(Messages.NoDamageClaimedEntity, claim.getOwnerName());
+                                String message = GriefPrevention.instance.storage.getMessage(Messages.NoDamageClaimedEntity, claim.getOwnerName());
                                 if (attacker.hasPermission("griefprevention.ignoreclaims"))
                                 {
-                                    message += "  " + GriefPrevention.instance.dataStore.getMessage(Messages.IgnoreClaimsAdvertisement);
+                                    message += "  " + GriefPrevention.instance.storage.getMessage(Messages.IgnoreClaimsAdvertisement);
                                 }
                                 GriefPrevention.sendMessage(attacker, TextMode.Err, message);
                             }
@@ -820,11 +820,11 @@ public class EntityEventHandler implements Listener
 
         if (attacker != null)
         {
-            playerData = this.dataStore.getPlayerData(attacker.getUniqueId());
+            playerData = this.storage.getPlayerData(attacker.getUniqueId());
             cachedClaim = playerData.lastClaim;
         }
 
-        Claim claim = this.dataStore.getClaimAt(event.getVehicle().getLocation(), false, cachedClaim);
+        Claim claim = this.storage.getClaimAt(event.getVehicle().getLocation(), false, cachedClaim);
 
         //if it's claimed
         if (claim != null)
@@ -842,10 +842,10 @@ public class EntityEventHandler implements Listener
                 if (noContainersReason != null)
                 {
                     event.setCancelled(true);
-                    String message = GriefPrevention.instance.dataStore.getMessage(Messages.NoDamageClaimedEntity, claim.getOwnerName());
+                    String message = GriefPrevention.instance.storage.getMessage(Messages.NoDamageClaimedEntity, claim.getOwnerName());
                     if (attacker.hasPermission("griefprevention.ignoreclaims"))
                     {
-                        message += "  " + GriefPrevention.instance.dataStore.getMessage(Messages.IgnoreClaimsAdvertisement);
+                        message += "  " + GriefPrevention.instance.storage.getMessage(Messages.IgnoreClaimsAdvertisement);
                     }
                     GriefPrevention.sendMessage(attacker, TextMode.Err, message);
                     event.setCancelled(true);
@@ -888,7 +888,7 @@ public class EntityEventHandler implements Listener
                 {
                     if (effected.getType() == EntityType.VILLAGER || effected instanceof Animals)
                     {
-                        Claim claim = this.dataStore.getClaimAt(effected.getLocation(), false, cachedClaim);
+                        Claim claim = this.storage.getClaimAt(effected.getLocation(), false, cachedClaim);
                         if (claim != null)
                         {
                             cachedClaim = claim;
@@ -925,9 +925,9 @@ public class EntityEventHandler implements Listener
                 else if (GriefPrevention.instance.config_pvp_noCombatInPlayerLandClaims || GriefPrevention.instance.config_pvp_noCombatInAdminLandClaims)
                 {
                     Player effectedPlayer = (Player) effected;
-                    PlayerData defenderData = this.dataStore.getPlayerData(effectedPlayer.getUniqueId());
-                    PlayerData attackerData = this.dataStore.getPlayerData(thrower.getUniqueId());
-                    Claim attackerClaim = this.dataStore.getClaimAt(thrower.getLocation(), false, attackerData.lastClaim);
+                    PlayerData defenderData = this.storage.getPlayerData(effectedPlayer.getUniqueId());
+                    PlayerData attackerData = this.storage.getPlayerData(thrower.getUniqueId());
+                    Claim attackerClaim = this.storage.getClaimAt(thrower.getLocation(), false, attackerData.lastClaim);
                     if (attackerClaim != null && GriefPrevention.instance.claimIsPvPSafeZone(attackerClaim))
                     {
                         attackerData.lastClaim = attackerClaim;
@@ -941,7 +941,7 @@ public class EntityEventHandler implements Listener
                         }
                     }
 
-                    Claim defenderClaim = this.dataStore.getClaimAt(effectedPlayer.getLocation(), false, defenderData.lastClaim);
+                    Claim defenderClaim = this.storage.getClaimAt(effectedPlayer.getLocation(), false, defenderData.lastClaim);
                     if (defenderClaim != null && GriefPrevention.instance.claimIsPvPSafeZone(defenderClaim))
                     {
                         defenderData.lastClaim = defenderClaim;

@@ -69,7 +69,7 @@ class CleanupUnusedClaimTask implements Runnable
 			if(newPlayerClaimsExpired && ownerData.getClaims().size() == 1)
 			{
 				claim.removeSurfaceFluids(null);
-				GriefPrevention.instance.dataStore.deleteClaim(claim, true, true);
+				GriefPrevention.instance.storage.deleteClaim(claim, true, true);
 				
 				//if configured to do so, restore the land to natural
 				if(GriefPrevention.instance.creativeRulesApply(claim.getLesserBoundaryCorner()) || GriefPrevention.instance.config_claims_survivalAutoNatureRestoration)
@@ -97,7 +97,7 @@ class CleanupUnusedClaimTask implements Runnable
 				}
 				
 				//delete them
-				GriefPrevention.instance.dataStore.deleteClaimsForPlayer(claim.ownerID, true);
+				GriefPrevention.instance.storage.deleteClaimsForPlayer(claim.ownerID, true);
 				GriefPrevention.AddLogEntry(" All of " + claim.getOwnerName() + "'s claims have expired.", CustomLogEntryTypes.AdminActivity);
 				
 				for(int i = 0; i < claims.size(); i++)
@@ -129,7 +129,7 @@ class CleanupUnusedClaimTask implements Runnable
 	            boolean claimExpired = sevenDaysAgo.getTime().after(new Date(ownerInfo.getLastPlayed()));
 	            if(claimExpired)
 	            {
-    			    GriefPrevention.instance.dataStore.deleteClaim(claim, true, true);
+    			    GriefPrevention.instance.storage.deleteClaim(claim, true, true);
     				GriefPrevention.AddLogEntry("Removed " + claim.getOwnerName() + "'s unused claim @ " + GriefPrevention.getfriendlyLocationString(claim.getLesserBoundaryCorner()), CustomLogEntryTypes.AdminActivity);
     				
     				//restore the claim area to natural state

@@ -1,6 +1,6 @@
 package me.ryanhamshire.GriefPrevention.message;
 
-import me.ryanhamshire.GriefPrevention.data.DataStore;
+import me.ryanhamshire.GriefPrevention.storage.Storage;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.TextMode;
 import me.ryanhamshire.GriefPrevention.events.DeniedMessageEvent;
@@ -246,7 +246,7 @@ public class MessagesLoader
             Messages messageID = messageIDs[i];
             CustomizableMessage messageData = defaults.get(messageID.name());
 
-            //if default is missing, log an error and use some fake data for now so that the plugin can run
+            //if default is missing, log an error and use some fake storage for now so that the plugin can run
             if(messageData == null)
             {
                 GriefPrevention.AddLogEntry("Missing message for " + messageID.name() + ".  Please contact the developer.");
@@ -274,11 +274,11 @@ public class MessagesLoader
         try
         {
             config.options().header("Use a YAML editor like NotepadPlusPlus to edit this file.  \nAfter editing, back up your changes before reloading the server in case you made a syntax error.  \nUse dollar signs ($) for formatting codes, which are documented here: http://minecraft.gamepedia.com/Formatting_codes");
-            config.save(DataStore.messagesFilePath);
+            config.save(Storage.messagesFilePath);
         }
         catch(IOException exception)
         {
-            GriefPrevention.AddLogEntry("Unable to write to the configuration file at \"" + DataStore.messagesFilePath + "\"");
+            GriefPrevention.AddLogEntry("Unable to write to the configuration file at \"" + Storage.messagesFilePath + "\"");
         }
 
         defaults.clear();
