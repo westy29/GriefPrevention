@@ -17,13 +17,13 @@ import javax.annotation.Nullable;
  *
  * @author RoboMWM
  */
-public class GPPlaceDestroyEvent extends GPBaseEvent
+public class GPBlockMutateTypeEvent extends GPBaseEvent
 {
-    public GPPlaceDestroyEvent(Event baseEvent, @Nullable Entity sourceEntity, Location location, Metadatable target)
+    public GPBlockMutateTypeEvent(Event baseEvent, @Nullable Entity sourceEntity, Location location, Metadatable target)
     {
         super(baseEvent, sourceEntity, location, target);
     }
-    public GPPlaceDestroyEvent(Event baseEvent, @Nullable Metadatable source, Location location, Metadatable target)
+    public GPBlockMutateTypeEvent(Event baseEvent, @Nullable Metadatable source, Location location, Metadatable target)
     {
         super(baseEvent, source, location, target);
     }

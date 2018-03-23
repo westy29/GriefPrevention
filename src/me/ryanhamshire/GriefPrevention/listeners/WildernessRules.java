@@ -1,6 +1,6 @@
 package me.ryanhamshire.GriefPrevention.listeners;
 
-import me.ryanhamshire.GriefPrevention.events.custom.GPPlaceDestroyEvent;
+import me.ryanhamshire.GriefPrevention.events.custom.GPBlockMutateTypeEvent;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
@@ -12,7 +12,7 @@ import org.bukkit.event.Listener;
 public class WildernessRules implements Listener
 {
     @EventHandler(ignoreCancelled = true)
-    void wildernessRules(GPPlaceDestroyEvent event)
+    void wildernessRules(GPBlockMutateTypeEvent event)
     {
         if (event.isPlayer()) return;
     }

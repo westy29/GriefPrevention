@@ -1,7 +1,7 @@
 package me.ryanhamshire.GriefPrevention.listeners;
 
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
-import me.ryanhamshire.GriefPrevention.events.custom.GPPlaceDestroyEvent;
+import me.ryanhamshire.GriefPrevention.events.custom.GPBlockMutateTypeEvent;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -20,7 +20,7 @@ public class StandardClaimProtection implements Listener
     }
 
     @EventHandler(ignoreCancelled = true)
-    void onGPPlaceorDestroy(GPPlaceDestroyEvent event)
+    void onGPPlaceorDestroy(GPBlockMutateTypeEvent event)
     {
         //don't track in worlds where claims are not enabled
         if (!GriefPrevention.instance.claimsEnabledForWorld(event.getLocation().getWorld())) return;

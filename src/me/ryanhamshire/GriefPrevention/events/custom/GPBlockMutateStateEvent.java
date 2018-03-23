@@ -16,6 +16,6 @@ package me.ryanhamshire.GriefPrevention.events.custom;
  *
  * @author RoboMWM
  */
-public class GPAlterEvent
+public class GPBlockMutateStateEvent
 {
 }

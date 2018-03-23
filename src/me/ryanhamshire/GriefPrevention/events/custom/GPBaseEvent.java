@@ -93,7 +93,7 @@ public class GPBaseEvent extends Event implements Cancellable
     public Player getPlayer()
     {
         if (isPlayer())
-            return (Player) sourceEntity;
+            return (Player)sourceEntity;
         return null;
     }
 
