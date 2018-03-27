@@ -9,8 +9,6 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.bukkit.metadata.Metadatable;
 
-import javax.annotation.Nullable;
-
 /**
  * Foundation event
  *
@@ -49,7 +47,14 @@ public class GPBaseEvent extends Event implements Cancellable
     private Location location;
     private Metadatable target;
 
-    public GPBaseEvent(Event baseEvent, @Nullable Metadatable causer, Location location, Metadatable target)
+    /**
+     * Called when something other than an entity is not the source of this event (e.g. another block)
+     * @param baseEvent
+     * @param causer Can be null
+     * @param location
+     * @param target
+     */
+    public GPBaseEvent(Event baseEvent, Metadatable causer, Location location, Metadatable target)
     {
         this.baseEvent = baseEvent;
         this.location = location;
@@ -57,7 +62,13 @@ public class GPBaseEvent extends Event implements Cancellable
         this.causer = causer;
     }
 
-    public GPBaseEvent(Event baseEvent, @Nullable Entity sourceEntity, Location location, Metadatable target)
+    /**
+     * @param baseEvent
+     * @param sourceEntity Can be null. Set as both the source and cause of the event.
+     * @param location
+     * @param target
+     */
+    public GPBaseEvent(Event baseEvent, Entity sourceEntity, Location location, Metadatable target)
     {
         this.baseEvent = baseEvent;
         this.sourceEntity = sourceEntity;

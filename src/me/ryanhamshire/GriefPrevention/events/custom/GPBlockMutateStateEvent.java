@@ -2,12 +2,17 @@ package me.ryanhamshire.GriefPrevention.events.custom;
 
 /**
  * Created on 3/11/2017.
- * Called when a block is "altered."
+ * Called when a block's state is modified.
+ *
+ * Exception here is crop farming (primarily to maintain existing functionality of /containertrust)
  *
  * Includes:
- * Item frame (rotation)
- * Changing redstone settings
- * Causing crops to be uprooted
+ * Chest access
+ * Item frame - rotation
+ * Redstone settings
+ * Uprooting crops
+ * Planting crops
+ *
  *
  * The following are considered "access" alterations:
  * Opening doors

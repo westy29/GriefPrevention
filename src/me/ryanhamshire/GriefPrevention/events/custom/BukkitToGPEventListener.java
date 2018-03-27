@@ -1,11 +1,8 @@
 package me.ryanhamshire.GriefPrevention.events.custom;
 
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
-import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -13,15 +10,12 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.EntityBlockFormEvent;
-import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.hanging.HangingBreakEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.bukkit.event.vehicle.VehicleDamageEvent;
-import org.bukkit.metadata.FixedMetadataValue;
-import org.bukkit.metadata.MetadataValue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,26 +32,26 @@ import static org.bukkit.event.EventPriority.LOWEST;
  */
 public class BukkitToGPEventListener implements Listener
 {
-    GriefPrevention instance;
+    private GriefPrevention plugin;
     public BukkitToGPEventListener(GriefPrevention griefPrevention)
     {
-        this.instance = griefPrevention;
+        this.plugin = griefPrevention;
     }
 
     private boolean callEvent(GPBaseEvent event)
     {
         Cancellable baseEvent = null;
 
-        //GP event.isCancelled() = base event.isCancelled()
+        //GPevent.isCancelled() = baseevent.isCancelled()
         if (event.getBaseEvent() instanceof Cancellable)
         {
             baseEvent = (Cancellable)event.getBaseEvent();
             event.setCancelled(baseEvent.isCancelled());
         }
 
-        instance.getServer().getPluginManager().callEvent(event);
+        plugin.getServer().getPluginManager().callEvent(event);
 
-        //base event.isCancelled() = GP event.isCancelled()
+        //baseevent.isCancelled() = GPevent.isCancelled()
         if (baseEvent != null)
         {
             baseEvent.setCancelled(event.isCancelled());
@@ -68,17 +62,13 @@ public class BukkitToGPEventListener implements Listener
 
     private boolean callWithoutCancelingEvent(GPBaseEvent event)
     {
-        instance.getServer().getPluginManager().callEvent(event);
+        plugin.getServer().getPluginManager().callEvent(event);
         return event.isCancelled();
     }
 
     @EventHandler(priority = LOWEST)
     private void onBlockPlace(BlockPlaceEvent event)
     {
-        //getBlock vs. getBlockPlaced - from Javadoc:
-        //public Block getBlockPlaced()
-        //Clarity method for getting the placed block. Not really needed except for reasons of clarity.
-
         callEvent(new GPBlockMutateTypeEvent(event, event.getPlayer(), event.getBlock().getLocation(), event.getBlock()));
     }
     @EventHandler(priority = LOWEST)

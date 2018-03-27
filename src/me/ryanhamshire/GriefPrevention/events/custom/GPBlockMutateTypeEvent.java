@@ -7,10 +7,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.metadata.Metadatable;
 
-import javax.annotation.Nullable;
-
 /**
- * Fired when a block or block-like sourceEntity is placed or destroyed
+ * Fired when a block or block-like sourceEntity is placed or destroyed.
+ * (I.e. the type is modified from/to AIR).
  * Block-like entities include item frames, armor stands, paintings, etc.
  *
  * Created on 2/23/2017.
@@ -19,11 +18,11 @@ import javax.annotation.Nullable;
  */
 public class GPBlockMutateTypeEvent extends GPBaseEvent
 {
-    public GPBlockMutateTypeEvent(Event baseEvent, @Nullable Entity sourceEntity, Location location, Metadatable target)
+    public GPBlockMutateTypeEvent(Event baseEvent, Entity sourceEntity, Location location, Metadatable target)
     {
         super(baseEvent, sourceEntity, location, target);
     }
-    public GPBlockMutateTypeEvent(Event baseEvent, @Nullable Metadatable source, Location location, Metadatable target)
+    public GPBlockMutateTypeEvent(Event baseEvent, Metadatable source, Location location, Metadatable target)
     {
         super(baseEvent, source, location, target);
     }
