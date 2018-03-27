@@ -1,4 +1,4 @@
-package me.ryanhamshire.GriefPrevention.events.custom;
+package me.ryanhamshire.GriefPrevention.events.triage;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;

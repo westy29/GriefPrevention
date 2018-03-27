@@ -1,9 +1,7 @@
-package me.ryanhamshire.GriefPrevention.events.custom;
+package me.ryanhamshire.GriefPrevention.events.triage;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.metadata.Metadatable;
 
