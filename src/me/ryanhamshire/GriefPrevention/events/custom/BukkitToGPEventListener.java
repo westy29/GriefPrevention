@@ -84,7 +84,7 @@ public class BukkitToGPEventListener implements Listener
     @EventHandler(priority = LOWEST)
     private void onBlockBreak(BlockBreakEvent event)
     {
-        callEvent(new GPPlaceDestroyEvent(event, event.getPlayer(), event.getBlock().getLocation(), event.getBlock()));
+        callEvent(new GPBlockMutateTypeEvent(event, event.getPlayer(), event.getBlock().getLocation(), event.getBlock()));
     }
 
     @EventHandler(priority = LOWEST)
@@ -113,15 +113,15 @@ public class BukkitToGPEventListener implements Listener
             case ITEM_FRAME:
             case ARMOR_STAND:
             case ENDER_CRYSTAL:
-            default:
-                return;
+                callEvent(new GPBlockMutateTypeEvent(event, event.getDamager(), event.getEntity().getLocation(), event.getEntity()));
         }
     }
 
     @EventHandler(priority = LOWEST)
     private void onVehicleDamage(VehicleDamageEvent event)
     {
-        callEvent(new GPBlockMutateTypeEvent(event, event.getAttacker(), event.getVehicle().getLocation(), event.getAttacker()));
+        //TODO: entity damage
+        //callEvent(new GPBlockMutateTypeEvent(event, event.getAttacker(), event.getVehicle().getLocation(), event.getAttacker()));
     }
 
     @EventHandler(priority = LOWEST)
@@ -129,7 +129,7 @@ public class BukkitToGPEventListener implements Listener
     {
         //Call an event for each block that's to-be-destroyed
         //Thus, the base event won't be canceled unless it's explicitly canceled
-        List<Block> blocksToRemove = new ArrayList<Block>();
+        List<Block> blocksToRemove = new ArrayList<>();
         for (Block block : event.blockList())
         {
             if (callWithoutCancelingEvent(new GPBlockMutateTypeEvent(event, event.getEntity(), block.getLocation(), block)))
@@ -140,7 +140,7 @@ public class BukkitToGPEventListener implements Listener
     @EventHandler(priority = LOWEST)
     private void onBlockExplode(BlockExplodeEvent event) //largely same as above, but block as source
     {
-        List<Block> blocksToRemove = new ArrayList<Block>();
+        List<Block> blocksToRemove = new ArrayList<>();
         for (Block block : event.blockList())
         {
             if (callWithoutCancelingEvent(new GPBlockMutateTypeEvent(event, event.getBlock(), block.getLocation(), block)))
@@ -153,41 +153,5 @@ public class BukkitToGPEventListener implements Listener
     private void onEntityFormBlock(EntityBlockFormEvent event) //Frost walker
     {
         callEvent(new GPBlockMutateTypeEvent(event, event.getEntity(), event.getBlock().getLocation(), event.getBlock()));
-    }
-
-    @EventHandler(priority = LOWEST)
-    private void onEntityChangeBlock(EntityChangeBlockEvent event)
-    {
-        //Special case for fallingblock entities
-        if (event.getEntityType() == EntityType.FALLING_BLOCK)
-        {
-            Entity entity = event.getEntity();
-            Block block = event.getBlock();
-            //if changing a block TO air, this is when the falling block formed.  note its original location
-            if (event.getTo() == Material.AIR)
-            {
-                event.getEntity().setMetadata("GP_FALLINGBLOCK", new FixedMetadataValue(GriefPrevention.instance, event.getBlock().getLocation()));
-            }
-            //otherwise, the falling block is forming a block.  compare new location to original source
-            else
-            {
-                //if we're not sure where this entity came from (maybe another plugin didn't follow the standard?), allow the block to form
-                if (entity.hasMetadata("GP_FALLINGBLOCK"))
-                    return;
-                List<MetadataValue> values = entity.getMetadata("GP_FALLINGBLOCK");
-                Location originalLocation = (Location)(values.get(0).value());
-                Location newLocation = block.getLocation();
-
-                //Ignore if entity fell through an end portal, as the event is erroneously fired twice in this scenario.
-                if (originalLocation.getWorld() != newLocation.getWorld())
-                    return;
-                //Ignore if it fell straight down
-                if (originalLocation.getBlockX() == newLocation.getBlockX() && originalLocation.getBlockZ() == newLocation.getBlockZ())
-                    return;
-                //TODO: get owner of originating claim, if original location was inside a claim, and fire event. Else fire as null source (wilderness).
-            }
-        }
-        else
-            callEvent(new GPBlockMutateTypeEvent(event, event.getEntity(), event.getBlock().getLocation(), event.getBlock()));
     }
 }
