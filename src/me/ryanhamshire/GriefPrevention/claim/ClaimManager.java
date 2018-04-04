@@ -38,14 +38,29 @@ public class ClaimManager
     private Set<Claim> claims;
     private ConcurrentHashMap<Long, ArrayList<Claim>> chunksToClaimsMap = new ConcurrentHashMap<Long, ArrayList<Claim>>();
     private Storage storage;
+    private long lastUsedClaimId;
 
     public ClaimManager(Storage storage)
     {
         this.storage = storage;
         claims.addAll(storage.getClaims());
+        lastUsedClaimId = System.currentTimeMillis();
     }
 
-    public void changeClaimOwner(Claim claim, UUID newOwnerID)
+    /**
+     *
+     * @return the "next" available claim ID.
+     */
+    public long nextClaimId()
+    {
+        long currentTime = System.currentTimeMillis();
+        if (currentTime == lastUsedClaimId)
+            ++currentTime;
+        lastUsedClaimId = currentTime;
+        return currentTime;
+    }
+
+    public void transferClaim(Claim claim, UUID newOwnerID)
     {
         //determine current claim owner
         PlayerData ownerData = null;
@@ -272,7 +287,7 @@ public class ClaimManager
         if(cachedClaim != null && cachedClaim.inDataStore && cachedClaim.contains(location, ignoreHeight, true)) return cachedClaim;
 
         //find a top level claim
-        Long chunkID = getChunkHash(location);
+        Long chunkID = ClaimUtils.getChunkHash(location);
         ArrayList<Claim> claimsInChunk = this.chunksToClaimsMap.get(chunkID);
         if(claimsInChunk == null) return null;
 
@@ -309,7 +324,7 @@ public class ClaimManager
 
     public Collection<Claim> getClaims(int chunkx, int chunkz)
     {
-        ArrayList<Claim> chunkClaims = this.chunksToClaimsMap.get(getChunkHash(chunkx, chunkz));
+        ArrayList<Claim> chunkClaims = this.chunksToClaimsMap.get(ClaimUtils.getChunkHash(chunkx, chunkz));
         if(chunkClaims != null)
         {
             return Collections.unmodifiableCollection(chunkClaims);
@@ -318,18 +333,6 @@ public class ClaimManager
         {
             return Collections.unmodifiableCollection(new ArrayList<Claim>());
         }
-    }
-
-    //gets an almost-unique, persistent identifier for a chunk
-    static Long getChunkHash(long chunkx, long chunkz)
-    {
-        return (chunkz ^ (chunkx << 32));
-    }
-
-    //gets an almost-unique, persistent identifier for a chunk
-    static Long getChunkHash(Location location)
-    {
-        return getChunkHash(location.getBlockX() >> 4, location.getBlockZ() >> 4);
     }
 
     //creates a claim.
@@ -663,7 +666,7 @@ public class ClaimManager
             for(int chunk_z = lesserChunk.getZ(); chunk_z <= greaterChunk.getZ(); chunk_z++)
             {
                 Chunk chunk = location.getWorld().getChunkAt(chunk_x, chunk_z);
-                Long chunkID = getChunkHash(chunk.getBlock(0,  0,  0).getLocation());
+                Long chunkID = ClaimUtils.getChunkHash(chunk.getBlock(0,  0,  0).getLocation());
                 ArrayList<Claim> claimsInChunk = this.chunksToClaimsMap.get(chunkID);
                 if(claimsInChunk != null)
                 {
@@ -707,5 +710,22 @@ public class ClaimManager
         }
 
         this.writeClaimToStorage(claim);
+    }
+
+    /**
+     * TODO: move to ClaimManager
+     * Distance check for claims. Distance in this case is a band around the outside of the claim rather then euclidean distance
+     * @param location Location in question. Height (y value) is effectively ignored.
+     * @param howNear distance in blocks to check
+     * @return
+     */
+    public boolean isNear(Location location, int howNear)
+    {
+        Claim claim = new Claim
+                (new Location(this.lesserBoundaryCorner.getWorld(), this.lesserBoundaryCorner.getBlockX() - howNear, this.lesserBoundaryCorner.getBlockY(), this.lesserBoundaryCorner.getBlockZ() - howNear),
+                        new Location(this.greaterBoundaryCorner.getWorld(), this.greaterBoundaryCorner.getBlockX() + howNear, this.greaterBoundaryCorner.getBlockY(), this.greaterBoundaryCorner.getBlockZ() + howNear),
+                        null, new ArrayList<UUID>(), new ArrayList<UUID>(), new ArrayList<UUID>(), new ArrayList<UUID>(), null);
+
+        return claim.contains(location, true);
     }
 }

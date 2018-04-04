@@ -27,14 +27,17 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 
-//represents a player claim
+/**
+ * represents a player claim
+ *
+ */
 public class Claim
 {
 	//two locations, which together define the boundaries of the claim
 	//note that the upper Y value is always ignored, because claims ALWAYS extend up to the sky
 	private Location lesserBoundaryCorner;
 	private Location greaterBoundaryCorner;
-	Long id = null;
+	private Long id;
     private UUID ownerUUID;
     private Map<UUID, ClaimPermission> trustees;
     private boolean naturalGriefAllowed = false;
@@ -63,24 +66,10 @@ public class Claim
 	}
 
     /**
-     * The owner and managers can temporarily enable natural "grief" (explosions, fire spread, etc.)
-     * @return whether this claim is allowing natural grief to occur
+     * whether or not this is an administrative claim
+     * administrative claims are created and maintained by players with the griefprevention.adminclaims permission.
+     * @return true if this claim is an admin claim
      */
-	public boolean isNaturalGriefAllowed()
-	{
-		return naturalGriefAllowed;
-	}
-
-    /**
-     * @param naturalGriefAllowed If true, "flags" the claim as allowing natural grief
-     */
-	public void setNaturalGriefAllowed(boolean naturalGriefAllowed)
-	{
-		this.naturalGriefAllowed = naturalGriefAllowed;
-	}
-
-	//whether or not this is an administrative claim
-	//administrative claims are created and maintained by players with the griefprevention.adminclaims permission.
 	public boolean isAdminClaim()
 	{
 		return (this.ownerUUID == null);
@@ -96,8 +85,7 @@ public class Claim
 
 		this.ownerUUID = ownerUUID;
 	}
-	
-	//main constructor.  note that only creating a claim instance does nothing - a claim must be added to the storage store to be effective
+
 	public Claim(Location lesserBoundaryCorner, Location greaterBoundaryCorner, UUID ownerUUID, Map<UUID, ClaimPermission> trustees, Long id)
 	{
 		//id
@@ -110,99 +98,30 @@ public class Claim
 		//owner
 		this.ownerUUID = ownerUUID;
 		
-		//other permissions
+		//permissions
 		this.trustees = trustees;
 	}
-	
-	//measurements.  all measurements are in blocks
 
     /**
-     * @return Area of claim, in blocks
+     * Returns the permission map of the claim.
+     * A null entry refers to the default permission granted to any player.
+     * Any changes to this map will modify the claim's permission map; don't forget to save if you modify it!
+     * @return the permission map of the claim.
      */
-	public int getArea()
-	{
-		return this.getWidth() * this.getHeight();
-	}
+	public Map<UUID, ClaimPermission> getPermissions()
+    {
+        return trustees;
+    }
+
 
     /**
-     * @return Width of claim, in blocks
+     * Convenience method to get the "general" location of a claim.
+     * @see Claim#getLesserBoundaryCorner()
      */
-	public int getWidth()
-	{
-		return this.greaterBoundaryCorner.getBlockX() - this.lesserBoundaryCorner.getBlockX() + 1;		
-	}
-
-    /**
-     * @return Height of claim, in blocks
-     */
-	public int getHeight()
-	{
-		return this.greaterBoundaryCorner.getBlockZ() - this.lesserBoundaryCorner.getBlockZ() + 1;		
-	}
-
-    /**
-     * Distance check for claims. Distance in this case is a band around the outside of the claim rather then euclidean distance
-     * @param location Location in question. Height (y value) is effectively ignored.
-     * @param howNear distance in blocks to check
-     * @return
-     */
-	public boolean isNear(Location location, int howNear)
-	{
-		Claim claim = new Claim
-			(new Location(this.lesserBoundaryCorner.getWorld(), this.lesserBoundaryCorner.getBlockX() - howNear, this.lesserBoundaryCorner.getBlockY(), this.lesserBoundaryCorner.getBlockZ() - howNear),
-			 new Location(this.greaterBoundaryCorner.getWorld(), this.greaterBoundaryCorner.getBlockX() + howNear, this.greaterBoundaryCorner.getBlockY(), this.greaterBoundaryCorner.getBlockZ() + howNear),
-			 null, new ArrayList<UUID>(), new ArrayList<UUID>(), new ArrayList<UUID>(), new ArrayList<UUID>(), null);
-		
-		return claim.contains(location, true);
-	}
-
-	//grants a permission for a player or the public
-	public void setPermission(String playerID, ClaimPermission permissionLevel)
-	{
-		this.trustees.put(UUID.fromString(playerID), permissionLevel);
-	}
-
-	//revokes a permission for a player or the public
-	public void dropPermission(String playerID)
-	{
-		this.trustees.remove(playerID.toLowerCase());
-	}
-
-	//clears all permissions (except owner of course)
-	public void clearPermissions()
-	{
-		this.trustees.clear();
-	}
-
-	//gets ALL permissions
-    @Deprecated
-	public void getPermissions(ArrayList<String> builders, ArrayList<String> containers, ArrayList<String> accessors, ArrayList<String> managers)
-	{
-		//loop through all the entries in the hash map
-		Iterator<Map.Entry<UUID, ClaimPermission>> mappingsIterator = this.trustees.entrySet().iterator();
-		while(mappingsIterator.hasNext())
-		{
-			Map.Entry<UUID, ClaimPermission> entry = mappingsIterator.next();
-
-			//build up a list for each permission level
-			if(entry.getValue() == ClaimPermission.BUILD)
-			{
-				builders.add(entry.getKey().toString());
-			}
-			else if(entry.getValue() == ClaimPermission.CONTAINER)
-			{
-				containers.add(entry.getKey().toString());
-			}
-			else if (entry.getValue() == ClaimPermission.ACCESS)
-			{
-				accessors.add(entry.getKey().toString());
-			}
-			else if (entry.getValue() == ClaimPermission.MANAGE)
-			{
-				managers.add(entry.getKey().toString());
-			}
-		}
-	}
+    public Location getLocation()
+    {
+        return getLesserBoundaryCorner();
+    }
 
     /**
      * @return a copy of the location representing lower x, y, z limits
@@ -211,6 +130,15 @@ public class Claim
 	{
 		return this.lesserBoundaryCorner.clone();
 	}
+
+    /**
+     * NOTE: remember upper Y will always be ignored, all claims always extend to the sky
+     * @return returns a copy of the location representing upper x, y, z limits
+     */
+    public Location getGreaterBoundaryCorner()
+    {
+        return this.greaterBoundaryCorner.clone();
+    }
 
 	//Used for resizing, obviously
     public void setLesserBoundaryCorner(Location lesserBoundaryCorner)
@@ -223,32 +151,55 @@ public class Claim
         this.greaterBoundaryCorner = greaterBoundaryCorner;
     }
 
+    /*Convenience methods*/
+
+    //measurements.  all measurements are in blocks
+
     /**
-     * NOTE: remember upper Y will always be ignored, all claims always extend to the sky
-     * @return returns a copy of the location representing upper x, y, z limits
+     * @return Area of claim, in blocks
      */
-	public Location getGreaterBoundaryCorner()
-	{
-		return this.greaterBoundaryCorner.clone();
-	}
+    public int getArea()
+    {
+        return this.getWidth() * this.getHeight();
+    }
+
+    /**
+     * @return Width of claim, in blocks
+     */
+    public int getWidth()
+    {
+        return this.greaterBoundaryCorner.getBlockX() - this.lesserBoundaryCorner.getBlockX() + 1;
+    }
+
+    /**
+     * @return Height of claim, in blocks
+     */
+    public int getHeight()
+    {
+        return this.greaterBoundaryCorner.getBlockZ() - this.lesserBoundaryCorner.getBlockZ() + 1;
+    }
+
 
 	/**
 	 * whether or not a location is in or under a claim. (Ignores height.)
+     * @see ClaimUtils#isWithin(Claim, Location)
 	 * @param location
 	 * @return
 	 */
-	public boolean contains(Location location)
+	boolean contains(Location location)
 	{
 		return contains(location, true);
 	}
 
 	/**
-	 * whether or not a location is in a claim
+	 * Whether or not the given location is in this claim
+     * This is currently not implemented in ClaimUtils as this method is called often (to prevent unnecessary Location clones)
+     * @see ClaimUtils#isWithin(Claim, Location, boolean)
 	 * @param location
-	 * @param ignoreHeight true means location UNDER the claim will return TRUE
+	 * @param includeHeight false means location UNDER the claim will return TRUE
 	 * @return
 	 */
-	public boolean contains(Location location, boolean ignoreHeight)
+	boolean contains(Location location, boolean includeHeight)
     {
         //not in the same world implies false
         if (!location.getWorld().equals(this.lesserBoundaryCorner.getWorld())) return false;
@@ -258,81 +209,10 @@ public class Claim
         double z = location.getZ();
 
         //main check
-        return (ignoreHeight || y >= this.lesserBoundaryCorner.getY()) &&
+        return (!includeHeight || y >= this.lesserBoundaryCorner.getY()) &&
                 x >= this.lesserBoundaryCorner.getX() &&
                 x < this.greaterBoundaryCorner.getX() + 1 &&
                 z >= this.lesserBoundaryCorner.getZ() &&
                 z < this.greaterBoundaryCorner.getZ() + 1;
-    }
-
-    /**
-     * used internally to prevent overlaps when creating claims
-     * @param otherClaim
-     * @return whether or not two claims overlap
-     */
-	public boolean overlaps(Claim otherClaim)
-	{
-		//NOTE:  if trying to understand this makes your head hurt, don't feel bad - it hurts mine too.  
-		//try drawing pictures to visualize test cases.
-		
-		if(!this.lesserBoundaryCorner.getWorld().equals(otherClaim.getLesserBoundaryCorner().getWorld())) return false;
-		
-		//first, check the corners of this claim aren't inside any existing claims
-		if(otherClaim.contains(this.lesserBoundaryCorner, false)) return true;
-		if(otherClaim.contains(this.greaterBoundaryCorner, false)) return true;
-		if(otherClaim.contains(new Location(this.lesserBoundaryCorner.getWorld(), this.lesserBoundaryCorner.getBlockX(), 0, this.greaterBoundaryCorner.getBlockZ()), false)) return true;
-		if(otherClaim.contains(new Location(this.lesserBoundaryCorner.getWorld(), this.greaterBoundaryCorner.getBlockX(), 0, this.lesserBoundaryCorner.getBlockZ()), false)) return true;
-		
-		//verify that no claim's lesser boundary point is inside this new claim, to cover the "existing claim is entirely inside new claim" case
-		if(this.contains(otherClaim.getLesserBoundaryCorner(), false)) return true;
-		
-		//verify this claim doesn't band across an existing claim, either horizontally or vertically		
-		if(	this.getLesserBoundaryCorner().getBlockZ() <= otherClaim.getGreaterBoundaryCorner().getBlockZ() && 
-			this.getLesserBoundaryCorner().getBlockZ() >= otherClaim.getLesserBoundaryCorner().getBlockZ() && 
-			this.getLesserBoundaryCorner().getBlockX() < otherClaim.getLesserBoundaryCorner().getBlockX() &&
-			this.getGreaterBoundaryCorner().getBlockX() > otherClaim.getGreaterBoundaryCorner().getBlockX() )
-			return true;
-		
-		if(	this.getGreaterBoundaryCorner().getBlockZ() <= otherClaim.getGreaterBoundaryCorner().getBlockZ() && 
-			this.getGreaterBoundaryCorner().getBlockZ() >= otherClaim.getLesserBoundaryCorner().getBlockZ() && 
-			this.getLesserBoundaryCorner().getBlockX() < otherClaim.getLesserBoundaryCorner().getBlockX() &&
-			this.getGreaterBoundaryCorner().getBlockX() > otherClaim.getGreaterBoundaryCorner().getBlockX() )
-			return true;
-		
-		if(	this.getLesserBoundaryCorner().getBlockX() <= otherClaim.getGreaterBoundaryCorner().getBlockX() && 
-			this.getLesserBoundaryCorner().getBlockX() >= otherClaim.getLesserBoundaryCorner().getBlockX() && 
-			this.getLesserBoundaryCorner().getBlockZ() < otherClaim.getLesserBoundaryCorner().getBlockZ() &&
-			this.getGreaterBoundaryCorner().getBlockZ() > otherClaim.getGreaterBoundaryCorner().getBlockZ() )
-			return true;
-
-		if(	this.getGreaterBoundaryCorner().getBlockX() <= otherClaim.getGreaterBoundaryCorner().getBlockX() &&
-			this.getGreaterBoundaryCorner().getBlockX() >= otherClaim.getLesserBoundaryCorner().getBlockX() &&
-			this.getLesserBoundaryCorner().getBlockZ() < otherClaim.getLesserBoundaryCorner().getBlockZ() &&
-			this.getGreaterBoundaryCorner().getBlockZ() > otherClaim.getGreaterBoundaryCorner().getBlockZ() )
-			return true;
-
-		return false;
-	}
-
-    /**
-     * @return the chunks within this claim
-     */
-    public ArrayList<Chunk> getChunks()
-    {
-        ArrayList<Chunk> chunks = new ArrayList<Chunk>();
-        
-        World world = this.getLesserBoundaryCorner().getWorld();
-        Chunk lesserChunk = this.getLesserBoundaryCorner().getChunk();
-        Chunk greaterChunk = this.getGreaterBoundaryCorner().getChunk();
-        
-        for(int x = lesserChunk.getX(); x <= greaterChunk.getX(); x++)
-        {
-            for(int z = lesserChunk.getZ(); z <= greaterChunk.getZ(); z++)
-            {
-                chunks.add(world.getChunkAt(x, z));
-            }
-        }
-        
-        return chunks;
     }
 }

@@ -34,8 +34,8 @@ public interface Storage
     //protected final static Pattern uuidpattern = Pattern.compile("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}");
 
     /**
-     * Retrieves all claims in storage
-     * @return a list of all claims
+     * Retrieves a set of all claims in storage
+     * @return a set of all claims
      */
     Set<Claim> getClaims();
 
@@ -43,25 +43,20 @@ public interface Storage
      * Saves claim to storage
      *
      * @param claim
+     * @throws Exception if it is unable to save the claim for whatever reason.
      */
-    void saveClaim(Claim claim);
+    void saveClaim(Claim claim) throws Exception;
 
     /**
      * Deletes claim from storage
      *
      * @param claim
+     * @return Whether the claim exists at the time this is returned. (Successfully deleted or never existed.)
      */
-    void deleteClaim(Claim claim);
+    boolean deleteClaim(Claim claim);
 
     /**
-     * Gets and increments the next available claim ID
-     *
-     * @return the next available claim ID. -1 if there's an issue
-     */
-    long nextClaimId();
-
-    /**
-     * Retrieves the playerData for the specified player from storage
+     * Retrieves the playerData for the specified player from storage. Creates a new one if none exists.
      *
      * @param playerID
      * @return

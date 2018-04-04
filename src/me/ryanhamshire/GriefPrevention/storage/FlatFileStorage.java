@@ -18,17 +18,10 @@
 
 package me.ryanhamshire.GriefPrevention.storage;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -36,35 +29,29 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 import me.ryanhamshire.GriefPrevention.CustomLogEntryTypes;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.claim.Claim;
 import me.ryanhamshire.GriefPrevention.claim.ClaimPermission;
 import me.ryanhamshire.GriefPrevention.player.PlayerData;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 //manages storage stored in the file system
 public class FlatFileStorage implements Storage
 {
-    private GriefPrevention instance;
-    private long nextClaimId;
+    private GriefPrevention plugin;
 
     private File claimDataFolder;
     private File playerDataFolder;
-    private final int latestSchemaVersion = 1;
 
-    FlatFileStorage(GriefPrevention griefPrevention) throws Exception
+    FlatFileStorage(GriefPrevention griefPrevention)
     {
-        instance = griefPrevention;
-        claimDataFolder = new File(instance.getDataFolder(), "ClaimData");
-        playerDataFolder = new File(instance.getDataFolder(), "PlayerData");
+        plugin = griefPrevention;
+        claimDataFolder = new File(plugin.getDataFolder(), "ClaimData");
+        playerDataFolder = new File(plugin.getDataFolder(), "PlayerData");
 
         //Generate respective storage folders
         boolean newDataStore = false;
@@ -74,44 +61,17 @@ public class FlatFileStorage implements Storage
             playerDataFolder.mkdirs();
             claimDataFolder.mkdirs();
         }
-
-        this.nextClaimId = System.currentTimeMillis();
-    }
-
-    /**
-     *
-     * @return the "next" available claim ID.
-     */
-	public long nextClaimId()
-    {
-        long currentTime = System.currentTimeMillis();
-        if (currentTime == nextClaimId)
-            ++currentTime;
-        nextClaimId = currentTime;
-        return currentTime;
     }
 
 	public Set<Claim> getClaims()
 	{
         File[] files = claimDataFolder.listFiles();
         Set<Claim> claims = new HashSet<>();
-	    ConcurrentHashMap<Claim, Long> orphans = new ConcurrentHashMap<Claim, Long>();
+
         for(int i = 0; i < files.length; i++)
         {           
             if(!files[i].isFile())  //avoids folders
                 continue;
-
-            //the filename is the claim ID.  try to parse it
-            long claimID;
-            try
-            {
-
-            }
-            catch(Exception e)
-            {
-                //TODO: log
-                continue;
-            }
 
             try
             {
@@ -120,10 +80,7 @@ public class FlatFileStorage implements Storage
             //if there's any problem with the file's content, log an error message and skip it
             catch(Exception e)
             {
-                StringWriter errors = new StringWriter();
-                e.printStackTrace(new PrintWriter(errors));
-                instance.AddLogEntry("Could not load claim " + files[i].getName() + " " + errors.toString(),
-                        CustomLogEntryTypes.Exception);
+                plugin.getLogger().severe("Could not load claim " + files[i].getName() + " " );
                 continue;
             }
         }
@@ -175,34 +132,20 @@ public class FlatFileStorage implements Storage
         return new File(claimDataFolder.getPath() + File.separator + Long.toString(claim.getID()) + ".yml");
     }
 
-	public void saveClaim(Claim claim)
+	public void saveClaim(Claim claim) throws Exception
 	{
 		YamlConfiguration yaml = new YamlConfiguration();
 		yaml.set("lesserBoundaryCorner", claim.getLesserBoundaryCorner().toString());
         yaml.set("greaterBoundaryCorner", claim.getGreaterBoundaryCorner().toString());
         yaml.set("owner", claim.getOwnerUUID());
         yaml.set("trustees", claim.getTrustees()); //TODO: does this store enum's string or int value??
-
-		try
-		{
-			yaml.save(getClaimFile(claim));
-		}
-		catch(Exception e)
-		{
-		    StringWriter errors = new StringWriter();
-            e.printStackTrace(new PrintWriter(errors));
-            GriefPrevention.AddLogEntry("Unable to save claim " + claim.getID() + " " + errors.toString(),
-                    CustomLogEntryTypes.Exception);
-		}
+        yaml.save(getClaimFile(claim));
 	}
 
-	public void deleteClaim(Claim claim)
+	public boolean deleteClaim(Claim claim)
 	{
 		File claimFile = getClaimFile(claim);
-		if(claimFile.exists() && !claimFile.delete())
-		{
-			GriefPrevention.AddLogEntry("Error: Unable to delete claim file \"" + claimFile.getAbsolutePath() + "\".");
-		}		
+		return !claimFile.exists() || claimFile.delete();
 	}
 
 	public synchronized PlayerData getPlayerData(UUID playerID)
@@ -270,7 +213,6 @@ public class FlatFileStorage implements Storage
 	}
 	
 	//saves changes to player storage.
-	@Override
 	public void savePlayerDataSync(UUID playerID, PlayerData playerData)
 	{
 		//never save storage for the "administrative" account.  null for claim owner ID indicates administrative account

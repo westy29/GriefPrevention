@@ -1270,7 +1270,7 @@ public class GriefPrevention extends JavaPlugin
 						{
 						    idToDrop = otherPlayer.getUniqueId().toString(); 
 						}
-					    claim.dropPermission(idToDrop);
+					    claim.revokePermission(idToDrop);
 						claim.managers.remove(idToDrop);
 					}
 					
@@ -1333,7 +1333,7 @@ public class GriefPrevention extends JavaPlugin
 					}
                     else
                     {
-				        claim.dropPermission(idToDrop);
+				        claim.revokePermission(idToDrop);
 	                    claim.managers.remove(idToDrop);
 						
 						//beautify for output
