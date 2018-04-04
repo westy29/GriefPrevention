@@ -53,15 +53,9 @@ public class PlayerData
 	//last place the player used the shovel, useful in creating and resizing claims, 
 	//because the player must use the shovel twice in those instances
     private Location lastShovelLocation = null;
-	
+
 	//the claim this player is currently resizing
     private Claim claimResizing = null;
-	
-	//the claim this player is currently subdividing
-    private Claim claimSubdividing = null;
-	
-	//whether or not the player has a pending /trapped rescue
-    private boolean pendingTrapped = false;
     
 	//visualization
     private Visualization currentVisualization = null;
@@ -69,9 +63,12 @@ public class PlayerData
 	//the last claim this player interacted with.
     private Claim lastClaim = null;
 
-
-
-	public boolean ignoreListChanged = false;
+    public PlayerData(UUID uuid, int accruedClaimBlocks, int bonusClaimBlocks)
+    {
+        this.uuid = uuid;
+        this.accruedClaimBlocks = accruedClaimBlocks;
+        this.bonusClaimBlocks = bonusClaimBlocks;
+    }
 	
 	//the number of claim blocks a player has available for claiming land
 	public int getRemainingClaimBlocks()
@@ -82,9 +79,6 @@ public class PlayerData
 			Claim claim = this.getClaims().get(i);
 			remainingBlocks -= claim.getArea();
 		}
-		
-		//add any blocks this player might have based on group membership (permissions)
-		remainingBlocks += GriefPrevention.instance.storage.getGroupBonusBlocks(this.uuid);
 		
 		return remainingBlocks;
 	}
@@ -202,19 +196,6 @@ public class PlayerData
         }
         
         return claims;
-    }
-    
-    //Limit can be changed by addons
-    public int getAccruedClaimBlocksLimit()
-    {
-        if (this.AccruedClaimBlocksLimit < 0)
-            return GriefPrevention.instance.config_claims_maxAccruedBlocks_default;
-        return this.AccruedClaimBlocksLimit;
-    }
-
-    public void setAccruedClaimBlocksLimit(int limit)
-    {
-        this.AccruedClaimBlocksLimit = limit;
     }
 
     public void accrueBlocks(int howMany)
