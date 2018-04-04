@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -203,11 +204,10 @@ public class FlatFileStorage implements Storage
 			GriefPrevention.AddLogEntry("Error: Unable to delete claim file \"" + claimFile.getAbsolutePath() + "\".");
 		}		
 	}
-	
-	@Override
-	synchronized PlayerData getPlayerData(UUID playerID)
+
+	public synchronized PlayerData getPlayerData(UUID playerID)
 	{
-		File playerFile = new File(playerDataFolderPath + File.separator + playerID.toString());
+		File playerFile = new File(playerDataFolder.getPath() + File.separator + playerID.toString());
 					
 		PlayerData playerData = new PlayerData();
 		playerData.playerID = playerID;
@@ -225,7 +225,7 @@ public class FlatFileStorage implements Storage
     				needRetry = false;
     			    
     			    //read the file content and immediately close it
-    			    List<String> lines = Files.readLines(playerFile, Charset.forName("UTF-8"));
+    			    List<String> lines = Files.readAllLines(playerFile.toPath());
     			    Iterator<String> iterator = lines.iterator();
     				
     				//second line is accrued claim blocks
@@ -239,10 +239,6 @@ public class FlatFileStorage implements Storage
     				
     				//convert that to a number and store it										
     				playerData.setBonusClaimBlocks(Integer.parseInt(bonusBlocksString));
-    				
-    				//fourth line is a double-semicolon-delimited list of claims, which is currently ignored
-    				//String claimsString = inStream.readLine();
-    				//iterator.next();
     			}
     				
     			//if there's any problem with the file's content, retry up to 5 times with 5 milliseconds between
