@@ -28,13 +28,35 @@ public class ClaimUtils
     }
 
     /**
-     * Gets an almost-unique, persistent identifier for a chunk
+     * Gets an almost-unique, persistent identifier for the chunk within this location
      * @return the hash of the chunk
      */
     public static Long getChunkHash(Location location)
     {
         return getChunkHash(location.getBlockX() >> 4, location.getBlockZ() >> 4);
     }
+
+    public static Set<Long> getChunkHashes(Claim claim)
+    {
+        Location lesserCorner = claim.getLesserBoundaryCorner();
+        Location greaterCorner = claim.getGreaterBoundaryCorner();
+        Set<Long> hashes = new HashSet<>();
+        int smallX = lesserCorner.getBlockX() >> 4;
+        int smallZ = lesserCorner.getBlockZ() >> 4;
+        int largeX = greaterCorner.getBlockX() >> 4;
+        int largeZ = greaterCorner.getBlockZ() >> 4;
+
+        for(int x = smallX; x <= largeX; x++)
+        {
+            for(int z = smallZ; z <= largeZ; z++)
+            {
+                hashes.add(getChunkHash(x, z));
+            }
+        }
+
+        return hashes;
+    }
+
 
     /**
      * Does claim overlap otherClaim?
@@ -43,7 +65,7 @@ public class ClaimUtils
      * @return whether or not two claims overlap
      * @throws IllegalArgumentException if claim == otherClaim
      */
-    public boolean overlaps(Claim claim, Claim otherClaim)
+    public static boolean overlaps(Claim claim, Claim otherClaim)
     {
         Validate.isTrue(claim != otherClaim, "Cannot check if a claim is overlapping itself (Well, you can, but this is very likely a mistake.");
 
@@ -96,7 +118,7 @@ public class ClaimUtils
      * Returns a set of the chunks fully contained within the claim (no partial chunks)
      * @return the chunks within this claim
      */
-    public Set<Chunk> getChunks(Claim claim)
+    public static Set<Chunk> getChunks(Claim claim)
     {
         Set<Chunk> chunks = new HashSet<>();
 
@@ -119,7 +141,7 @@ public class ClaimUtils
      * @param location
      * @return
      */
-    public boolean isWithin(Claim claim, Location location)
+    public static boolean isWithin(Claim claim, Location location)
     {
         return isWithin(claim, location, false);
     }
@@ -127,10 +149,11 @@ public class ClaimUtils
     /**
      * Whether or not the given location is in this claim
      * @param location
-     * @param includeHeight false means location UNDER the claim will return TRUE
+     * @param includeHeight Whether a location underneath the claim should be considered within the claim.
+     *                      If true, a location underneath the claim will return TRUE
      * @return
      */
-    public boolean isWithin(Claim claim, Location location, boolean includeHeight)
+    public static boolean isWithin(Claim claim, Location location, boolean includeHeight)
     {
         return claim.contains(location, includeHeight);
     }

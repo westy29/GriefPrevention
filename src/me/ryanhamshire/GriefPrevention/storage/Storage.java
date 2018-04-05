@@ -58,10 +58,10 @@ public interface Storage
     /**
      * Retrieves the playerData for the specified player from storage. Creates a new one if none exists.
      *
-     * @param playerID
+     * @param uuid player's uuid
      * @return
      */
-    PlayerData getPlayerData(UUID playerID);
+    PlayerData getPlayerData(UUID uuid);
 
     /**
      * Saves the playerData to storage

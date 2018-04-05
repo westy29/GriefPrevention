@@ -23,6 +23,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
@@ -86,6 +87,7 @@ public class Claim
 		this.ownerUUID = ownerUUID;
 	}
 
+	//When loading from storage
 	public Claim(Location lesserBoundaryCorner, Location greaterBoundaryCorner, UUID ownerUUID, Map<UUID, ClaimPermission> trustees, Long id)
 	{
 		//id
@@ -99,7 +101,10 @@ public class Claim
 		this.ownerUUID = ownerUUID;
 		
 		//permissions
-		this.trustees = trustees;
+        if (trustees == null)
+            this.trustees = new HashMap<>();
+        else
+		    this.trustees = trustees;
 	}
 
     /**
@@ -196,10 +201,11 @@ public class Claim
      * This is currently not implemented in ClaimUtils as this method is called often (to prevent unnecessary Location clones)
      * @see ClaimUtils#isWithin(Claim, Location, boolean)
 	 * @param location
-	 * @param includeHeight false means location UNDER the claim will return TRUE
+	 * @param ignoreDepth Whether a location underneath the claim should be considered within the claim.
+     *                    If true, a location underneath the claim will return TRUE
 	 * @return
 	 */
-	boolean contains(Location location, boolean includeHeight)
+	boolean contains(Location location, boolean ignoreDepth)
     {
         //not in the same world implies false
         if (!location.getWorld().equals(this.lesserBoundaryCorner.getWorld())) return false;
@@ -209,7 +215,7 @@ public class Claim
         double z = location.getZ();
 
         //main check
-        return (!includeHeight || y >= this.lesserBoundaryCorner.getY()) &&
+        return (ignoreDepth || y >= this.lesserBoundaryCorner.getY()) &&
                 x >= this.lesserBoundaryCorner.getX() &&
                 x < this.greaterBoundaryCorner.getX() + 1 &&
                 z >= this.lesserBoundaryCorner.getZ() &&

@@ -18,6 +18,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Tameable;
 import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,20 +36,21 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ClaimManager
 {
+    private JavaPlugin plugin;
     private Set<Claim> claims;
-    private ConcurrentHashMap<Long, ArrayList<Claim>> chunksToClaimsMap = new ConcurrentHashMap<Long, ArrayList<Claim>>();
+    private ConcurrentHashMap<Long, Set<Claim>> chunksToClaimsMap = new ConcurrentHashMap<>();
     private Storage storage;
     private long lastUsedClaimId;
 
-    public ClaimManager(Storage storage)
+    public ClaimManager(JavaPlugin plugin, Storage storage)
     {
+        this.plugin = plugin;
         this.storage = storage;
         claims.addAll(storage.getClaims());
         lastUsedClaimId = System.currentTimeMillis();
     }
 
     /**
-     *
      * @return the "next" available claim ID.
      */
     public long nextClaimId()
@@ -99,20 +101,17 @@ public class ClaimManager
     {
         //add it and mark it as added
         this.claims.add(newClaim);
-        ArrayList<Long> chunkHashes = newClaim.getChunkHashes();
+        Set<Long> chunkHashes = ClaimUtils.getChunkHashes(newClaim);
         for(Long chunkHash : chunkHashes)
         {
-            ArrayList<Claim> claimsInChunk = this.chunksToClaimsMap.get(chunkHash);
+            Set<Claim> claimsInChunk = this.chunksToClaimsMap.get(chunkHash);
             if(claimsInChunk == null)
             {
-                claimsInChunk = new ArrayList<Claim>();
+                claimsInChunk = new HashSet<>();
                 this.chunksToClaimsMap.put(chunkHash, claimsInChunk);
             }
-
             claimsInChunk.add(newClaim);
         }
-
-        newClaim.inDataStore = true;
 
         //except for administrative claims (which have no owner), update the owner's playerData with the new claim
         if(!newClaim.isAdminClaim() && writeToStorage)
@@ -128,210 +127,79 @@ public class ClaimManager
         }
     }
 
-    void deleteClaim(Claim claim, boolean fireEvent, boolean releasePets)
+    public void deleteClaim(Claim claim)
     {
-        //remove from memory
-        for(int i = 0; i < this.claims.size(); i++)
-        {
-            if(claims.get(i).id.equals(claim.id))
-            {
-                this.claims.remove(i);
-                break;
-            }
-        }
+        claims.remove(claim);
 
-        ArrayList<Long> chunkHashes = claim.getChunkHashes();
+        Set<Long> chunkHashes = ClaimUtils.getChunkHashes(claim);
         for(Long chunkHash : chunkHashes)
         {
-            ArrayList<Claim> claimsInChunk = this.chunksToClaimsMap.get(chunkHash);
-            if(claimsInChunk != null)
-            {
-                for(int j = 0; j < claimsInChunk.size(); j++)
-                {
-                    if(claimsInChunk.get(j).id.equals(claim.id))
-                    {
-                        claimsInChunk.remove(j);
-                        break;
-                    }
-                }
-            }
+            this.chunksToClaimsMap.get(chunkHash).remove(claim);
         }
 
-        //remove from secondary storage
-        this.deleteClaimFromSecondaryStorage(claim);
+        storage.deleteClaim(claim);
 
-        //update player storage
-        if(claim.ownerID != null)
-        {
-            PlayerData ownerData = this.getPlayerData(claim.ownerID);
-            for(int i = 0; i < ownerData.getClaims().size(); i++)
-            {
-                if(ownerData.getClaims().get(i).id.equals(claim.id))
-                {
-                    ownerData.getClaims().remove(i);
-                    break;
-                }
-            }
-            this.savePlayerData(claim.ownerID, ownerData);
-        }
-
-        if(fireEvent)
-        {
-            ClaimDeletedEvent ev = new ClaimDeletedEvent(claim);
-            Bukkit.getPluginManager().callEvent(ev);
-        }
-
-        //optionally set any pets free which belong to the claim owner
-        if(releasePets && claim.ownerID != null && claim.parent == null)
-        {
-            for(Chunk chunk : claim.getChunks())
-            {
-                Entity[] entities = chunk.getEntities();
-                for(Entity entity : entities)
-                {
-                    if(entity instanceof Tameable)
-                    {
-                        Tameable pet = (Tameable)entity;
-                        if(pet.isTamed())
-                        {
-                            AnimalTamer owner = pet.getOwner();
-                            if(owner != null)
-                            {
-                                UUID ownerID = owner.getUniqueId();
-                                if(ownerID != null)
-                                {
-                                    if(ownerID.equals(claim.ownerID))
-                                    {
-                                        pet.setTamed(false);
-                                        pet.setOwner(null);
-                                        if(pet instanceof InventoryHolder)
-                                        {
-                                            InventoryHolder holder = (InventoryHolder)pet;
-                                            holder.getInventory().clear();
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        plugin.getServer().getPluginManager().callEvent(new ClaimDeletedEvent(claim));
     }
 
 
 
     //Utilities useful for claims
 
-    //turns a location into a string, useful in storage storage
-    private String locationStringDelimiter = ";";
-    String locationToString(Location location)
-    {
-        StringBuilder stringBuilder = new StringBuilder(location.getWorld().getName());
-        stringBuilder.append(locationStringDelimiter);
-        stringBuilder.append(location.getBlockX());
-        stringBuilder.append(locationStringDelimiter);
-        stringBuilder.append(location.getBlockY());
-        stringBuilder.append(locationStringDelimiter);
-        stringBuilder.append(location.getBlockZ());
-
-        return stringBuilder.toString();
-    }
-
-    //turns a location string back into a location
-    public Location locationFromString(String string, List<World> validWorlds) throws Exception
-    {
-        //split the input string on the space
-        String [] elements = string.split(locationStringDelimiter);
-
-        //expect four elements - world name, X, Y, and Z, respectively
-        if(elements.length < 4)
-        {
-            throw new Exception("Expected four distinct parts to the location string: \"" + string + "\"");
-        }
-
-        String worldName = elements[0];
-        String xString = elements[1];
-        String yString = elements[2];
-        String zString = elements[3];
-
-        //identify world the claim is in
-        World world = null;
-        for(World w : validWorlds)
-        {
-            if(w.getName().equalsIgnoreCase(worldName))
-            {
-                world = w;
-                break;
-            }
-        }
-
-        if(world == null)
-        {
-            throw new Exception("World not found: \"" + worldName + "\"");
-        }
-
-        //convert those numerical strings to integer values
-        int x = Integer.parseInt(xString);
-        int y = Integer.parseInt(yString);
-        int z = Integer.parseInt(zString);
-
-        return new Location(world, x, y, z);
-    }
-    //gets the claim at a specific location
-    //ignoreHeight = TRUE means that a location UNDER an existing claim will return the claim
-    //cachedClaim can be NULL, but will help performance if you have a reasonable guess about which claim the location is in
-    synchronized public Claim getClaimAt(Location location, boolean ignoreHeight, Claim cachedClaim)
+    /**
+     * Gets the claim at a specific location
+     *
+     * @param ignoreDepth Whether a location underneath the claim should return the claim.
+     * @param cachedClaim can be NULL, but will help performance if you have a reasonable guess about which claim the location is in
+     */
+    public Claim getClaim(Location location, boolean ignoreDepth, Claim cachedClaim)
     {
         //check cachedClaim guess first.  if it's in the datastore and the location is inside it, we're done
-        if(cachedClaim != null && cachedClaim.inDataStore && cachedClaim.contains(location, ignoreHeight, true)) return cachedClaim;
+        if(cachedClaim != null && claims.contains(cachedClaim) && cachedClaim.contains(location, ignoreDepth))
+            return cachedClaim;
 
-        //find a top level claim
-        Long chunkID = ClaimUtils.getChunkHash(location);
-        ArrayList<Claim> claimsInChunk = this.chunksToClaimsMap.get(chunkID);
-        if(claimsInChunk == null) return null;
-
+        Set<Claim> claimsInChunk = this.chunksToClaimsMap.get(ClaimUtils.getChunkHash(location));
+        if(claimsInChunk == null)
+            return null;
         for(Claim claim : claimsInChunk)
         {
-            if(claim.inDataStore && claim.contains(location, false))
-            {
+            if(claim.contains(location, ignoreDepth))
                 return claim;
-            }
-        }
-
-        //if no claim found, return null
-        return null;
-    }
-
-    //finds a claim by ID
-    public synchronized Claim getClaim(long id)
-    {
-        for(Claim claim : this.claims)
-        {
-            if(claim.inDataStore && claim.getID() == id) return claim;
         }
 
         return null;
     }
 
-    //returns a read-only access point for the list of all land claims
-    //if you need to make changes, use provided methods like .deleteClaim() and .createClaim().
-    //this will ensure primary memory (RAM) and secondary memory (disk, database) stay in sync
+    /**
+     * Get a collection of all land claims.
+     *
+     * If you need to make changes, use provided methods like .deleteClaim() and .createClaim().
+     * This will ensure primary memory (RAM) and secondary memory (disk, database) stay in sync
+     *
+     * @returns a read-only access point for the list of all land claims
+     */
     public Collection<Claim> getClaims()
     {
         return Collections.unmodifiableCollection(this.claims);
     }
 
+    /**
+     * Get a collection of all land claims within the specified chunk coordinates.
+     *
+     * Note that there is no world parameter, so this will include all claims from all worlds in this chunk coordinate.
+     *
+     * @returns a read-only access point for the list of all land claims
+     */
     public Collection<Claim> getClaims(int chunkx, int chunkz)
     {
-        ArrayList<Claim> chunkClaims = this.chunksToClaimsMap.get(ClaimUtils.getChunkHash(chunkx, chunkz));
+        Set<Claim> chunkClaims = this.chunksToClaimsMap.get(ClaimUtils.getChunkHash(chunkx, chunkz));
         if(chunkClaims != null)
         {
             return Collections.unmodifiableCollection(chunkClaims);
         }
         else
         {
-            return Collections.unmodifiableCollection(new ArrayList<Claim>());
+            return Collections.unmodifiableCollection(new HashSet<>());
         }
     }
 
@@ -346,14 +214,13 @@ public class ClaimManager
     //does NOT check a player has permission to create a claim, or enough claim blocks.
     //does NOT check minimum claim size constraints
     //does NOT visualize the new claim for any players
-    synchronized public CreateClaimResult createClaim(World world, int x1, int x2, int y1, int y2, int z1, int z2, UUID ownerID, Claim parent, Long id, Player creatingPlayer)
+    public CreateClaimResult createClaim(World world, Location firstCorner, Location secondCorner, UUID ownerID)
     {
-        CreateClaimResult result = new CreateClaimResult();
-
         int smallx, bigx, smally, bigy, smallz, bigz;
 
-        if(y1 < GriefPrevention.instance.config_claims_maxDepth) y1 = GriefPrevention.instance.config_claims_maxDepth;
-        if(y2 < GriefPrevention.instance.config_claims_maxDepth) y2 = GriefPrevention.instance.config_claims_maxDepth;
+        int x1 = firstCorner.getBlockX(); int x2 = secondCorner.getBlockX();
+        int y1 = firstCorner.getBlockY(); int y2 = secondCorner.getBlockY();
+        int z1 = firstCorner.getBlockZ(); int z2 = secondCorner.getBlockZ();
 
         //determine small versus big inputs
         if(x1 < x2)
@@ -389,48 +256,29 @@ public class ClaimManager
             bigz = z1;
         }
 
-        //creative mode claims always go to bedrock
-        if(GriefPrevention.instance.config_claims_worldModes.get(world) == ClaimsMode.Creative)
-        {
-            smally = 0;
-        }
-
         //create a new claim instance (but don't save it, yet)
-        Claim newClaim = new Claim(
+        Claim claimCandidate = new Claim(
                 new Location(world, smallx, smally, smallz),
                 new Location(world, bigx, bigy, bigz),
-                ownerID,
-                new ArrayList<String>(),
-                new ArrayList<String>(),
-                new ArrayList<String>(),
-                new ArrayList<String>(),
-                id);
-
-        newClaim.parent = parent;
+                ownerID,null, nextClaimId());
 
         //ensure this new claim won't overlap any existing claims
-        ArrayList<Claim> claimsToCheck = this.claims;
-
-        for(int i = 0; i < claimsToCheck.size(); i++)
+        for(Claim claim : this.claims)
         {
-            Claim otherClaim = claimsToCheck.get(i);
-
             //if we find an existing claim which will be overlapped
-            if(otherClaim.id != newClaim.id && otherClaim.inDataStore && otherClaim.overlaps(newClaim))
+            if(ClaimUtils.overlaps(claimCandidate, claim))
             {
                 //result = fail, return conflicting claim
-                result.succeeded = false;
-                result.claim = otherClaim;
-                return result;
+                return new CreateClaimResult(false, otherClaim);
             }
         }
 
         //otherwise add this new claim to the storage store to make it effective
-        this.addClaim(newClaim, true);
+        this.addClaim(claimCandidate, true);
 
         //then return success along with reference to new claim
         result.succeeded = true;
-        result.claim = newClaim;
+        result.claim = claimCandidate;
         return result;
     }
 

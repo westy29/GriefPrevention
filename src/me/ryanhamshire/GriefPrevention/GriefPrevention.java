@@ -2246,26 +2246,6 @@ public class GriefPrevention extends JavaPlugin
 		return false; 
 	}
 	
-	void setIgnoreStatus(OfflinePlayer ignorer, OfflinePlayer ignoree, IgnoreMode mode)
-	{
-	    PlayerData playerData = this.storage.getPlayerData(ignorer.getUniqueId());
-        if(mode == IgnoreMode.None)
-        {
-            playerData.ignoredPlayers.remove(ignoree.getUniqueId());
-        }
-        else
-        {
-            playerData.ignoredPlayers.put(ignoree.getUniqueId(), mode == IgnoreMode.StandardIgnore ? false : true);
-        }
-        
-        playerData.ignoreListChanged = true;
-        if(!ignorer.isOnline())
-        {
-            this.storage.savePlayerData(ignorer.getUniqueId(), playerData);
-            this.storage.clearCachedPlayerData(ignorer.getUniqueId());
-        }
-	}
-	
 	public enum IgnoreMode	{None, StandardIgnore, AdminIgnore}
 	
 	private String trustEntryToPlayerName(String entry)

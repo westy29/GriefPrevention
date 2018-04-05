@@ -148,66 +148,36 @@ public class FlatFileStorage implements Storage
 		return !claimFile.exists() || claimFile.delete();
 	}
 
-	public synchronized PlayerData getPlayerData(UUID playerID)
+	public synchronized PlayerData getPlayerData(UUID uuid)
 	{
-		File playerFile = new File(playerDataFolder.getPath() + File.separator + playerID.toString());
+		File playerFile = new File(playerDataFolder.getPath() + File.separator + uuid.toString());
 					
 		PlayerData playerData = new PlayerData();
-		playerData.playerID = playerID;
+
+		int accrued;
+		int bonus;
 		
-		//if it exists as a file, read the file
-		if(playerFile.exists())
-		{			
-			boolean needRetry = false;
-			int retriesRemaining = 5;
-			Exception latestException = null;
-			do
-    			{
-    			try
-    			{					
-    				needRetry = false;
-    			    
-    			    //read the file content and immediately close it
-    			    List<String> lines = Files.readAllLines(playerFile.toPath());
-    			    Iterator<String> iterator = lines.iterator();
-    				
-    				//second line is accrued claim blocks
-    				String accruedBlocksString = iterator.next();
-    				
-    				//convert that to a number and store it
-    				playerData.setAccruedClaimBlocks(Integer.parseInt(accruedBlocksString));
-    				
-    				//third line is any bonus claim blocks granted by administrators
-    				String bonusBlocksString = iterator.next();
-    				
-    				//convert that to a number and store it										
-    				playerData.setBonusClaimBlocks(Integer.parseInt(bonusBlocksString));
-    			}
-    				
-    			//if there's any problem with the file's content, retry up to 5 times with 5 milliseconds between
-    			catch(Exception e)
-    			{
-    				latestException = e;
-    				needRetry = true;
-    				retriesRemaining--;
-    			}
-    			
-    			try
-    			{
-                    if(needRetry) Thread.sleep(5);
-    			}
-    			catch(InterruptedException exception) {}
-    			
-			}while(needRetry && retriesRemaining >= 0);
-			
-			//if last attempt failed, log information about the problem
-			if(needRetry)
-			{
-			    StringWriter errors = new StringWriter();
-	            latestException.printStackTrace(new PrintWriter(errors));
-	            GriefPrevention.AddLogEntry(playerID + " " + errors.toString(), CustomLogEntryTypes.Exception);
-			}
-		}
+		//Return new PlayerData file if none exists
+		if(!playerFile.exists())
+        {
+            return new PlayerData(uuid, 0, 0);
+        }
+
+        //read the file content and immediately close it
+        List<String> lines = Files.readAllLines(playerFile.toPath());
+        Iterator<String> iterator = lines.iterator();
+
+        //second line is accrued claim blocks
+        String accruedBlocksString = iterator.next();
+
+        //convert that to a number and store it
+        accrued = Integer.parseInt(accruedBlocksString);
+
+        //third line is any bonus claim blocks granted by administrators
+        String bonusBlocksString = iterator.next();
+
+        //convert that to a number and store it
+        bonus = Integer.parseInt(bonusBlocksString);
 			
 		return playerData;
 	}
