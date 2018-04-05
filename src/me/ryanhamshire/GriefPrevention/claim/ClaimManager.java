@@ -8,23 +8,17 @@ import me.ryanhamshire.GriefPrevention.TextMode;
 import me.ryanhamshire.GriefPrevention.visualization.Visualization;
 import me.ryanhamshire.GriefPrevention.visualization.VisualizationType;
 import me.ryanhamshire.GriefPrevention.events.ClaimDeletedEvent;
-import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
-import org.bukkit.entity.AnimalTamer;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Tameable;
-import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -62,44 +56,16 @@ public class ClaimManager
         return currentTime;
     }
 
-    public void transferClaim(Claim claim, UUID newOwnerID)
+    public void changeOwner(Claim claim, UUID newOwnerID) throws Exception
     {
-        //determine current claim owner
-        PlayerData ownerData = null;
-        if(!claim.isAdminClaim())
-        {
-            ownerData = storage.getPlayerData(claim.ownerID);
-        }
-
-        //determine new owner
-        PlayerData newOwnerData = null;
-
-        if(newOwnerID != null)
-        {
-            newOwnerData = this.getPlayerData(newOwnerID);
-        }
-
-        //transfer
-        //TODO: use copy constructor
-        claim.setOwnerID(newOwnerID);
-        this.saveClaim(claim);
-
-        //adjust blocks and other records
-        if(ownerData != null)
-        {
-            ownerData.getClaims().remove(claim);
-        }
-
-        if(newOwnerData != null)
-        {
-            newOwnerData.getClaims().add(claim);
-        }
+        claim.setOwnerUUID(newOwnerID);
+        storage.saveClaim(claim);
     }
 
-    //adds a claim to the datastore, making it an effective claim
-    public void addClaim(Claim newClaim, boolean writeToStorage)
+    //Used internally to register a claim
+    private void registerClaim(Claim newClaim) throws Exception
     {
-        //add it and mark it as added
+        this.saveClaim(newClaim);
         this.claims.add(newClaim);
         Set<Long> chunkHashes = ClaimUtils.getChunkHashes(newClaim);
         for(Long chunkHash : chunkHashes)
@@ -112,23 +78,12 @@ public class ClaimManager
             }
             claimsInChunk.add(newClaim);
         }
-
-        //except for administrative claims (which have no owner), update the owner's playerData with the new claim
-        if(!newClaim.isAdminClaim() && writeToStorage)
-        {
-            PlayerData ownerData = this.getPlayerData(newClaim.ownerID);
-            ownerData.getClaims().add(newClaim);
-        }
-
-        //make sure the claim is saved to disk
-        if(writeToStorage)
-        {
-            this.saveClaim(newClaim);
-        }
     }
 
-    public void deleteClaim(Claim claim)
+    public boolean deleteClaim(Claim claim)
     {
+        if (!storage.deleteClaim(claim))
+            return false;
         claims.remove(claim);
 
         Set<Long> chunkHashes = ClaimUtils.getChunkHashes(claim);
@@ -137,9 +92,8 @@ public class ClaimManager
             this.chunksToClaimsMap.get(chunkHash).remove(claim);
         }
 
-        storage.deleteClaim(claim);
-
         plugin.getServer().getPluginManager().callEvent(new ClaimDeletedEvent(claim));
+        return true;
     }
 
 
@@ -202,19 +156,17 @@ public class ClaimManager
             return Collections.unmodifiableCollection(new HashSet<>());
         }
     }
-
-    //creates a claim.
-    //if the new claim would overlap an existing claim, returns a failure along with a reference to the existing claim
-    //if the new claim would overlap a WorldGuard region where the player doesn't have permission to build, returns a failure with NULL for claim
-    //otherwise, returns a success along with a reference to the new claim
-    //use ownerName == "" for administrative claims
-    //for top level claims, pass parent == NULL
-    //DOES adjust claim blocks available on success (players can go into negative quantity available)
-    //DOES check for world guard regions where the player doesn't have permission
-    //does NOT check a player has permission to create a claim, or enough claim blocks.
-    //does NOT check minimum claim size constraints
-    //does NOT visualize the new claim for any players
-    public CreateClaimResult createClaim(World world, Location firstCorner, Location secondCorner, UUID ownerID)
+    
+    /**
+     * Creates and registers a new claim
+     * @param world
+     * @param firstCorner
+     * @param secondCorner
+     * @param ownerID the owner of this new claim. Null designates administrative claim.
+     * @return 
+     * @throws Exception if the newly-created claim was not able to be saved.
+     */
+    public CreateClaimResult createClaim(World world, Location firstCorner, Location secondCorner, UUID ownerID) throws Exception
     {
         int smallx, bigx, smally, bigy, smallz, bigz;
 
@@ -269,17 +221,14 @@ public class ClaimManager
             if(ClaimUtils.overlaps(claimCandidate, claim))
             {
                 //result = fail, return conflicting claim
-                return new CreateClaimResult(false, otherClaim);
+                return new CreateClaimResult(false, claim);
             }
         }
 
-        //otherwise add this new claim to the storage store to make it effective
-        this.addClaim(claimCandidate, true);
+        this.registerClaim(claimCandidate);
 
         //then return success along with reference to new claim
-        result.succeeded = true;
-        result.claim = claimCandidate;
-        return result;
+        return new CreateClaimResult(true, claimCandidate);
     }
 
     //extends a claim to a new depth

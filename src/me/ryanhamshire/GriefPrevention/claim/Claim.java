@@ -66,6 +66,11 @@ public class Claim
 		return ownerUUID;
 	}
 
+    void setOwnerUUID(UUID ownerUUID)
+    {
+        this.ownerUUID = ownerUUID;
+    }
+
     /**
      * whether or not this is an administrative claim
      * administrative claims are created and maintained by players with the griefprevention.adminclaims permission.
