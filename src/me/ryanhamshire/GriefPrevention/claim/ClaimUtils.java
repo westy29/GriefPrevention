@@ -134,12 +134,9 @@ public class ClaimUtils
         Chunk greaterChunk = claim.getGreaterBoundaryCorner().getChunk();
 
         for(int x = lesserChunk.getX(); x <= greaterChunk.getX(); x++)
-        {
             for(int z = lesserChunk.getZ(); z <= greaterChunk.getZ(); z++)
-            {
                 chunks.add(world.getChunkAt(x, z));
-            }
-        }
+
         return chunks;
     }
 
@@ -238,5 +235,21 @@ public class ClaimUtils
         corners[0] = new Location(firstCorner.getWorld(), smallx, smally, smallz);
         corners[1] = new Location(firstCorner.getWorld(), bigx, bigy, bigz);
         return corners;
+    }
+
+    /**
+     * Returns the area covered by two corner locations in the xz plane
+     * @param firstCorner
+     * @param secondCorner
+     * @return
+     */
+    public static int getArea(Location firstCorner, Location secondCorner)
+    {
+        Location[] corners = retrieveSortedCorners(firstCorner, secondCorner);
+        Location lesserBoundaryCorner = corners[0];
+        Location greaterBoundaryCorner = corners[1];
+        int width = greaterBoundaryCorner.getBlockX() - lesserBoundaryCorner.getBlockX() + 1;
+        int height = greaterBoundaryCorner.getBlockZ() - lesserBoundaryCorner.getBlockZ() + 1;
+        return width * height;
     }
 }
