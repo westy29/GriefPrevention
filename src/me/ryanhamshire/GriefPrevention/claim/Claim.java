@@ -49,7 +49,7 @@ public class Claim
 	}
 
 	/**
-     * Unique ID number of the claim. (Should) never change.
+     * Unique ID number of the claim. Should never change.
 	 * @return Unique ID of this claim.
 	 */
 	public Long getID()
@@ -159,6 +159,15 @@ public class Claim
     public void setGreaterBoundaryCorner(Location greaterBoundaryCorner)
     {
         this.greaterBoundaryCorner = greaterBoundaryCorner;
+    }
+
+    /**
+     * Sets the depth of this claim
+     * @param y minimum y-coordinate of this claim
+     */
+    public void setDepth(int y)
+    {
+        lesserBoundaryCorner.setY(y);
     }
 
     /*Convenience methods*/

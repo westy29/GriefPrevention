@@ -7,6 +7,7 @@ import org.bukkit.World;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -20,6 +21,8 @@ public class ClaimUtils
 
     /**
      * Gets an almost-unique, persistent identifier for a chunk
+     * @param chunkx Chunk coordinate x value
+     * @param chunkz Chunk coordinate y value
      * @return the hash of the chunk
      */
     public static Long getChunkHash(long chunkx, long chunkz)
@@ -36,6 +39,10 @@ public class ClaimUtils
         return getChunkHash(location.getBlockX() >> 4, location.getBlockZ() >> 4);
     }
 
+    /**
+     * @param claim
+     * @return a set of chunk hashes of the chunks and partial chunks contained within a given claim
+     */
     public static Set<Long> getChunkHashes(Claim claim)
     {
         Location lesserCorner = claim.getLesserBoundaryCorner();
@@ -156,5 +163,80 @@ public class ClaimUtils
     public static boolean isWithin(Claim claim, Location location, boolean includeHeight)
     {
         return claim.contains(location, includeHeight);
+    }
+
+    /**
+     * Determines if a location is near a given claim
+     * Distance in this case is a band around the outside of the claim rather then euclidean distance
+     * @param location Location in question. Height (y value) is effectively ignored.
+     * @param howNear distance in blocks to check
+     * @return
+     */
+    public static boolean isNear(Claim claim, Location location, int howNear)
+    {
+        Claim areaToCheck = new Claim
+                (new Location(claim.getLesserBoundaryCorner().getWorld(), claim.getLesserBoundaryCorner().getBlockX() - howNear, claim.getLesserBoundaryCorner().getBlockY(), claim.getLesserBoundaryCorner().getBlockZ() - howNear),
+                        new Location(claim.getGreaterBoundaryCorner().getWorld(), claim.getGreaterBoundaryCorner().getBlockX() + howNear, claim.getGreaterBoundaryCorner().getBlockY(), claim.getGreaterBoundaryCorner().getBlockZ() + howNear),
+                        null, null, null);
+
+        return areaToCheck.contains(location, true);
+    }
+
+    /**
+     * "Sorts" two given corners into a "lesser" and "greater" variant.
+     * Idk how else to explain this other than the lesser's xyz values are lesser than the greater's xyz values.
+     * @param firstCorner
+     * @param secondCorner
+     * @return the sorted corners, with index 0 as the lesser, and index 1 as the greater
+     * @throws IllegalArgumentException if corners' worlds don't match
+     */
+    public static Location[] retrieveSortedCorners(Location firstCorner, Location secondCorner)
+    {
+        Validate.isTrue(firstCorner.getWorld() == secondCorner.getWorld());
+
+        int smallx, bigx, smally, bigy, smallz, bigz;
+
+        int x1 = firstCorner.getBlockX(); int x2 = secondCorner.getBlockX();
+        int y1 = firstCorner.getBlockY(); int y2 = secondCorner.getBlockY();
+        int z1 = firstCorner.getBlockZ(); int z2 = secondCorner.getBlockZ();
+
+        //determine small versus big inputs
+        if(x1 < x2)
+        {
+            smallx = x1;
+            bigx = x2;
+        }
+        else
+        {
+            smallx = x2;
+            bigx = x1;
+        }
+
+        if(y1 < y2)
+        {
+            smally = y1;
+            bigy = y2;
+        }
+        else
+        {
+            smally = y2;
+            bigy = y1;
+        }
+
+        if(z1 < z2)
+        {
+            smallz = z1;
+            bigz = z2;
+        }
+        else
+        {
+            smallz = z2;
+            bigz = z1;
+        }
+
+        Location[] corners = new Location[2];
+        corners[0] = new Location(firstCorner.getWorld(), smallx, smally, smallz);
+        corners[1] = new Location(firstCorner.getWorld(), bigx, bigy, bigz);
+        return corners;
     }
 }

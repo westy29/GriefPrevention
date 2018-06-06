@@ -8,6 +8,7 @@ import me.ryanhamshire.GriefPrevention.TextMode;
 import me.ryanhamshire.GriefPrevention.visualization.Visualization;
 import me.ryanhamshire.GriefPrevention.visualization.VisualizationType;
 import me.ryanhamshire.GriefPrevention.events.ClaimDeletedEvent;
+import org.apache.commons.lang.Validate;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -62,24 +63,11 @@ public class ClaimManager
         storage.saveClaim(claim);
     }
 
-    //Used internally to register a claim
-    private void registerClaim(Claim newClaim) throws Exception
-    {
-        this.saveClaim(newClaim);
-        this.claims.add(newClaim);
-        Set<Long> chunkHashes = ClaimUtils.getChunkHashes(newClaim);
-        for(Long chunkHash : chunkHashes)
-        {
-            Set<Claim> claimsInChunk = this.chunksToClaimsMap.get(chunkHash);
-            if(claimsInChunk == null)
-            {
-                claimsInChunk = new HashSet<>();
-                this.chunksToClaimsMap.put(chunkHash, claimsInChunk);
-            }
-            claimsInChunk.add(newClaim);
-        }
-    }
-
+    /**
+     * Deletes a claim entirely, from storage and in internal register
+     * @param claim
+     * @return if the deletion succeeded
+     */
     public boolean deleteClaim(Claim claim)
     {
         if (!storage.deleteClaim(claim))
@@ -88,9 +76,7 @@ public class ClaimManager
 
         Set<Long> chunkHashes = ClaimUtils.getChunkHashes(claim);
         for(Long chunkHash : chunkHashes)
-        {
             this.chunksToClaimsMap.get(chunkHash).remove(claim);
-        }
 
         plugin.getServer().getPluginManager().callEvent(new ClaimDeletedEvent(claim));
         return true;
@@ -130,7 +116,7 @@ public class ClaimManager
      * If you need to make changes, use provided methods like .deleteClaim() and .createClaim().
      * This will ensure primary memory (RAM) and secondary memory (disk, database) stay in sync
      *
-     * @returns a read-only access point for the list of all land claims
+     * @return a read-only access point for the list of all land claims
      */
     public Collection<Claim> getClaims()
     {
@@ -142,7 +128,7 @@ public class ClaimManager
      *
      * Note that there is no world parameter, so this will include all claims from all worlds in this chunk coordinate.
      *
-     * @returns a read-only access point for the list of all land claims
+     * @return a read-only access point for the list of all land claims
      */
     public Collection<Claim> getClaims(int chunkx, int chunkz)
     {
@@ -159,60 +145,21 @@ public class ClaimManager
     
     /**
      * Creates and registers a new claim
-     * @param world
      * @param firstCorner
      * @param secondCorner
      * @param ownerID the owner of this new claim. Null designates administrative claim.
-     * @return 
+     * @return a ClaimClaimResult
+     * @throws IllegalArgumentException if corners' worlds don't match
      * @throws Exception if the newly-created claim was not able to be saved.
+     * @see CreateClaimResult
      */
-    public CreateClaimResult createClaim(World world, Location firstCorner, Location secondCorner, UUID ownerID) throws Exception
+    public CreateClaimResult createClaim(Location firstCorner, Location secondCorner, UUID ownerID) throws Exception
     {
-        int smallx, bigx, smally, bigy, smallz, bigz;
 
-        int x1 = firstCorner.getBlockX(); int x2 = secondCorner.getBlockX();
-        int y1 = firstCorner.getBlockY(); int y2 = secondCorner.getBlockY();
-        int z1 = firstCorner.getBlockZ(); int z2 = secondCorner.getBlockZ();
-
-        //determine small versus big inputs
-        if(x1 < x2)
-        {
-            smallx = x1;
-            bigx = x2;
-        }
-        else
-        {
-            smallx = x2;
-            bigx = x1;
-        }
-
-        if(y1 < y2)
-        {
-            smally = y1;
-            bigy = y2;
-        }
-        else
-        {
-            smally = y2;
-            bigy = y1;
-        }
-
-        if(z1 < z2)
-        {
-            smallz = z1;
-            bigz = z2;
-        }
-        else
-        {
-            smallz = z2;
-            bigz = z1;
-        }
+        Location[] corners = ClaimUtils.retrieveSortedCorners(firstCorner, secondCorner);
 
         //create a new claim instance (but don't save it, yet)
-        Claim claimCandidate = new Claim(
-                new Location(world, smallx, smally, smallz),
-                new Location(world, bigx, bigy, bigz),
-                ownerID,null, nextClaimId());
+        Claim claimCandidate = new Claim(corners[0], corners[1], ownerID,null, nextClaimId());
 
         //ensure this new claim won't overlap any existing claims
         for(Claim claim : this.claims)
@@ -220,7 +167,7 @@ public class ClaimManager
             //if we find an existing claim which will be overlapped
             if(ClaimUtils.overlaps(claimCandidate, claim))
             {
-                //result = fail, return conflicting claim
+                //Failed, return conflicting claim
                 return new CreateClaimResult(false, claim);
             }
         }
@@ -231,91 +178,55 @@ public class ClaimManager
         return new CreateClaimResult(true, claimCandidate);
     }
 
-    //extends a claim to a new depth
-    //respects the max depth config variable
-    synchronized public void extendClaim(Claim claim, int newDepth)
+    /**
+     * @param claim
+     * @param firstCorner
+     * @param secondCorner
+     * @return a CreateClaimResult
+     * @throws IllegalArgumentException if corners' worlds don't match
+     * @throws Exception if the newly-created claim was not able to be saved.
+     * @see CreateClaimResult
+     */
+    synchronized public CreateClaimResult resizeClaim(Claim claim, Location firstCorner, Location secondCorner) throws Exception
     {
-        if(newDepth < GriefPrevention.instance.config_claims_maxDepth) newDepth = GriefPrevention.instance.config_claims_maxDepth;
+        Location[] corners = ClaimUtils.retrieveSortedCorners(firstCorner, secondCorner);
 
-        if(claim.parent != null) claim = claim.parent;
+        //retain original depth
+        corners[0].setY(claim.getLesserBoundaryCorner().getBlockY());
 
-        //adjust to new depth
-        claim.lesserBoundaryCorner.setY(newDepth);
-        claim.greaterBoundaryCorner.setY(newDepth);
+        //create a new claim instance (but don't save it, yet)
+        Claim claimCandidate = new Claim(corners[0], corners[1], claim.getOwnerUUID(),null, claim.getID());
 
-        //save changes
-        this.saveClaim(claim);
-    }
-
-    //deletes all claims owned by a player
-    synchronized public void deleteClaimsForPlayer(UUID playerID, boolean releasePets)
-    {
-        //make a list of the player's claims
-        ArrayList<Claim> claimsToDelete = new ArrayList<Claim>();
-        for(int i = 0; i < this.claims.size(); i++)
+        //ensure this new claim won't overlap any existing claims
+        for(Claim existingClaim : this.claims)
         {
-            Claim claim = this.claims.get(i);
-            if((playerID == claim.ownerID || (playerID != null && playerID.equals(claim.ownerID))))
-                claimsToDelete.add(claim);
-        }
+            //skip claim we are resizing
+            if (existingClaim == claim)
+                continue;
 
-        //delete them one by one
-        for(int i = 0; i < claimsToDelete.size(); i++)
-        {
-            Claim claim = claimsToDelete.get(i);
-            claim.removeSurfaceFluids(null);
-
-            this.deleteClaim(claim, releasePets);
-
-            //if in a creative mode world, delete the claim
-            if(GriefPrevention.instance.creativeRulesApply(claim.getLesserBoundaryCorner()))
+            //if we find an existing claim which will be overlapped
+            if(ClaimUtils.overlaps(existingClaim, claimCandidate))
             {
-                GriefPrevention.instance.restoreClaim(claim, 0);
+                //Failed, return conflicting claim
+                return new CreateClaimResult(false, existingClaim);
             }
         }
+
+        //Extend original claim
+        claim.setLesserBoundaryCorner(corners[0]);
+        claim.setGreaterBoundaryCorner(corners[1]);
+
+        //Remove the claim from the chunkhash map (may be unnecessary but likely helps avoid checking invalidated claims in a chunk)
+        Set<Long> chunkHashes = ClaimUtils.getChunkHashes(claim);
+        for(Long chunkHash : chunkHashes)
+            this.chunksToClaimsMap.get(chunkHash).remove(claim);
+
+        this.registerClaim(claim);
+
+        return new CreateClaimResult(true, claim);
     }
 
-    //tries to resize a claim
-    //see CreateClaim() for details on return value
-    synchronized public CreateClaimResult resizeClaim(Claim claim, int newx1, int newx2, int newy1, int newy2, int newz1, int newz2, Player resizingPlayer)
-    {
-        //try to create this new claim, ignoring the original when checking for overlap
-        CreateClaimResult result = this.createClaim(claim.getLesserBoundaryCorner().getWorld(), newx1, newx2, newy1, newy2, newz1, newz2, claim.ownerID, claim.parent, claim.id, resizingPlayer);
-
-        //if succeeded
-        if(result.succeeded)
-        {
-            //copy permissions from old claim
-            ArrayList<String> builders = new ArrayList<String>();
-            ArrayList<String> containers = new ArrayList<String>();
-            ArrayList<String> accessors = new ArrayList<String>();
-            ArrayList<String> managers = new ArrayList<String>();
-            claim.getPermissions(builders, containers, accessors, managers);
-
-            for(int i = 0; i < builders.size(); i++)
-                result.claim.setPermission(builders.get(i), ClaimPermission.BUILD);
-
-            for(int i = 0; i < containers.size(); i++)
-                result.claim.setPermission(containers.get(i), ClaimPermission.CONTAINER);
-
-            for(int i = 0; i < accessors.size(); i++)
-                result.claim.setPermission(accessors.get(i), ClaimPermission.ACCESS);
-
-            for(int i = 0; i < managers.size(); i++)
-            {
-                result.claim.managers.add(managers.get(i));
-            }
-
-            //save those changes
-            this.saveClaim(result.claim);
-
-            //make original claim ineffective (it's still in the hash map, so let's make it ignored)
-            claim.inDataStore = false;
-        }
-
-        return result;
-    }
-
+    //TODO: move this out
     void resizeClaimWithChecks(Player player, PlayerData playerData, int newx1, int newx2, int newy1, int newy2, int newz1, int newz2)
     {
         //for top level claims, apply size rules and claim blocks requirement
@@ -450,13 +361,18 @@ public class ClaimManager
         }
     }
 
-    //gets all the claims "near" a location
-    Set<Claim> getNearbyClaims(Location location)
+    /**
+     * Returns a set of claims near a given location
+     * @param location
+     * @param radius specified in blocks
+     * @return a set of claims
+     */
+    Set<Claim> getNearbyClaims(Location location, int radius)
     {
         Set<Claim> claims = new HashSet<Claim>();
 
-        Chunk lesserChunk = location.getWorld().getChunkAt(location.subtract(150, 0, 150));
-        Chunk greaterChunk = location.getWorld().getChunkAt(location.add(300, 0, 300));
+        Chunk lesserChunk = location.getWorld().getChunkAt(location.subtract(radius, 0, radius));
+        Chunk greaterChunk = location.getWorld().getChunkAt(location.add(radius, 0, radius));
 
         for(int chunk_x = lesserChunk.getX(); chunk_x <= greaterChunk.getX(); chunk_x++)
         {
@@ -464,12 +380,12 @@ public class ClaimManager
             {
                 Chunk chunk = location.getWorld().getChunkAt(chunk_x, chunk_z);
                 Long chunkID = ClaimUtils.getChunkHash(chunk.getBlock(0,  0,  0).getLocation());
-                ArrayList<Claim> claimsInChunk = this.chunksToClaimsMap.get(chunkID);
+                Set<Claim> claimsInChunk = this.chunksToClaimsMap.get(chunkID);
                 if(claimsInChunk != null)
                 {
                     for(Claim claim : claimsInChunk)
                     {
-                        if(claim.inDataStore && claim.getLesserBoundaryCorner().getWorld().equals(location.getWorld()))
+                        if(claim.getLesserBoundaryCorner().getWorld().equals(location.getWorld()))
                         {
                             claims.add(claim);
                         }
@@ -481,48 +397,22 @@ public class ClaimManager
         return claims;
     }
 
-    //deletes all the land claims in a specified world
-    void deleteClaimsInWorld(World world, boolean deleteAdminClaims)
+    //Used internally to register a claim
+    //Registers both the claim and its chunk hash to the respective maps, as well as saving to storage
+    private void registerClaim(Claim newClaim) throws Exception
     {
-        for(int i = 0; i < claims.size(); i++)
+        storage.saveClaim(newClaim);
+        this.claims.add(newClaim);
+        Set<Long> chunkHashes = ClaimUtils.getChunkHashes(newClaim);
+        for(Long chunkHash : chunkHashes)
         {
-            Claim claim = claims.get(i);
-            if(claim.getLesserBoundaryCorner().getWorld().equals(world))
+            Set<Claim> claimsInChunk = this.chunksToClaimsMap.get(chunkHash);
+            if(claimsInChunk == null)
             {
-                if(!deleteAdminClaims && claim.isAdminClaim()) continue;
-                this.deleteClaim(claim, false, false);
-                i--;
+                claimsInChunk = new HashSet<>();
+                this.chunksToClaimsMap.put(chunkHash, claimsInChunk);
             }
+            claimsInChunk.add(newClaim);
         }
-    }
-
-    //saves any changes to a claim to secondary storage
-    public void saveClaim(Claim claim)
-    {
-        //ensure a unique identifier for the claim which will be used to name the file on disk
-        if(claim.id == null || claim.id == -1)
-        {
-            claim.id = this.nextClaimID;
-            this.incrementNextClaimID();
-        }
-
-        this.writeClaimToStorage(claim);
-    }
-
-    /**
-     * TODO: move to ClaimManager
-     * Distance check for claims. Distance in this case is a band around the outside of the claim rather then euclidean distance
-     * @param location Location in question. Height (y value) is effectively ignored.
-     * @param howNear distance in blocks to check
-     * @return
-     */
-    public boolean isNear(Location location, int howNear)
-    {
-        Claim claim = new Claim
-                (new Location(this.lesserBoundaryCorner.getWorld(), this.lesserBoundaryCorner.getBlockX() - howNear, this.lesserBoundaryCorner.getBlockY(), this.lesserBoundaryCorner.getBlockZ() - howNear),
-                        new Location(this.greaterBoundaryCorner.getWorld(), this.greaterBoundaryCorner.getBlockX() + howNear, this.greaterBoundaryCorner.getBlockY(), this.greaterBoundaryCorner.getBlockZ() + howNear),
-                        null, new ArrayList<UUID>(), new ArrayList<UUID>(), new ArrayList<UUID>(), new ArrayList<UUID>(), null);
-
-        return claim.contains(location, true);
     }
 }
