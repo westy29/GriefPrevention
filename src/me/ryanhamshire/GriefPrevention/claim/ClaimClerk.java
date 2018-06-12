@@ -27,6 +27,12 @@ public class ClaimClerk
         this.player = player;
     }
 
+    /**
+     * Registers a new claim
+     * @param firstCorner
+     * @param secondCorner
+     * @return true if successful, false otherwise
+     */
     public boolean registerNewClaim(Location firstCorner, Location secondCorner)
     {
         if (playerData.getRemainingClaimBlocks() < ClaimUtils.getArea(firstCorner, secondCorner))
@@ -53,8 +59,36 @@ public class ClaimClerk
         return false;
     }
 
-    public boolean extendClaim(Claim claim, Location firstCorner, Location secondCorner)
+    /**
+     * Resizes a given claim
+     * @param claim
+     * @param firstCorner
+     * @param secondCorner
+     * @return
+     */
+    public boolean resizeClaim(Claim claim, Location firstCorner, Location secondCorner)
     {
+        if (playerData.getRemainingClaimBlocks() + claim.getArea() < ClaimUtils.getArea(firstCorner, secondCorner))
+        {
+            player.sendMessage("Not enough claim blocks");
+            return false;
+        }
+
+        try
+        {
+            CreateClaimResult claimResult = claimManager.resizeClaim(claim, firstCorner, secondCorner);
+            if (claimResult.isSuccess())
+                return true;
+
+            player.sendMessage("Overlaps another claim");
+            //send overlapped claim
+        }
+        catch (Exception e)
+        {
+            player.sendMessage("Error occurred while attempting to save your resized claim, see console log for details.");
+            e.printStackTrace();
+            return false;
+        }
         return false;
     }
 }
