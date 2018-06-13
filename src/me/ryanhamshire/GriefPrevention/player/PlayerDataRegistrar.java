@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author RoboMWM
  * Created on 5/25/2017.
  */
-public class PlayerDataManager
+public class PlayerDataRegistrar
 {
     //in-memory cache for player storage
     private ConcurrentHashMap<UUID, PlayerData> playerNameToPlayerDataMap = new ConcurrentHashMap<UUID, PlayerData>();

@@ -1,7 +1,7 @@
 package me.ryanhamshire.GriefPrevention.claim;
 
 import me.ryanhamshire.GriefPrevention.player.PlayerData;
-import me.ryanhamshire.GriefPrevention.player.PlayerDataManager;
+import me.ryanhamshire.GriefPrevention.player.PlayerDataRegistrar;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -10,21 +10,17 @@ import org.bukkit.entity.Player;
  *
  * Utility class to register claims and handle errors.
  *
- * Maybe I should've named it a "butler" or "agent" since you instantiate your own. Hmm.
- *
  * @author RoboMWM
  */
 public class ClaimClerk
 {
-    private ClaimManager claimManager;
-    private PlayerData playerData;
-    private Player player;
+    private ClaimRegistrar claimRegistrar;
+    private PlayerDataRegistrar playerDataRegistrar;
 
-    public ClaimClerk(ClaimManager claimManager, PlayerData playerData, Player player)
+    public ClaimClerk(ClaimRegistrar claimRegistrar, PlayerDataRegistrar playerDataRegistrar)
     {
-        this.claimManager = claimManager;
-        this.playerData = playerData;
-        this.player = player;
+        this.claimRegistrar = claimRegistrar;
+        this.playerDataRegistrar = playerDataRegistrar;
     }
 
     /**
@@ -33,8 +29,9 @@ public class ClaimClerk
      * @param secondCorner
      * @return true if successful, false otherwise
      */
-    public boolean registerNewClaim(Location firstCorner, Location secondCorner)
+    public boolean registerNewClaim(Player player, Location firstCorner, Location secondCorner)
     {
+        PlayerData playerData = playerDataRegistrar.getPlayerData(player.getUniqueId());
         if (playerData.getRemainingClaimBlocks() < ClaimUtils.getArea(firstCorner, secondCorner))
         {
             player.sendMessage("Not enough claim blocks");
@@ -43,7 +40,7 @@ public class ClaimClerk
 
         try
         {
-            CreateClaimResult claimResult = claimManager.createClaim(firstCorner, secondCorner, player.getUniqueId());
+            CreateClaimResult claimResult = claimRegistrar.createClaim(firstCorner, secondCorner, player.getUniqueId());
             if (claimResult.isSuccess())
                 return true;
 
@@ -66,8 +63,10 @@ public class ClaimClerk
      * @param secondCorner
      * @return
      */
-    public boolean resizeClaim(Claim claim, Location firstCorner, Location secondCorner)
+    public boolean resizeClaim(Player player, Claim claim, Location firstCorner, Location secondCorner)
     {
+        PlayerData playerData = playerDataRegistrar.getPlayerData(claim.getOwnerUUID());
+
         if (playerData.getRemainingClaimBlocks() + claim.getArea() < ClaimUtils.getArea(firstCorner, secondCorner))
         {
             player.sendMessage("Not enough claim blocks");
@@ -76,7 +75,7 @@ public class ClaimClerk
 
         try
         {
-            CreateClaimResult claimResult = claimManager.resizeClaim(claim, firstCorner, secondCorner);
+            CreateClaimResult claimResult = claimRegistrar.resizeClaim(claim, firstCorner, secondCorner);
             if (claimResult.isSuccess())
                 return true;
 

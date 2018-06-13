@@ -29,7 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author RoboMWM
  */
-public class ClaimManager
+public class ClaimRegistrar
 {
     private JavaPlugin plugin;
     private Set<Claim> claims;
@@ -37,7 +37,7 @@ public class ClaimManager
     private Storage storage;
     private long lastUsedClaimId;
 
-    public ClaimManager(JavaPlugin plugin, Storage storage)
+    public ClaimRegistrar(JavaPlugin plugin, Storage storage)
     {
         this.plugin = plugin;
         this.storage = storage;

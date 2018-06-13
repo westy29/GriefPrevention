@@ -1,10 +1,6 @@
 package me.ryanhamshire.GriefPrevention.command;
 
 import me.ryanhamshire.GriefPrevention.claim.ClaimClerk;
-import me.ryanhamshire.GriefPrevention.claim.ClaimManager;
-import me.ryanhamshire.GriefPrevention.claim.ClaimUtils;
-import me.ryanhamshire.GriefPrevention.player.PlayerData;
-import me.ryanhamshire.GriefPrevention.player.PlayerDataManager;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -18,8 +14,7 @@ import org.bukkit.entity.Player;
  */
 public class CreateClaimCommand implements CommandExecutor
 {
-    private PlayerDataManager playerDataManager;
-    private ClaimManager claimManager;
+    private ClaimClerk claimClerk;
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
@@ -43,7 +38,7 @@ public class CreateClaimCommand implements CommandExecutor
         Location firstCorner = player.getLocation().add(radius, 0, radius);
         Location secondCorner = player.getLocation().subtract(radius, 0, radius);
 
-        new ClaimClerk(claimManager, playerDataManager.getPlayerData(player.getUniqueId()), player).registerNewClaim(firstCorner, secondCorner);
+        claimClerk.registerNewClaim(player, firstCorner, secondCorner);
 
         return true;
     }
