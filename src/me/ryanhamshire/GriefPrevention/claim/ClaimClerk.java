@@ -4,6 +4,13 @@ import me.ryanhamshire.GriefPrevention.player.PlayerData;
 import me.ryanhamshire.GriefPrevention.player.PlayerDataRegistrar;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created on 6/7/2018.
@@ -12,13 +19,14 @@ import org.bukkit.entity.Player;
  *
  * @author RoboMWM
  */
-public class ClaimClerk
+public class ClaimClerk implements Listener
 {
     private ClaimRegistrar claimRegistrar;
     private PlayerDataRegistrar playerDataRegistrar;
 
-    public ClaimClerk(ClaimRegistrar claimRegistrar, PlayerDataRegistrar playerDataRegistrar)
+    public ClaimClerk(JavaPlugin plugin, ClaimRegistrar claimRegistrar, PlayerDataRegistrar playerDataRegistrar)
     {
+        plugin.getServer().getPluginManager().registerEvents(this, plugin);
         this.claimRegistrar = claimRegistrar;
         this.playerDataRegistrar = playerDataRegistrar;
     }
@@ -89,5 +97,25 @@ public class ClaimClerk
             return false;
         }
         return false;
+    }
+
+    //For caching last-known claim
+    private Map<Player, Claim> lastAccessedClaim = new HashMap<>();
+
+    @EventHandler
+    private void onQuit(Player player)
+    {
+        lastAccessedClaim.remove(player);
+    }
+
+    /**
+     * Gets the claim at a specific location
+     *
+     * @param player The player for whom we're retrieving the claim for. Used for caching.
+     * @param ignoreDepth Whether a location underneath the claim should return the claim.
+     */
+    public Claim getClaim(Player player, Location location, boolean ignoreDepth)
+    {
+        return claimRegistrar.getClaim(location, ignoreDepth, lastAccessedClaim.get(player));
     }
 }

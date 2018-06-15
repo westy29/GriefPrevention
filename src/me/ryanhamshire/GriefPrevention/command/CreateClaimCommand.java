@@ -16,6 +16,11 @@ public class CreateClaimCommand implements CommandExecutor
 {
     private ClaimClerk claimClerk;
 
+    public CreateClaimCommand(ClaimClerk claimClerk)
+    {
+        this.claimClerk = claimClerk;
+    }
+
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
     {
