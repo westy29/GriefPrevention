@@ -13,45 +13,25 @@ import org.bukkit.entity.Player;
  *
  * @author RoboMWM
  */
-public class AbandonClaimCommand implements CommandExecutor
+public class AbandonClaimCommand extends ClaimManagementCommands
 {
-    private ClaimClerk claimClerk;
     private ClaimRegistrar claimRegistrar;
 
-    public AbandonClaimCommand(ClaimClerk claimClerk)
+    public AbandonClaimCommand(ClaimClerk claimClerk, ClaimRegistrar claimRegistrar)
     {
-        this.claimClerk = claimClerk;
+        super(claimClerk);
+        this.claimRegistrar = claimRegistrar;
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
+    public boolean execute(Player player, String[] args, Claim claim)
     {
-        if (!(sender instanceof Player))
-            return false;
-
-        Player player = (Player)sender;
-
-        Claim claim = claimClerk.getClaim(player, player.getLocation(), true);
-
-        if (claim == null)
-        {
-            player.sendMessage("no claim here");
-            return true;
-        }
-
-        if (claim.getOwnerUUID() != player.getUniqueId())
-        {
-            player.sendMessage("not your claim");
-            return true;
-        }
-
         //TODO: ask user to confirm
 
         if (!claimRegistrar.deleteClaim(claim))
-        {
             player.sendMessage("error in deleting your claim");
-            return true;
-        }
+        else
+            player.sendMessage("Claim abandoned");
 
         return true;
     }
