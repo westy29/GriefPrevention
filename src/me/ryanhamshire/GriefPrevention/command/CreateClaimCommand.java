@@ -4,7 +4,6 @@ import me.ryanhamshire.GriefPrevention.claim.Claim;
 import me.ryanhamshire.GriefPrevention.claim.ClaimClerk;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -18,6 +17,19 @@ public class CreateClaimCommand extends ClaimManagementCommands
     public CreateClaimCommand(ClaimClerk claimClerk)
     {
         super(claimClerk);
+    }
+
+    @Override
+    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
+    {
+        if (!(sender instanceof Player))
+            return false;
+
+        Player player = (Player)sender;
+
+        execute(player, args, null);
+
+        return true;
     }
 
     @Override

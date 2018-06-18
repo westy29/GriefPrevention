@@ -2,11 +2,7 @@ package me.ryanhamshire.GriefPrevention.command;
 
 import me.ryanhamshire.GriefPrevention.claim.Claim;
 import me.ryanhamshire.GriefPrevention.claim.ClaimClerk;
-import me.ryanhamshire.GriefPrevention.claim.ClaimRegistrar;
 import org.bukkit.Location;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
@@ -15,37 +11,16 @@ import org.bukkit.util.Vector;
  *
  * @author RoboMWM, BigScary
  */
-public class ExtendClaimCommand implements CommandExecutor
+public class ExtendClaimCommand extends ClaimManagementCommands
 {
-    private ClaimClerk claimClerk;
-
     public ExtendClaimCommand(ClaimClerk claimClerk)
     {
-        this.claimClerk = claimClerk;
+        super(claimClerk);
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
+    public boolean execute(Player player, String[] args, Claim claim)
     {
-        if (!(sender instanceof Player))
-            return false;
-
-        Player player = (Player)sender;
-
-        Claim claim = claimClerk.getClaim(player, player.getLocation(), true);
-
-        if (claim == null)
-        {
-            player.sendMessage("no claim here");
-            return true;
-        }
-
-        if (claim.getOwnerUUID() != player.getUniqueId())
-        {
-            player.sendMessage("not your claim");
-            return true;
-        }
-
         int amount = 10;
 
         try
