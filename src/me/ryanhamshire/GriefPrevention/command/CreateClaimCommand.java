@@ -1,5 +1,6 @@
 package me.ryanhamshire.GriefPrevention.command;
 
+import me.ryanhamshire.GriefPrevention.claim.Claim;
 import me.ryanhamshire.GriefPrevention.claim.ClaimClerk;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -12,23 +13,16 @@ import org.bukkit.entity.Player;
  *
  * @author RoboMWM
  */
-public class CreateClaimCommand implements CommandExecutor
+public class CreateClaimCommand extends ClaimManagementCommands
 {
-    private ClaimClerk claimClerk;
-
     public CreateClaimCommand(ClaimClerk claimClerk)
     {
-        this.claimClerk = claimClerk;
+        super(claimClerk);
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
+    public boolean execute(Player player, String[] args, Claim claim)
     {
-        if (!(sender instanceof Player))
-            return false;
-
-        Player player = (Player)sender;
-
         //TODO: permission checks
 
         int radius = 10; //TODO: replace with config
