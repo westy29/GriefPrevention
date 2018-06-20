@@ -39,11 +39,11 @@ public class Claim
 	private Long id;
     private UUID ownerUUID;
     private Map<UUID, ClaimPermission> trustees;
+    private ClaimPermission publicPermission;
     private boolean naturalGriefAllowed = false;
 
 	/**
      * Returns the permission map of the claim.
-	 * A null entry refers to the default permission granted to any player.
 	 * @return An immutable copy of the trustees map
      *
 	 */
@@ -52,21 +52,37 @@ public class Claim
 		return Collections.unmodifiableMap(trustees);
 	}
 
-	public boolean hasPermission(Player player, ClaimPermission permissionToCheck)
+	public ClaimPermission getPermission(Player player)
     {
+        if (ownerUUID == player.getUniqueId())
+            return ClaimPermission.MANAGE;
         ClaimPermission permission = trustees.get(player.getUniqueId());
         if (permission == null)
-            return false;
-        switch (permissionToCheck)
-        {
-            case MANAGE:
-                return permission == ClaimPermission.MANAGE;
-            case BUILD:
-                
-        }
+            return publicPermission;
+        return permission;
     }
 
-	/**
+    public boolean hasPermission(Player player, ClaimPermission permissionToCheck)
+    {
+        if (ownerUUID == player.getUniqueId())
+            return true;
+        ClaimPermission permission = trustees.get(player.getUniqueId());
+        if (permission == null)
+            return publicPermission.includes(permissionToCheck);
+        return permission.includes(permissionToCheck);
+    }
+
+    public ClaimPermission getPublicPermission()
+    {
+        return publicPermission;
+    }
+
+    void setPublicPermission(ClaimPermission publicPermission)
+    {
+        this.publicPermission = publicPermission;
+    }
+
+    /**
      * Unique ID number of the claim. Should never change.
 	 * @return Unique ID of this claim.
 	 */

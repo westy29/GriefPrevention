@@ -35,11 +35,21 @@ public class BuildTrustCommand extends ClaimManagementCommands
         for (String playerName : args)
         {
             OfflinePlayer trustee = plugin.getServer().getOfflinePlayer(playerName);
-            claim.getPermissions().put(trustee.getUniqueId(), ClaimPermission.BUILD);
+            if (trustee.getUniqueId() == null)
+            {
+                player.sendMessage(playerName + " is not a valid name." + "");
+                continue;
+            }
+
+            trustees.put(trustee.getUniqueId(), ClaimPermission.BUILD);
+            player.sendMessage("Trusted " + trustee + " to this claim.");
         }
 
+        if (!claimClerk.changeTrustees(claim, trustees))
+        {
+            player.sendMessage("Failed to save claim.");
+        }
 
-
-        return false;
+        return true;
     }
 }

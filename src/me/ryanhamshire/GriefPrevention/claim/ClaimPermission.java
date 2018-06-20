@@ -21,8 +21,21 @@ package me.ryanhamshire.GriefPrevention.claim;
 //basic enum stuff
 public enum ClaimPermission 
 {
-	MANAGE,
-	BUILD,
-	CONTAINER,
-	ACCESS
+	MANAGE(100),
+	BUILD(75),
+	CONTAINER(50),
+	ACCESS(25),
+    NONE(0);
+
+    private int weight;
+
+	private ClaimPermission(final int weight)
+    {
+        this.weight = weight;
+    }
+
+    public boolean includes(ClaimPermission other)
+    {
+        return this.weight >= other.weight;
+    }
 }
