@@ -18,13 +18,11 @@
 
 package me.ryanhamshire.GriefPrevention.claim;
 
-import org.bukkit.Chunk;
 import org.bukkit.Location;
-import org.bukkit.World;
+import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 
@@ -43,10 +41,30 @@ public class Claim
     private Map<UUID, ClaimPermission> trustees;
     private boolean naturalGriefAllowed = false;
 
+	/**
+     * Returns the permission map of the claim.
+	 * A null entry refers to the default permission granted to any player.
+	 * @return An immutable copy of the trustees map
+     *
+	 */
 	public Map<UUID, ClaimPermission> getTrustees()
 	{
-		return trustees;
+		return Collections.unmodifiableMap(trustees);
 	}
+
+	public boolean hasPermission(Player player, ClaimPermission permissionToCheck)
+    {
+        ClaimPermission permission = trustees.get(player.getUniqueId());
+        if (permission == null)
+            return false;
+        switch (permissionToCheck)
+        {
+            case MANAGE:
+                return permission == ClaimPermission.MANAGE;
+            case BUILD:
+                
+        }
+    }
 
 	/**
      * Unique ID number of the claim. Should never change.
@@ -112,13 +130,14 @@ public class Claim
 		    this.trustees = trustees;
 	}
 
+
+
     /**
-     * Returns the permission map of the claim.
-     * A null entry refers to the default permission granted to any player.
-     * Any changes to this map will modify the claim's permission map; don't forget to save if you modify it!
-     * @return the permission map of the claim.
+     * Used internally to modify permissions
+     * @see ClaimClerk
+     * @return
      */
-	public Map<UUID, ClaimPermission> getPermissions()
+    Map<UUID, ClaimPermission> getTrusteesMap()
     {
         return trustees;
     }

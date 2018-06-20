@@ -2,6 +2,7 @@ package me.ryanhamshire.GriefPrevention.claim;
 
 import me.ryanhamshire.GriefPrevention.player.PlayerData;
 import me.ryanhamshire.GriefPrevention.player.PlayerDataRegistrar;
+import me.ryanhamshire.GriefPrevention.storage.Storage;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -10,7 +11,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
+import java.util.UUID;
 
 /**
  * Created on 6/7/2018.
@@ -21,14 +22,16 @@ import java.util.Set;
  */
 public class ClaimClerk implements Listener
 {
+    private Storage storage;
     private ClaimRegistrar claimRegistrar;
     private PlayerDataRegistrar playerDataRegistrar;
 
-    public ClaimClerk(JavaPlugin plugin, ClaimRegistrar claimRegistrar, PlayerDataRegistrar playerDataRegistrar)
+    public ClaimClerk(JavaPlugin plugin, ClaimRegistrar claimRegistrar, PlayerDataRegistrar playerDataRegistrar, Storage storage)
     {
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
         this.claimRegistrar = claimRegistrar;
         this.playerDataRegistrar = playerDataRegistrar;
+        this.storage = storage;
     }
 
     /**
@@ -117,5 +120,29 @@ public class ClaimClerk implements Listener
     public Claim getClaim(Player player, Location location, boolean ignoreDepth)
     {
         return claimRegistrar.getClaim(location, ignoreDepth, lastAccessedClaim.get(player));
+    }
+
+    /**
+     * Replaces the old map of trustees with the provided map, and saves the claim to storage
+     * @param claim
+     * @param newTrustees
+     * @return false if there was an issue saving the claim (may need to undo changes)
+     */
+    public boolean changeTrustees(Claim claim, Map<UUID, ClaimPermission> newTrustees)
+    {
+        claim.getTrusteesMap().clear();
+        claim.getTrusteesMap().putAll(newTrustees);
+
+        try
+        {
+            storage.saveClaim(claim);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            return false;
+        }
+
+        return true;
     }
 }
