@@ -1,4 +1,4 @@
-package me.ryanhamshire.GriefPrevention.events.triage;
+package me.ryanhamshire.GriefPrevention.events.funnel;
 
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import org.bukkit.block.Block;
@@ -23,7 +23,7 @@ import java.util.List;
 import static org.bukkit.event.EventPriority.LOWEST;
 
 /**
- * Fires the respective triage GP events, and handles cancellation
+ * Fires the respective funnel GP events, and handles cancellation
  * TODO: listen at lowest priority?
  * TODO: call events even if canceled?
  * Created on 2/23/2017.

@@ -1,4 +1,4 @@
-package me.ryanhamshire.GriefPrevention.events.triage;
+package me.ryanhamshire.GriefPrevention.events.funnel;
 
 /**
  * Created on 3/11/2017.

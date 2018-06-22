@@ -1,4 +1,4 @@
-package me.ryanhamshire.GriefPrevention.listeners;
+package me.ryanhamshire.GriefPrevention.listener;
 
 import org.bukkit.event.Listener;
 

@@ -1,6 +1,6 @@
-package me.ryanhamshire.GriefPrevention.listeners;
+package me.ryanhamshire.GriefPrevention.listener;
 
-import me.ryanhamshire.GriefPrevention.events.triage.GPBlockMutateTypeEvent;
+import me.ryanhamshire.GriefPrevention.events.funnel.GPBlockMutateTypeEvent;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
