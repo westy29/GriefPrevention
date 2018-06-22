@@ -27,13 +27,13 @@ public class CreateClaimCommand extends ClaimManagementCommands
 
         Player player = (Player)sender;
 
-        execute(player, args, null);
+        execute(player, cmd, args, null);
 
         return true;
     }
 
     @Override
-    public boolean execute(Player player, String[] args, Claim claim)
+    public boolean execute(Player player, Command cmd, String[] args, Claim claim)
     {
         //TODO: permission checks
 

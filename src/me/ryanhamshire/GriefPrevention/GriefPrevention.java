@@ -1094,7 +1094,7 @@ public class GriefPrevention extends JavaPlugin
     			OfflinePlayer targetPlayer = this.resolvePlayerByName(args[0]);
     			if(targetPlayer == null)
     			{
-    				GriefPrevention.sendMessage(player, TextMode.Err, Messages.PlayerNotFound2);
+    				GriefPrevention.sendMessage(player, TextMode.Err, Messages.PlayerNotFound);
     				return true;
     			}
     			newOwnerID = targetPlayer.getUniqueId();
@@ -1238,7 +1238,7 @@ public class GriefPrevention extends JavaPlugin
 					otherPlayer = this.resolvePlayerByName(args[0]);
 					if(!clearPermissions && otherPlayer == null && !args[0].equals("public"))
 					{
-						GriefPrevention.sendMessage(player, TextMode.Err, Messages.PlayerNotFound2);
+						GriefPrevention.sendMessage(player, TextMode.Err, Messages.PlayerNotFound);
 						return true;
 					}
 					
@@ -1664,7 +1664,7 @@ public class GriefPrevention extends JavaPlugin
 			OfflinePlayer otherPlayer = this.resolvePlayerByName(args[0]);
 			if(otherPlayer == null)
 			{
-				GriefPrevention.sendMessage(player, TextMode.Err, Messages.PlayerNotFound2);
+				GriefPrevention.sendMessage(player, TextMode.Err, Messages.PlayerNotFound);
 				return true;
 			}
 			
@@ -1745,7 +1745,7 @@ public class GriefPrevention extends JavaPlugin
             Player otherPlayer = this.getServer().getPlayer(args[0]);
             if(otherPlayer == null)
             {
-                GriefPrevention.sendMessage(player, TextMode.Err, Messages.PlayerNotFound2);
+                GriefPrevention.sendMessage(player, TextMode.Err, Messages.PlayerNotFound);
                 return true;
             }
             else
@@ -1787,7 +1787,7 @@ public class GriefPrevention extends JavaPlugin
 				otherPlayer = this.resolvePlayerByName(args[0]);
 				if(otherPlayer == null)
 				{
-					GriefPrevention.sendMessage(player, TextMode.Err, Messages.PlayerNotFound2);
+					GriefPrevention.sendMessage(player, TextMode.Err, Messages.PlayerNotFound);
 					return true;
 				}
 			}
@@ -1911,7 +1911,7 @@ public class GriefPrevention extends JavaPlugin
 			
 			if(targetPlayer == null)
             {
-                GriefPrevention.sendMessage(player, TextMode.Err, Messages.PlayerNotFound2);
+                GriefPrevention.sendMessage(player, TextMode.Err, Messages.PlayerNotFound);
                 return true;
             }
 			
@@ -1983,7 +1983,7 @@ public class GriefPrevention extends JavaPlugin
             OfflinePlayer targetPlayer = this.resolvePlayerByName(args[0]);
             if(targetPlayer == null)
             {
-                GriefPrevention.sendMessage(player, TextMode.Err, Messages.PlayerNotFound2);
+                GriefPrevention.sendMessage(player, TextMode.Err, Messages.PlayerNotFound);
                 return true;
             }
             
@@ -2081,7 +2081,7 @@ public class GriefPrevention extends JavaPlugin
             OfflinePlayer targetPlayer = this.resolvePlayerByName(args[0]);
             if(targetPlayer == null)
             {
-                GriefPrevention.sendMessage(player, TextMode.Err, Messages.PlayerNotFound2);
+                GriefPrevention.sendMessage(player, TextMode.Err, Messages.PlayerNotFound);
                 return true;
             }
             
@@ -2116,7 +2116,7 @@ public class GriefPrevention extends JavaPlugin
             OfflinePlayer targetPlayer = this.resolvePlayerByName(args[0]);
             if(targetPlayer == null)
             {
-                GriefPrevention.sendMessage(player, TextMode.Err, Messages.PlayerNotFound2);
+                GriefPrevention.sendMessage(player, TextMode.Err, Messages.PlayerNotFound);
                 return true;
             }
             
@@ -2137,7 +2137,7 @@ public class GriefPrevention extends JavaPlugin
             OfflinePlayer targetPlayer = this.resolvePlayerByName(args[0]);
             if(targetPlayer == null)
             {
-                GriefPrevention.sendMessage(player, TextMode.Err, Messages.PlayerNotFound2);
+                GriefPrevention.sendMessage(player, TextMode.Err, Messages.PlayerNotFound);
                 return true;
             }
             
@@ -2197,14 +2197,14 @@ public class GriefPrevention extends JavaPlugin
             OfflinePlayer targetPlayer = this.resolvePlayerByName(args[0]);
             if(targetPlayer == null)
             {
-                GriefPrevention.sendMessage(player, TextMode.Err, Messages.PlayerNotFound2);
+                GriefPrevention.sendMessage(player, TextMode.Err, Messages.PlayerNotFound);
                 return true;
             }
             
             OfflinePlayer targetPlayer2 = this.resolvePlayerByName(args[1]);
             if(targetPlayer2 == null)
             {
-                GriefPrevention.sendMessage(player, TextMode.Err, Messages.PlayerNotFound2);
+                GriefPrevention.sendMessage(player, TextMode.Err, Messages.PlayerNotFound);
                 return true;
             }
             
@@ -2225,14 +2225,14 @@ public class GriefPrevention extends JavaPlugin
             OfflinePlayer targetPlayer = this.resolvePlayerByName(args[0]);
             if(targetPlayer == null)
             {
-                GriefPrevention.sendMessage(player, TextMode.Err, Messages.PlayerNotFound2);
+                GriefPrevention.sendMessage(player, TextMode.Err, Messages.PlayerNotFound);
                 return true;
             }
             
             OfflinePlayer targetPlayer2 = this.resolvePlayerByName(args[1]);
             if(targetPlayer2 == null)
             {
-                GriefPrevention.sendMessage(player, TextMode.Err, Messages.PlayerNotFound2);
+                GriefPrevention.sendMessage(player, TextMode.Err, Messages.PlayerNotFound);
                 return true;
             }
             
@@ -2353,7 +2353,7 @@ public class GriefPrevention extends JavaPlugin
 			otherPlayer = this.resolvePlayerByName(recipientName);
 			if(otherPlayer == null && !recipientName.equals("public") && !recipientName.equals("all"))
 			{
-				GriefPrevention.sendMessage(player, TextMode.Err, Messages.PlayerNotFound2);
+				GriefPrevention.sendMessage(player, TextMode.Err, Messages.PlayerNotFound);
 				return;
 			}
 			

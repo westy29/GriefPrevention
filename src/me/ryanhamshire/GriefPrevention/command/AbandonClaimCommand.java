@@ -4,8 +4,6 @@ import me.ryanhamshire.GriefPrevention.claim.Claim;
 import me.ryanhamshire.GriefPrevention.claim.ClaimClerk;
 import me.ryanhamshire.GriefPrevention.claim.ClaimRegistrar;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 /**
@@ -24,7 +22,7 @@ public class AbandonClaimCommand extends ClaimManagementCommands
     }
 
     @Override
-    public boolean execute(Player player, String[] args, Claim claim)
+    public boolean execute(Player player, Command command, String[] args, Claim claim)
     {
         //TODO: ask user to confirm
 

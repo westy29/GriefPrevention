@@ -1,9 +1,11 @@
-package me.ryanhamshire.GriefPrevention.command;
+package me.ryanhamshire.GriefPrevention.command.trust;
 
 import me.ryanhamshire.GriefPrevention.claim.Claim;
 import me.ryanhamshire.GriefPrevention.claim.ClaimClerk;
 import me.ryanhamshire.GriefPrevention.claim.ClaimPermission;
+import me.ryanhamshire.GriefPrevention.command.ClaimManagementCommands;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -15,17 +17,17 @@ import java.util.UUID;
  *
  * @author RoboMWM
  */
-public class BuildTrustCommand extends ClaimManagementCommands
+public class UntrustCommand extends ClaimManagementCommands
 {
     private JavaPlugin plugin;
 
-    public BuildTrustCommand(ClaimClerk claimClerk)
+    public UntrustCommand(ClaimClerk claimClerk)
     {
         super(claimClerk);
     }
 
     @Override
-    public boolean execute(Player player, String[] args, Claim claim)
+    public boolean execute(Player player, Command cmd, String[] args, Claim claim)
     {
         if (args.length == 0)
             return false;
@@ -41,8 +43,8 @@ public class BuildTrustCommand extends ClaimManagementCommands
                 continue;
             }
 
-            trustees.put(trustee.getUniqueId(), ClaimPermission.BUILD);
-            player.sendMessage("Trusted " + trustee + " to this claim.");
+            trustees.remove(trustee.getUniqueId());
+            player.sendMessage("Revoked trust from " + trustee + " to this claim.");
         }
 
         if (!claimClerk.changeTrustees(claim, trustees))

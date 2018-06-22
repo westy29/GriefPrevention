@@ -18,6 +18,8 @@
 
 package me.ryanhamshire.GriefPrevention.message;
 
+import org.bukkit.command.CommandSender;
+
 public enum Messages
 {
     RespectingClaims,
@@ -29,7 +31,7 @@ public enum Messages
     TransferClaimPermission,
     TransferClaimMissing,
     TransferClaimAdminOnly,
-    PlayerNotFound2,
+    PlayerNotFound,
     TransferTopLevel,
     TransferSuccess,
     TrustListNoClaim,
@@ -218,5 +220,28 @@ public enum Messages
     ConsoleOnlyCommand,
     WorldNotFound,
     AdjustBlocksAllSuccess,
-    TooMuchIpOverlap
+    TooMuchIpOverlap;
+
+    private String message;
+
+    public void send(CommandSender sender)
+    {
+        //TODO: GPSendMessageEvent
+        sender.sendMessage(message);
+    }
+
+    public void send(CommandSender sender, String... args)
+    {
+
+    }
+
+    public String getMessage()
+    {
+        return message;
+    }
+
+    public void setMessage(String message)
+    {
+        this.message = message;
+    }
 }

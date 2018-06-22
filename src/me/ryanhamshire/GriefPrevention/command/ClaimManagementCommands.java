@@ -2,7 +2,6 @@ package me.ryanhamshire.GriefPrevention.command;
 
 import me.ryanhamshire.GriefPrevention.claim.Claim;
 import me.ryanhamshire.GriefPrevention.claim.ClaimClerk;
-import me.ryanhamshire.GriefPrevention.claim.ClaimRegistrar;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -44,7 +43,7 @@ public abstract class ClaimManagementCommands implements CommandExecutor
             return true;
         }
 
-        if (execute(player, args, claim))
+        if (execute(player, cmd, args, claim))
         {
             //print remaining claim blocks, etc.
             return true;
@@ -57,5 +56,5 @@ public abstract class ClaimManagementCommands implements CommandExecutor
 
     }
 
-    public abstract boolean execute(Player player, String[] args, Claim claim);
+    public abstract boolean execute(Player player, Command cmd, String[] args, Claim claim);
 }

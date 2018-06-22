@@ -3,6 +3,7 @@ package me.ryanhamshire.GriefPrevention.command;
 import me.ryanhamshire.GriefPrevention.claim.Claim;
 import me.ryanhamshire.GriefPrevention.claim.ClaimClerk;
 import org.bukkit.Location;
+import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
@@ -19,7 +20,7 @@ public class ExtendClaimCommand extends ClaimManagementCommands
     }
 
     @Override
-    public boolean execute(Player player, String[] args, Claim claim)
+    public boolean execute(Player player, Command cmd, String[] args, Claim claim)
     {
         int amount = 10;
 
