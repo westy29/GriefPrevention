@@ -1,5 +1,6 @@
 package me.ryanhamshire.GriefPrevention.events.funnel;
 
+import me.ryanhamshire.GriefPrevention.claim.Claim;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -46,6 +47,8 @@ public class GPBaseEvent extends Event implements Cancellable
     private Entity sourceEntity;
     private Location location;
     private Metadatable target;
+
+    private Claim claim;
 
     /**
      * Called when something other than an entity is not the source of this event (e.g. another block)

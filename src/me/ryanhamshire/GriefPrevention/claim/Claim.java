@@ -42,7 +42,17 @@ public class Claim
     private ClaimPermission publicPermission;
     private boolean naturalGriefAllowed = false;
 
-	/**
+    public void setNaturalGriefAllowed(boolean naturalGriefAllowed)
+    {
+        this.naturalGriefAllowed = naturalGriefAllowed;
+    }
+
+    public boolean isNaturalGriefAllowed()
+    {
+        return naturalGriefAllowed;
+    }
+
+    /**
      * Returns the permission map of the claim.
 	 * @return An immutable copy of the trustees map
      *

@@ -1,14 +1,17 @@
 package me.ryanhamshire.GriefPrevention.events.funnel;
 
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockBurnEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.block.BlockSpreadEvent;
 import org.bukkit.event.block.EntityBlockFormEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
@@ -143,5 +146,19 @@ public class BukkitToGPEventListener implements Listener
     private void onEntityFormBlock(EntityBlockFormEvent event) //Frost walker
     {
         callEvent(new GPBlockMutateTypeEvent(event, event.getEntity(), event.getBlock().getLocation(), event.getBlock()));
+    }
+
+    @EventHandler(priority = LOWEST)
+    private void onBlockBurn(BlockBurnEvent event)
+    {
+        callEvent(new GPBlockMutateTypeEvent(event, event.getIgnitingBlock(), event.getBlock().getLocation(), event.getBlock()));
+    }
+
+    @EventHandler(priority = LOWEST)
+    private void onFireSpread(BlockSpreadEvent event)
+    {
+        if(event.getSource().getType() != Material.FIRE) //Ignore other blocks like vines, grass, etc.
+            return;
+        callEvent(new GPBlockMutateTypeEvent(event, event.getSource(), event.getBlock().getLocation(), event.getBlock()));
     }
 }
