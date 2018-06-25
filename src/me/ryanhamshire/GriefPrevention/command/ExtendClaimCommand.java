@@ -22,14 +22,19 @@ public class ExtendClaimCommand extends ClaimManagementCommands
     @Override
     public boolean execute(Player player, Command cmd, String[] args, Claim claim)
     {
-        int amount = 10;
+        if (args.length == 0)
+            return false;
+
+        int amount;
 
         try
         {
-            if (args.length > 0)
-                amount = Integer.parseInt(args[0]);
+            amount = Integer.parseInt(args[0]);
         }
-        catch (NumberFormatException ignored){}
+        catch (NumberFormatException e)
+        {
+            return false;
+        }
 
         Vector direction = player.getLocation().getDirection();
 
