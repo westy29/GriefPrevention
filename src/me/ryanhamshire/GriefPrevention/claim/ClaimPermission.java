@@ -24,7 +24,6 @@ public enum ClaimPermission
 	MANAGE(100),
 	BUILD(75),
 	CONTAINER(50),
-	ACCESS(25),
     NONE(0);
 
     private int weight;
