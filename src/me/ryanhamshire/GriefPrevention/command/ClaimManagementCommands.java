@@ -43,4 +43,18 @@ public abstract class ClaimManagementCommands implements CommandExecutor
             return true;
         }
 
-        if (execute(player, cmd, \\\\\\\\\\\\\\\\\\\\\\
+        if (execute(player, cmd, args, claim))
+        {
+            //print remaining claim blocks, etc.
+            return true;
+        }
+
+        else
+        {
+            //print help
+            return false;
+        }
+    }
+
+    public abstract boolean execute(Player player, Command cmd, String[] args, Claim claim);
+}
