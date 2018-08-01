@@ -16,14 +16,21 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.BlockIterator;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Created on 7/1/2018.
+ *
+ * TODO: clear mode on hotbar change
  *
  * @author RoboMWM
  */
 public class ClaimTool implements Listener
 {
     private ClaimClerk claimClerk;
+
+    private Map<Player, FirstCorner> firstCornerMap = new HashMap<>();
 
     public ClaimTool(JavaPlugin plugin)
     {
@@ -57,17 +64,32 @@ public class ClaimTool implements Listener
         if (block == null)
             return; //TODO: error message
 
-        //If clicking within a claim (no matter the mode), inspect (and reset claim creation/extension)
+        //If clicking within a claim, inspect (and reset claim creation/extension)
         Claim claim = claimClerk.getClaim(player, block.getLocation(), false);
         if (claim != null)
         {
+            //todo: if already clicked one corner, show overlap
             //todo: visualize
-            return;
+            return; //TODO: except when extending corner
         }
 
-        //TODO: determine claim mode and etc.
+        if (!firstCornerMap.containsKey(player))
+        {
+            //TODO: determine claim mode
+            firstCornerMap.put(player, new FirstCorner(block.getLocation(), ToolMode.CREATE, null));
+            return; //todo: instructions
+        }
+
+        FirstCorner firstCorner = firstCornerMap.remove(player);
+        Location secondCorner = block.getLocation();
 
 
+        switch (firstCorner.getToolMode())
+        {
+            case CREATE:
+                claimClerk.registerNewClaim(player, firstCorner.getLocation(), secondCorner);
+                break;
+        }
     }
 
     private Block getTargetBlock(Player player, int maxDistance) throws IllegalStateException
@@ -90,4 +112,40 @@ public class ClaimTool implements Listener
 
         return result;
     }
+}
+
+class FirstCorner
+{
+    private ToolMode toolMode;
+    private Location location;
+    private Claim claim;
+
+    FirstCorner(Location location, ToolMode toolMode, Claim claim)
+    {
+        this.location = location;
+        this.toolMode = toolMode;
+        this.claim = claim;
+    }
+
+    public Location getLocation()
+    {
+        return location;
+    }
+
+    public ToolMode getToolMode()
+    {
+        return toolMode;
+    }
+
+    public Claim getClaim()
+    {
+        return claim;
+    }
+}
+
+enum ToolMode
+{
+    ADMIN_CREATE,
+    CREATE,
+    EXTEND
 }
