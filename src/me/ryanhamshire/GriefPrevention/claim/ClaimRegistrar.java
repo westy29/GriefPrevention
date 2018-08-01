@@ -146,7 +146,6 @@ public class ClaimRegistrar implements Listener
      */
     public CreateClaimResult createClaim(Location firstCorner, Location secondCorner, UUID ownerID) throws Exception
     {
-
         Location[] corners = ClaimUtils.retrieveSortedCorners(firstCorner, secondCorner);
 
         //create a new claim instance (but don't save it, yet)
@@ -162,6 +161,8 @@ public class ClaimRegistrar implements Listener
                 return new CreateClaimResult(false, claim);
             }
         }
+
+        //TODO: fire ClaimCreateEvent
 
         this.registerClaim(claimCandidate);
 

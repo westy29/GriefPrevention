@@ -23,6 +23,5 @@ public enum VisualizationType
 {
 	Claim,
 	ErrorClaim,
-	RestoreNature,
 	AdminClaim
 }
