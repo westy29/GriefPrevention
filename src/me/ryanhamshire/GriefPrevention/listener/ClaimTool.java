@@ -56,6 +56,10 @@ public class ClaimTool implements Listener
         if (event.getItem().getType() != Material.GOLD_SPADE)
             return;
 
+        //TODO: ClaimToolEvent
+
+        event.setCancelled(true);
+
         Block block = event.getClickedBlock();
 
         if (block == null)
