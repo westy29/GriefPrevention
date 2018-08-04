@@ -1,7 +1,8 @@
 package me.ryanhamshire.GriefPrevention.listener;
 
+import me.ryanhamshire.GriefPrevention.claim.Claim;
 import me.ryanhamshire.GriefPrevention.claim.ClaimClerk;
-import me.ryanhamshire.GriefPrevention.claim.ClaimUtils;
+import me.ryanhamshire.GriefPrevention.claim.ClaimPermission;
 import me.ryanhamshire.GriefPrevention.events.funnel.GPBlockMutateTypeEvent;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -32,6 +33,8 @@ public class ClaimProtection implements Listener
             return;
         }
 
-        ClaimUtils.
+        Claim claim = claimClerk.getClaim(player, event.getLocation(), false);
+
+        event.setCancelled(!claim.hasPermission(player, ClaimPermission.BUILD));
     }
 }
