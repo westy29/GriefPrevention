@@ -26,9 +26,20 @@ public class ClaimClerk implements Listener
     private ClaimRegistrar claimRegistrar;
     private PlayerDataRegistrar playerDataRegistrar;
 
+    /**
+     * Creates a new ClaimClerk, which helps assist in obtaining and performing actions on the claim and playerdata registrars.
+     *
+     * You really <i>shouldn't</i> be instantiating this unless you're performing unusual actions, and thus benefit from a separate getClaim cache.
+     *
+     * @param plugin Used to cleanup caches created using getClaim. Can be null <i>only</i> if you never use getClaim or always pass null for the Player param in getClaim.
+     * @param claimRegistrar
+     * @param playerDataRegistrar
+     * @param storage
+     */
     public ClaimClerk(JavaPlugin plugin, ClaimRegistrar claimRegistrar, PlayerDataRegistrar playerDataRegistrar, Storage storage)
     {
-        plugin.getServer().getPluginManager().registerEvents(this, plugin);
+        if (plugin != null)
+            plugin.getServer().getPluginManager().registerEvents(this, plugin);
         this.claimRegistrar = claimRegistrar;
         this.playerDataRegistrar = playerDataRegistrar;
         this.storage = storage;

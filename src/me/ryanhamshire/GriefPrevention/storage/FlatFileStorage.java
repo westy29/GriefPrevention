@@ -47,7 +47,7 @@ public class FlatFileStorage implements Storage
     private File claimDataFolder;
     private File playerDataFolder;
 
-    FlatFileStorage(GriefPrevention griefPrevention)
+    public FlatFileStorage(GriefPrevention griefPrevention)
     {
         plugin = griefPrevention;
         claimDataFolder = new File(plugin.getDataFolder(), "ClaimData");

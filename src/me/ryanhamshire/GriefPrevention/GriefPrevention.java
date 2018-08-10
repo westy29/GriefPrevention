@@ -20,6 +20,7 @@ package me.ryanhamshire.GriefPrevention;
 
 import me.ryanhamshire.GriefPrevention.claim.ClaimRegistrar;
 import me.ryanhamshire.GriefPrevention.player.PlayerDataRegistrar;
+import me.ryanhamshire.GriefPrevention.storage.FlatFileStorage;
 import me.ryanhamshire.GriefPrevention.storage.Storage;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -28,4 +29,11 @@ public class GriefPrevention extends JavaPlugin
     private ClaimRegistrar claimRegistrar;
     private PlayerDataRegistrar playerDataRegistrar;
     private Storage storage; //TODO: add setter, config-controlled
+
+    public void onEnable()
+    {
+        storage = new FlatFileStorage(this);
+        claimRegistrar = new ClaimRegistrar(this, storage);
+        playerDataRegistrar = new PlayerDataRegistrar();
+    }
 }
