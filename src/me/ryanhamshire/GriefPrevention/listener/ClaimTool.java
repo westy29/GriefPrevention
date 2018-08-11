@@ -53,7 +53,7 @@ public class ClaimTool implements Listener
 
         //TODO: configurable.
         //TODO: 1.13
-        if (event.getItem().getType() != Material.GOLD_SPADE)
+        if (event.getItem().getType() != Material.GOLDEN_SHOVEL)
             return;
 
         //TODO: ClaimToolEvent
@@ -100,7 +100,7 @@ public class ClaimTool implements Listener
     {
         Location eye = player.getEyeLocation();
         Material eyeMaterial = eye.getBlock().getType();
-        boolean passThroughWater = (eyeMaterial == Material.WATER || eyeMaterial == Material.STATIONARY_WATER);
+        boolean passThroughWater = (eyeMaterial == Material.WATER || eyeMaterial == Material.WATER);
         BlockIterator iterator = new BlockIterator(player.getLocation(), player.getEyeHeight(), maxDistance);
         Block result = player.getLocation().getBlock().getRelative(BlockFace.UP);
         while (iterator.hasNext())
@@ -108,9 +108,8 @@ public class ClaimTool implements Listener
             result = iterator.next();
             Material type = result.getType();
             if(type != Material.AIR &&
-                    (!passThroughWater || type != Material.STATIONARY_WATER) &&
                     (!passThroughWater || type != Material.WATER) &&
-                    type != Material.LONG_GRASS &&
+                    type != Material.TALL_GRASS &&
                     type != Material.SNOW) return result;
         }
 
