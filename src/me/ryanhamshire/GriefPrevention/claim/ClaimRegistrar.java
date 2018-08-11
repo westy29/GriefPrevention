@@ -115,6 +115,19 @@ public class ClaimRegistrar implements Listener
     }
 
     /**
+     * Get a collection of all land claims owned by a Player (via UUID)
+     * @param uuid
+     * @return
+     */
+    public Collection<Claim> getClaims(UUID uuid)
+    {
+        Set<Claim> claims = new HashSet<>();
+        for (Claim claim : this.claims)
+            if (uuid.equals(claim.getOwnerUUID()))
+                claims.add(claim);
+    }
+
+    /**
      * Get a collection of all land claims within the specified chunk coordinates.
      *
      * Note that there is no world parameter, so this will include all claims from all worlds in this chunk coordinate.

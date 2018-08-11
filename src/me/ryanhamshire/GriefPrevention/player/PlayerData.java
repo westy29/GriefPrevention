@@ -21,6 +21,7 @@ import java.util.UUID;
 import java.util.Vector;
 
 import me.ryanhamshire.GriefPrevention.CustomLogEntryTypes;
+import me.ryanhamshire.GriefPrevention.claim.ClaimRegistrar;
 import me.ryanhamshire.GriefPrevention.storage.Storage;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.ShovelMode;
@@ -40,25 +41,6 @@ public class PlayerData
 
     //how many claim blocks the player has been gifted/purchased
     private int bonusClaimBlocks;
-	
-	//where this player was the last time we checked on him for earning claim blocks
-    private Location lastAfkCheckLocation = null;
-	
-	//what "mode" the shovel is in determines what it will do when it's used
-    private ShovelMode shovelMode = ShovelMode.Basic;
-	
-	//last place the player used the shovel, useful in creating and resizing claims, 
-	//because the player must use the shovel twice in those instances
-    private Location lastShovelLocation = null;
-
-	//the claim this player is currently resizing
-    private Claim claimResizing = null;
-    
-	//visualization
-    private Visualization currentVisualization = null;
-	
-	//the last claim this player interacted with.
-    private Claim lastClaim = null;
 
     public PlayerData(UUID uuid, int accruedClaimBlocks, int bonusClaimBlocks)
     {
@@ -68,14 +50,12 @@ public class PlayerData
     }
 	
 	//the number of claim blocks a player has available for claiming land
-	public int getRemainingClaimBlocks()
+	public int getRemainingClaimBlocks(ClaimRegistrar claimRegistrar)
 	{
 		int remainingBlocks = this.getAccruedClaimBlocks() + this.getBonusClaimBlocks();
-		for(int i = 0; i < this.getClaims().size(); i++)
-		{
-			Claim claim = this.getClaims().get(i);
+
+		for(Claim claim : claimRegistrar.getClaims(this.uuid))
 			remainingBlocks -= claim.getArea();
-		}
 		
 		return remainingBlocks;
 	}
@@ -83,49 +63,22 @@ public class PlayerData
 	//don't load storage from secondary storage until it's needed
 	public int getAccruedClaimBlocks()
 	{
-	    if(this.accruedClaimBlocks == null) this.loadDataFromSecondaryStorage();
-        
-	    //update claim blocks with any he has accrued during his current play session
-	    if(this.newlyAccruedClaimBlocks > 0)
-	    {
-	        int accruedLimit = this.getAccruedClaimBlocksLimit();
-	        
-	        //if over the limit before adding blocks, leave it as-is, because the limit may have changed AFTER he accrued the blocks
-	        if(this.accruedClaimBlocks < accruedLimit)
-	        {
-	            //move any in the holding area
-	            int newTotal = this.accruedClaimBlocks + this.newlyAccruedClaimBlocks;
-	            
-	            //respect limits
-	            this.accruedClaimBlocks = Math.min(newTotal, accruedLimit);
-	        }
-	        
-	        this.newlyAccruedClaimBlocks = 0;
-	        return this.accruedClaimBlocks;
-	    }
-	    
+	    //TODO: accrual limit check?
 	    return accruedClaimBlocks;
     }
 
-    public void setAccruedClaimBlocks(Integer accruedClaimBlocks)
+    public void setAccruedClaimBlocks(int accruedClaimBlocks)
     {
         this.accruedClaimBlocks = accruedClaimBlocks;
-        this.newlyAccruedClaimBlocks = 0;
     }
 
     public int getBonusClaimBlocks()
     {
-        if(this.bonusClaimBlocks == null) this.loadDataFromSecondaryStorage();
         return bonusClaimBlocks;
     }
 
-    public void setBonusClaimBlocks(Integer bonusClaimBlocks)
+    public void setBonusClaimBlocks(int bonusClaimBlocks)
     {
         this.bonusClaimBlocks = bonusClaimBlocks;
-    }
-
-    public void accrueBlocks(int howMany)
-    {
-        this.newlyAccruedClaimBlocks += howMany;
     }
 }
