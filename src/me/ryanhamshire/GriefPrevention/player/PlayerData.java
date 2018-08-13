@@ -17,18 +17,10 @@
  */
 
 package me.ryanhamshire.GriefPrevention.player;
-import java.util.UUID;
-import java.util.Vector;
-
-import me.ryanhamshire.GriefPrevention.CustomLogEntryTypes;
-import me.ryanhamshire.GriefPrevention.claim.ClaimRegistrar;
-import me.ryanhamshire.GriefPrevention.storage.Storage;
-import me.ryanhamshire.GriefPrevention.GriefPrevention;
-import me.ryanhamshire.GriefPrevention.ShovelMode;
-import me.ryanhamshire.GriefPrevention.visualization.Visualization;
 import me.ryanhamshire.GriefPrevention.claim.Claim;
-import org.bukkit.Location;
-import org.bukkit.OfflinePlayer;
+import me.ryanhamshire.GriefPrevention.claim.ClaimRegistrar;
+
+import java.util.UUID;
 
 //holds all of GriefPrevention's player-tied storage
 public class PlayerData 
