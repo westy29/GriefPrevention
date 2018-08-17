@@ -18,8 +18,6 @@
  
  package me.ryanhamshire.GriefPrevention.visualization;
 
-import me.ryanhamshire.GriefPrevention.GriefPrevention;
-import me.ryanhamshire.GriefPrevention.player.PlayerData;
 import org.bukkit.entity.Player;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -48,8 +46,8 @@ class VisualizationApplicationTask extends BukkitRunnable
 		for(VisualizationElement element : visualization.getElements())
 		{
 			//send the player a fake block change event
-			if(!element.location.getChunk().isLoaded()) continue;  //cheap distance check
-			player.sendBlockChange(element.location, element.visualizedMaterial, element.visualizedData);
+			if(!element.getLocation().getChunk().isLoaded()) continue;  //cheap distance check
+			player.sendBlockChange(element.getLocation(), element.getVisualizedBlock());
 		}
 		
 		//remember the visualization applied to this player for later (so it can be inexpensively reverted)

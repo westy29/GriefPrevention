@@ -1,8 +1,6 @@
 package me.ryanhamshire.GriefPrevention.visualization;
 
-import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.claim.Claim;
-import me.ryanhamshire.GriefPrevention.player.PlayerData;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -63,7 +61,7 @@ public class VisualizationManager
         //send real block information for any remaining elements
         for(VisualizationElement element : visualization.getElements())
         {
-            player.sendBlockChange(element.location, element.realMaterial, element.realData);
+            player.sendBlockChange(element.getLocation(), element.getRealBlock());
         }
     }
 
