@@ -16,7 +16,8 @@ import java.util.UUID;
 /**
  * Created on 6/7/2018.
  *
- * Utility class to register claims and handle errors.
+ * Utility class to register and access claims, and handle errors (somewhat) gracefully.
+ * Provides a cache for getClaim calls.
  *
  * @author RoboMWM
  */
@@ -29,7 +30,7 @@ public class ClaimClerk implements Listener
     /**
      * Creates a new ClaimClerk, which helps assist in obtaining and performing actions on the claim and playerdata registrars.
      *
-     * You really <i>shouldn't</i> be instantiating this unless you're performing unusual actions, and thus benefit from a separate getClaim cache.
+     * You really <i>shouldn't</i> be instantiating this unless you're performing unusual actions and would benefit from a separate getClaim cache.
      *
      * @param plugin Used to cleanup caches created using getClaim. Can be null <i>only</i> if you never use getClaim or always pass null for the Player param in getClaim.
      * @param claimRegistrar

@@ -1,6 +1,7 @@
 package me.ryanhamshire.GriefPrevention.player;
 
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
+import me.ryanhamshire.GriefPrevention.storage.Storage;
 
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -11,26 +12,19 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class PlayerDataRegistrar
 {
+    private Storage storage;
+
     //in-memory cache for player storage
     private ConcurrentHashMap<UUID, PlayerData> playerNameToPlayerDataMap = new ConcurrentHashMap<UUID, PlayerData>();
 
-    //retrieves player storage from memory or secondary storage, as necessary
-    //if the player has never been on the server before, this will return a fresh player storage with default values
-    public PlayerData getPlayerData(UUID playerID)
+    public PlayerData getPlayerData(UUID uuid)
     {
-        //first, look in memory
-        PlayerData playerData = this.playerNameToPlayerDataMap.get(playerID);
+        //first, look in cache
+        PlayerData playerData = this.playerNameToPlayerDataMap.get(uuid);
 
-        //if not there, build a fresh instance with some blanks for what may be in secondary storage
-        //TODO: why are we doing this
-        if(playerData == null)
-        {
-            playerData = new PlayerData();
-            playerData.playerID = playerID;
+        //TODO: if not there, look and load from flatfile
 
-            //shove that new player storage into the hash map cache
-            this.playerNameToPlayerDataMap.put(playerID, playerData);
-        }
+        playerData = storage.getPlayerData(uuid);
 
         return playerData;
     }

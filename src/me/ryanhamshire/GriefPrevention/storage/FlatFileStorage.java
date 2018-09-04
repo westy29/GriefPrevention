@@ -152,35 +152,31 @@ public class FlatFileStorage implements Storage
 	public synchronized PlayerData getPlayerData(UUID uuid)
 	{
 		File playerFile = new File(playerDataFolder.getPath() + File.separator + uuid.toString());
-					
-		PlayerData playerData = new PlayerData();
-
-		int accrued;
-		int bonus;
 		
 		//Return new PlayerData file if none exists
 		if(!playerFile.exists())
+		    return null;
+
+        try
         {
-            return new PlayerData(uuid, 0, 0);
+            //read the file content and immediately close it
+            List<String> lines = Files.readAllLines(playerFile.toPath());
+            Iterator<String> iterator = lines.iterator();
+
+            //first line is accrued claim blocks
+            int accrued = Integer.parseInt(iterator.next());
+
+            //second line is any bonus claim blocks granted by administrators
+            int bonus = Integer.parseInt(iterator.next());
+
+            return new PlayerData(uuid, accrued, bonus);
         }
-
-        //read the file content and immediately close it
-        List<String> lines = Files.readAllLines(playerFile.toPath());
-        Iterator<String> iterator = lines.iterator();
-
-        //second line is accrued claim blocks
-        String accruedBlocksString = iterator.next();
-
-        //convert that to a number and store it
-        accrued = Integer.parseInt(accruedBlocksString);
-
-        //third line is any bonus claim blocks granted by administrators
-        String bonusBlocksString = iterator.next();
-
-        //convert that to a number and store it
-        bonus = Integer.parseInt(bonusBlocksString);
-			
-		return playerData;
+        catch (Throwable rock)
+        {
+            plugin.getLogger().severe("Failed to load playerData for UUID " + uuid.toString());
+            rock.printStackTrace();
+        }
+        return null;
 	}
 	
 	//saves changes to player storage.

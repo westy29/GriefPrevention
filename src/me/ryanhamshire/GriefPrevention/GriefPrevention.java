@@ -34,6 +34,6 @@ public class GriefPrevention extends JavaPlugin
     {
         storage = new FlatFileStorage(this);
         claimRegistrar = new ClaimRegistrar(this, storage);
-        playerDataRegistrar = new PlayerDataRegistrar();
+        playerDataRegistrar = new PlayerDataRegistrar(storage);
     }
 }

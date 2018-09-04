@@ -22,7 +22,7 @@ import me.ryanhamshire.GriefPrevention.claim.ClaimRegistrar;
 
 import java.util.UUID;
 
-//holds all of GriefPrevention's player-tied storage
+//holds all of a player's claim-related attributes
 public class PlayerData 
 {
 	//the player's uuid
@@ -40,8 +40,13 @@ public class PlayerData
         this.accruedClaimBlocks = accruedClaimBlocks;
         this.bonusClaimBlocks = bonusClaimBlocks;
     }
-	
-	//the number of claim blocks a player has available for claiming land
+
+    public UUID getUuid()
+    {
+        return uuid;
+    }
+
+    //the number of claim blocks a player has available for claiming land
 	public int getRemainingClaimBlocks(ClaimRegistrar claimRegistrar)
 	{
 		int remainingBlocks = this.getAccruedClaimBlocks() + this.getBonusClaimBlocks();
