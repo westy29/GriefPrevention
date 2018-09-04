@@ -21,14 +21,11 @@ package me.ryanhamshire.GriefPrevention.storage;
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.nio.file.OpenOption;
+import java.nio.file.StandardOpenOption;
+import java.util.*;
 
 import me.ryanhamshire.GriefPrevention.CustomLogEntryTypes;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
@@ -80,7 +77,7 @@ public class FlatFileStorage implements Storage
             //if there's any problem with the file's content, log an error message and skip it
             catch(Exception e)
             {
-                plugin.getLogger().severe("Could not load claim " + files[i].getName() + " " );
+                plugin.getLogger().severe("Could not load claim " + files[i].getName());
                 continue;
             }
         }
@@ -185,30 +182,23 @@ public class FlatFileStorage implements Storage
 		//never save storage for the "administrative" account.  null for claim owner ID indicates administrative account
 		if(playerID == null) return;
 		
-		StringBuilder fileContent = new StringBuilder();
+		ArrayList<String> fileContent = new ArrayList<>();
 		try
 		{
 			//first line is accrued claim blocks
-			fileContent.append(String.valueOf(playerData.getAccruedClaimBlocks()));
-			fileContent.append("\n");			
+			fileContent.add(String.valueOf(playerData.getAccruedClaimBlocks()));
 			
 			//second line is bonus claim blocks
-			fileContent.append(String.valueOf(playerData.getBonusClaimBlocks()));
-			fileContent.append("\n");
-			
-			//third line is blank
-			fileContent.append("\n");
+			fileContent.add(String.valueOf(playerData.getBonusClaimBlocks()));
 			
 			//write storage to file
-            File playerDataFile = new File(playerDataFolderPath + File.separator + playerID.toString());
-            Files.write(fileContent.toString().getBytes("UTF-8"), playerDataFile);
-		}		
-		
-		//if any problem, log it
-		catch(Exception e)
+            File playerDataFile = new File(playerDataFolder + File.separator + playerID.toString());
+            Files.write(playerDataFile.toPath(), fileContent, StandardCharsets.UTF_8, StandardOpenOption.CREATE);
+		}
+		catch(Throwable rock)
 		{
-			GriefPrevention.AddLogEntry("GriefPrevention: Unexpected exception saving storage for player \"" + playerID.toString() + "\": " + e.getMessage());
-			e.printStackTrace();
+			plugin.getLogger().severe("Error occurred while attempting to store playerData for UUID " + playerID.toString());
+			rock.printStackTrace();
 		}
 	}
 
@@ -231,9 +221,6 @@ public class FlatFileStorage implements Storage
 
         public void run()
         {
-            //ensure player storage is already read from file before trying to save
-            playerData.getAccruedClaimBlocks();
-            playerData.getClaims();
             savePlayerDataSync(this.playerID, this.playerData);
         }
     }
