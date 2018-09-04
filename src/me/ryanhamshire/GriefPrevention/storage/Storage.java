@@ -69,5 +69,5 @@ public interface Storage
      * @param playerID
      * @param playerData
      */
-    void savePlayerData(UUID playerID, PlayerData playerData);
+    boolean savePlayerData(PlayerData playerData);
 }

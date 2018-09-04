@@ -17,52 +17,56 @@ public class PlayerDataRegistrar
     //in-memory cache for player storage
     private ConcurrentHashMap<UUID, PlayerData> playerNameToPlayerDataMap = new ConcurrentHashMap<UUID, PlayerData>();
 
+    /**
+     *
+     * @param uuid
+     * @return null if the PlayerData does not exist
+     */
     public PlayerData getPlayerData(UUID uuid)
     {
         //first, look in cache
         PlayerData playerData = this.playerNameToPlayerDataMap.get(uuid);
 
-        //TODO: if not there, look and load from flatfile
+        if (playerData == null)
+        {
+            playerData = storage.getPlayerData(uuid);
 
-        playerData = storage.getPlayerData(uuid);
+            //cache if found
+            if (playerData != null)
+                playerNameToPlayerDataMap.put(uuid, playerData);
+        }
 
         return playerData;
     }
 
-    private void loadDataFromSecondaryStorage()
+    /**
+     * Creates and caches a new PlayerData if none exists in storage. Does not save this new PlayerData to storage.
+     * @param uuid
+     * @return a PlayerData object. Nonnull.
+     */
+    public PlayerData getOrCreatePlayerData(UUID uuid)
     {
-        //reach out to secondary storage to get any storage there
-        PlayerData storageData = GriefPrevention.instance.storage.getPlayerData(this.playerID);
+        PlayerData playerData = getOrCreatePlayerData(uuid);
 
-        if(this.accruedClaimBlocks == null)
+        if (playerData == null)
         {
-            if(storageData.accruedClaimBlocks != null)
-            {
-                this.accruedClaimBlocks = storageData.accruedClaimBlocks;
-
-                //ensure at least minimum accrued are accrued (in case of settings changes to increase initial amount)
-                if(this.accruedClaimBlocks < GriefPrevention.instance.config_claims_initialBlocks)
-                {
-                    this.accruedClaimBlocks = GriefPrevention.instance.config_claims_initialBlocks;
-                }
-
-            }
-            else
-            {
-                this.accruedClaimBlocks = GriefPrevention.instance.config_claims_initialBlocks;
-            }
+            //TODO: fill with config defaults
+            playerData = new PlayerData(uuid, 0, 0);
+            playerNameToPlayerDataMap.put(uuid, playerData);
         }
 
-        if(this.bonusClaimBlocks == null)
-        {
-            if(storageData.bonusClaimBlocks != null)
-            {
-                this.bonusClaimBlocks = storageData.bonusClaimBlocks;
-            }
-            else
-            {
-                this.bonusClaimBlocks = 0;
-            }
-        }
+        return playerData;
+    }
+
+    public boolean savePlayerData(UUID uuid)
+    {
+        if (!playerNameToPlayerDataMap.containsKey(uuid))
+            return false;
+        return storage.savePlayerData(playerNameToPlayerDataMap.get(uuid));
+    }
+
+    public boolean savePlayerData(PlayerData playerData)
+    {
+        return storage.savePlayerData(playerData);
     }
 }

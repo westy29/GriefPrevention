@@ -177,10 +177,11 @@ public class FlatFileStorage implements Storage
 	}
 	
 	//saves changes to player storage.
-	public void savePlayerDataSync(UUID playerID, PlayerData playerData)
+	public boolean savePlayerDataSync(PlayerData playerData)
 	{
 		//never save storage for the "administrative" account.  null for claim owner ID indicates administrative account
-		if(playerID == null) return;
+		if(playerData == null || playerData.getUuid() == null)
+		    return false;
 		
 		ArrayList<String> fileContent = new ArrayList<>();
 		try
@@ -192,20 +193,22 @@ public class FlatFileStorage implements Storage
 			fileContent.add(String.valueOf(playerData.getBonusClaimBlocks()));
 			
 			//write storage to file
-            File playerDataFile = new File(playerDataFolder + File.separator + playerID.toString());
+            File playerDataFile = new File(playerDataFolder + File.separator + playerData.getUuid().toString());
             Files.write(playerDataFile.toPath(), fileContent, StandardCharsets.UTF_8, StandardOpenOption.CREATE);
 		}
 		catch(Throwable rock)
 		{
-			plugin.getLogger().severe("Error occurred while attempting to store playerData for UUID " + playerID.toString());
+			plugin.getLogger().severe("Error occurred while attempting to store playerData for UUID " + playerData.getUuid().toString());
 			rock.printStackTrace();
+			return false;
 		}
+		return true;
 	}
 
     @Override
-    public void savePlayerData(UUID playerID, PlayerData playerData)
+    public void savePlayerData(PlayerData playerData)
     {
-        new SavePlayerDataThread(playerID, playerData).start();
+        new SavePlayerDataThread(playerData).start();
     }
 
     private class SavePlayerDataThread extends Thread
