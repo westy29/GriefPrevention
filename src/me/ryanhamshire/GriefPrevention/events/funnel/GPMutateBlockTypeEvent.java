@@ -14,13 +14,13 @@ import org.bukkit.metadata.Metadatable;
  *
  * @author RoboMWM
  */
-public class GPBlockMutateTypeEvent extends GPBaseEvent
+public class GPMutateBlockTypeEvent extends GPBaseEvent
 {
-    public GPBlockMutateTypeEvent(Event baseEvent, Entity sourceEntity, Location location, Metadatable target)
+    public GPMutateBlockTypeEvent(Event baseEvent, Entity sourceEntity, Location location, Metadatable target)
     {
         super(baseEvent, sourceEntity, location, target);
     }
-    public GPBlockMutateTypeEvent(Event baseEvent, Metadatable source, Location location, Metadatable target)
+    public GPMutateBlockTypeEvent(Event baseEvent, Metadatable source, Location location, Metadatable target)
     {
         super(baseEvent, source, location, target);
     }

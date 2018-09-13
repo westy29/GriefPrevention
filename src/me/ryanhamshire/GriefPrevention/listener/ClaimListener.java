@@ -3,7 +3,7 @@ package me.ryanhamshire.GriefPrevention.listener;
 import me.ryanhamshire.GriefPrevention.claim.Claim;
 import me.ryanhamshire.GriefPrevention.claim.ClaimPermission;
 import me.ryanhamshire.GriefPrevention.claim.ClaimRegistrar;
-import me.ryanhamshire.GriefPrevention.events.funnel.GPBlockMutateTypeEvent;
+import me.ryanhamshire.GriefPrevention.events.funnel.GPMutateBlockTypeEvent;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -37,7 +37,7 @@ public class ClaimListener implements Listener
     }
 
     @EventHandler
-    private void onClaimBuildBreak(GPBlockMutateTypeEvent event)
+    private void onClaimBuildBreak(GPMutateBlockTypeEvent event)
     {
         Claim claim = claimRegistrar.getClaim(event.getLocation(), false, claimCache.get(event.getCauser()));
         if (claim == null)

@@ -72,19 +72,19 @@ public class BukkitToGPEventListener implements Listener
     @EventHandler(priority = LOWEST)
     private void onBlockPlace(BlockPlaceEvent event)
     {
-        callEvent(new GPBlockMutateTypeEvent(event, event.getPlayer(), event.getBlock().getLocation(), event.getBlock()));
+        callEvent(new GPMutateBlockTypeEvent(event, event.getPlayer(), event.getBlock().getLocation(), event.getBlock()));
     }
     @EventHandler(priority = LOWEST)
     private void onBlockBreak(BlockBreakEvent event)
     {
-        callEvent(new GPBlockMutateTypeEvent(event, event.getPlayer(), event.getBlock().getLocation(), event.getBlock()));
+        callEvent(new GPMutateBlockTypeEvent(event, event.getPlayer(), event.getBlock().getLocation(), event.getBlock()));
     }
 
     @EventHandler(priority = LOWEST)
     private void onPaintingPlace(HangingPlaceEvent event)
     {
         //TODO: block location, or entity location? Big_Scary used entity location
-        callEvent(new GPBlockMutateTypeEvent(event, event.getPlayer(), event.getEntity().getLocation(), event.getEntity()));
+        callEvent(new GPMutateBlockTypeEvent(event, event.getPlayer(), event.getEntity().getLocation(), event.getEntity()));
     }
     @EventHandler(priority = LOWEST)
     private void onPaintingBreak(HangingBreakEvent event)
@@ -96,7 +96,7 @@ public class BukkitToGPEventListener implements Listener
             destroyerEntity = entityEvent.getRemover();
         }
 
-        callEvent(new GPBlockMutateTypeEvent(event, destroyerEntity, event.getEntity().getLocation(), event.getEntity()));
+        callEvent(new GPMutateBlockTypeEvent(event, destroyerEntity, event.getEntity().getLocation(), event.getEntity()));
     }
     @EventHandler(priority = LOWEST)
     private void onBlockLikeEntityDamage(EntityDamageByEntityEvent event)
@@ -106,7 +106,7 @@ public class BukkitToGPEventListener implements Listener
             case ITEM_FRAME:
             case ARMOR_STAND:
             case ENDER_CRYSTAL:
-                callEvent(new GPBlockMutateTypeEvent(event, event.getDamager(), event.getEntity().getLocation(), event.getEntity()));
+                callEvent(new GPMutateBlockTypeEvent(event, event.getDamager(), event.getEntity().getLocation(), event.getEntity()));
         }
     }
 
@@ -114,7 +114,7 @@ public class BukkitToGPEventListener implements Listener
     private void onVehicleDamage(VehicleDamageEvent event)
     {
         //TODO: entity damage
-        //callEvent(new GPBlockMutateTypeEvent(event, event.getAttacker(), event.getVehicle().getLocation(), event.getAttacker()));
+        //callEvent(new GPMutateBlockTypeEvent(event, event.getAttacker(), event.getVehicle().getLocation(), event.getAttacker()));
     }
 
     @EventHandler(priority = LOWEST)
@@ -125,7 +125,7 @@ public class BukkitToGPEventListener implements Listener
         List<Block> blocksToRemove = new ArrayList<>();
         for (Block block : event.blockList())
         {
-            if (callWithoutCancelingEvent(new GPBlockMutateTypeEvent(event, event.getEntity(), block.getLocation(), block)))
+            if (callWithoutCancelingEvent(new GPMutateBlockTypeEvent(event, event.getEntity(), block.getLocation(), block)))
                 blocksToRemove.add(block);
         }
         event.blockList().removeAll(blocksToRemove);
@@ -136,7 +136,7 @@ public class BukkitToGPEventListener implements Listener
         List<Block> blocksToRemove = new ArrayList<>();
         for (Block block : event.blockList())
         {
-            if (callWithoutCancelingEvent(new GPBlockMutateTypeEvent(event, event.getBlock(), block.getLocation(), block)))
+            if (callWithoutCancelingEvent(new GPMutateBlockTypeEvent(event, event.getBlock(), block.getLocation(), block)))
                 blocksToRemove.add(block);
         }
         event.blockList().removeAll(blocksToRemove);
@@ -145,13 +145,13 @@ public class BukkitToGPEventListener implements Listener
     @EventHandler(priority = LOWEST)
     private void onEntityFormBlock(EntityBlockFormEvent event) //Frost walker
     {
-        callEvent(new GPBlockMutateTypeEvent(event, event.getEntity(), event.getBlock().getLocation(), event.getBlock()));
+        callEvent(new GPMutateBlockTypeEvent(event, event.getEntity(), event.getBlock().getLocation(), event.getBlock()));
     }
 
     @EventHandler(priority = LOWEST)
     private void onBlockBurn(BlockBurnEvent event)
     {
-        callEvent(new GPBlockMutateTypeEvent(event, event.getIgnitingBlock(), event.getBlock().getLocation(), event.getBlock()));
+        callEvent(new GPMutateBlockTypeEvent(event, event.getIgnitingBlock(), event.getBlock().getLocation(), event.getBlock()));
     }
 
     @EventHandler(priority = LOWEST)
@@ -159,6 +159,6 @@ public class BukkitToGPEventListener implements Listener
     {
         if(event.getSource().getType() != Material.FIRE) //Ignore other blocks like vines, grass, etc.
             return;
-        callEvent(new GPBlockMutateTypeEvent(event, event.getSource(), event.getBlock().getLocation(), event.getBlock()));
+        callEvent(new GPMutateBlockTypeEvent(event, event.getSource(), event.getBlock().getLocation(), event.getBlock()));
     }
 }
