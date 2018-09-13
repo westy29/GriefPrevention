@@ -9,6 +9,9 @@ import org.bukkit.metadata.Metadatable;
  * Fired when a block or block-like sourceEntity is placed or destroyed.
  * (I.e. the type is modified from/to AIR).
  * Block-like entities include item frames, armor stands, paintings, etc.
+ * Corresponds to /trust (build trust)
+ *
+ * Exception to this is placing/breaking crops - see GPMutateBlockStateEvent
  *
  * Created on 2/23/2017.
  *

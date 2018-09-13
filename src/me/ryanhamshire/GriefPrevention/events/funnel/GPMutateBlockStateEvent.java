@@ -3,8 +3,10 @@ package me.ryanhamshire.GriefPrevention.events.funnel;
 /**
  * Created on 3/11/2017.
  * Called when a block's state is modified.
+ * Does NOT include blocks with toggleable (two) states, use GPToggleBlockStateEvent
+ * Corresponds to /containertrust (a.k.a. /farmtrust, /chesttrust)
  *
- * Exception here is crop farming (primarily to maintain existing functionality of /containertrust)
+ * Crop farming (placing/breaking crops) is included here.
  *
  * Includes:
  * Chest access
@@ -12,15 +14,10 @@ package me.ryanhamshire.GriefPrevention.events.funnel;
  * Redstone settings
  * Uprooting crops
  * Planting crops
- *
- *
- * The following are considered "access" alterations:
- * Opening doors
- * Opening trap doors
- * Toggling levers, pressing buttons
+ * Anvil use
  *
  * @author RoboMWM
  */
-public class GPBlockMutateStateEvent
+public class GPMutateBlockStateEvent
 {
 }

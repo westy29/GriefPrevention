@@ -51,10 +51,8 @@ public class FlatFileStorage implements Storage
         playerDataFolder = new File(plugin.getDataFolder(), "PlayerData");
 
         //Generate respective storage folders
-        boolean newDataStore = false;
         if(!playerDataFolder.exists() || !claimDataFolder.exists())
         {
-            newDataStore = true;
             playerDataFolder.mkdirs();
             claimDataFolder.mkdirs();
         }
@@ -105,8 +103,8 @@ public class FlatFileStorage implements Storage
             }
             catch(Exception ex)
             {
-                GriefPrevention.AddLogEntry("Error - this is not a valid UUID: " + ownerIdentifier + ".");
-                GriefPrevention.AddLogEntry("  Converted land claim to administrative @ " + lesserBoundaryCorner.toString());
+                plugin.getLogger().info("Error - this is not a valid UUID: " + ownerIdentifier + " in claim file " + file.getName());
+                plugin.getLogger().info("  Converted land claim to administrative @ " + lesserBoundaryCorner.toString());
             }
         }
 
@@ -146,7 +144,7 @@ public class FlatFileStorage implements Storage
 		return !claimFile.exists() || claimFile.delete();
 	}
 
-	public synchronized PlayerData getPlayerData(UUID uuid)
+	public PlayerData getPlayerData(UUID uuid)
 	{
 		File playerFile = new File(playerDataFolder.getPath() + File.separator + uuid.toString());
 		
@@ -213,18 +211,16 @@ public class FlatFileStorage implements Storage
 
     private class SavePlayerDataThread extends Thread
     {
-        private UUID playerID;
         private PlayerData playerData;
 
-        SavePlayerDataThread(UUID playerID, PlayerData playerData)
+        SavePlayerDataThread(PlayerData playerData)
         {
-            this.playerID = playerID;
             this.playerData = playerData;
         }
 
         public void run()
         {
-            savePlayerDataSync(this.playerID, this.playerData);
+            savePlayerDataSync(this.playerData);
         }
     }
 }

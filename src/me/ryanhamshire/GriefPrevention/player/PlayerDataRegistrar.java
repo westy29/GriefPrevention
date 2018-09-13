@@ -1,6 +1,5 @@
 package me.ryanhamshire.GriefPrevention.player;
 
-import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.storage.Storage;
 
 import java.util.UUID;
@@ -13,9 +12,12 @@ import java.util.concurrent.ConcurrentHashMap;
 public class PlayerDataRegistrar
 {
     private Storage storage;
+    private ConcurrentHashMap<UUID, PlayerData> playerDataCache = new ConcurrentHashMap<UUID, PlayerData>();
 
-    //in-memory cache for player storage
-    private ConcurrentHashMap<UUID, PlayerData> playerNameToPlayerDataMap = new ConcurrentHashMap<UUID, PlayerData>();
+    public PlayerDataRegistrar(Storage storage)
+    {
+        this.storage = storage;
+    }
 
     /**
      *
@@ -25,7 +27,7 @@ public class PlayerDataRegistrar
     public PlayerData getPlayerData(UUID uuid)
     {
         //first, look in cache
-        PlayerData playerData = this.playerNameToPlayerDataMap.get(uuid);
+        PlayerData playerData = this.playerDataCache.get(uuid);
 
         if (playerData == null)
         {
@@ -33,7 +35,7 @@ public class PlayerDataRegistrar
 
             //cache if found
             if (playerData != null)
-                playerNameToPlayerDataMap.put(uuid, playerData);
+                playerDataCache.put(uuid, playerData);
         }
 
         return playerData;
@@ -52,7 +54,7 @@ public class PlayerDataRegistrar
         {
             //TODO: fill with config defaults
             playerData = new PlayerData(uuid, 0, 0);
-            playerNameToPlayerDataMap.put(uuid, playerData);
+            playerDataCache.put(uuid, playerData);
         }
 
         return playerData;
@@ -60,9 +62,9 @@ public class PlayerDataRegistrar
 
     public boolean savePlayerData(UUID uuid)
     {
-        if (!playerNameToPlayerDataMap.containsKey(uuid))
+        if (!playerDataCache.containsKey(uuid))
             return false;
-        return storage.savePlayerData(playerNameToPlayerDataMap.get(uuid));
+        return storage.savePlayerData(playerDataCache.get(uuid));
     }
 
     public boolean savePlayerData(PlayerData playerData)

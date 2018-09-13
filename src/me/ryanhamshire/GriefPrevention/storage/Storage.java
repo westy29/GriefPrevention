@@ -30,8 +30,10 @@ import java.util.UUID;
  */
 public interface Storage
 {
-    //pattern for unique user identifiers (UUIDs)
-    //protected final static Pattern uuidpattern = Pattern.compile("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}");
+    /**
+     * @return Whether the implementing Storage class supports the asynchronous calls.
+     */
+    boolean supportsAsynchronousCalls();
 
     /**
      * Retrieves a set of all claims in storage
@@ -47,6 +49,8 @@ public interface Storage
      */
     void saveClaim(Claim claim) throws Exception;
 
+    void saveClaimAsynchronously(Claim claim); //callback
+
     /**
      * Deletes claim from storage
      *
@@ -54,6 +58,8 @@ public interface Storage
      * @return Whether the claim exists at the time this is returned. (Successfully deleted or never existed.)
      */
     boolean deleteClaim(Claim claim);
+
+    void deleteClaimAsynchronously(Claim claim); //callback
 
     /**
      * Retrieves the playerData for the specified player from storage. Creates a new one if none exists.
@@ -66,8 +72,9 @@ public interface Storage
     /**
      * Saves the playerData to storage
      *
-     * @param playerID
      * @param playerData
      */
-    boolean savePlayerData(PlayerData playerData);
+    void savePlayerData(PlayerData playerData) throws Exception;
+
+    void savePlayerDataAsynchronously(PlayerData playerData); //callback
 }

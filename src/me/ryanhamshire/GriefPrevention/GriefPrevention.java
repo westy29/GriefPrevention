@@ -18,7 +18,10 @@
 
 package me.ryanhamshire.GriefPrevention;
 
+import me.ryanhamshire.GriefPrevention.claim.ClaimClerk;
 import me.ryanhamshire.GriefPrevention.claim.ClaimRegistrar;
+import me.ryanhamshire.GriefPrevention.listener.ClaimListener;
+import me.ryanhamshire.GriefPrevention.listener.ClaimTool;
 import me.ryanhamshire.GriefPrevention.player.PlayerDataRegistrar;
 import me.ryanhamshire.GriefPrevention.storage.FlatFileStorage;
 import me.ryanhamshire.GriefPrevention.storage.Storage;
@@ -35,5 +38,10 @@ public class GriefPrevention extends JavaPlugin
         storage = new FlatFileStorage(this);
         claimRegistrar = new ClaimRegistrar(this, storage);
         playerDataRegistrar = new PlayerDataRegistrar(storage);
+
+        ClaimClerk claimClerk = new ClaimClerk(this, claimRegistrar, playerDataRegistrar, storage);
+
+        new ClaimListener(this, claimRegistrar);
+        new ClaimTool(this);
     }
 }
