@@ -61,8 +61,7 @@ public class ClaimRegistrar implements Listener
      */
     public boolean deleteClaim(Claim claim)
     {
-        if (!storage.deleteClaim(claim))
-            return false;
+        storage.deleteClaim(claim);
         claims.remove(claim);
 
         Set<Long> chunkHashes = ClaimUtils.getChunkHashes(claim);
@@ -125,6 +124,8 @@ public class ClaimRegistrar implements Listener
         for (Claim claim : this.claims)
             if (uuid.equals(claim.getOwnerUUID()))
                 claims.add(claim);
+
+        return claims;
     }
 
     /**
