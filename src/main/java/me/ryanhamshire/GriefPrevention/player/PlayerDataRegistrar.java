@@ -48,12 +48,12 @@ public class PlayerDataRegistrar
      */
     public PlayerData getOrCreatePlayerData(UUID uuid)
     {
-        PlayerData playerData = getOrCreatePlayerData(uuid);
+        PlayerData playerData = getPlayerData(uuid);
 
         if (playerData == null)
         {
             //TODO: fill with config defaults
-            playerData = new PlayerData(uuid, 0, 0);
+            playerData = new PlayerData(uuid, 1000, 0);
             playerDataCache.put(uuid, playerData);
         }
 

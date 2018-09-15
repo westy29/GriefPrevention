@@ -52,7 +52,7 @@ public class GriefPrevention extends JavaPlugin
         getCommand("newclaim").setExecutor(new CreateClaimCommand(claimClerk));
         getCommand("extendclaim").setExecutor(new ExtendClaimCommand(claimClerk));
         getCommand("abandonclaim").setExecutor(new AbandonClaimCommand(claimClerk, claimRegistrar));
-        getCommand("trustcommand").setExecutor(new TrustCommand(claimClerk));
-        getCommand("untrustcommand").setExecutor(new UntrustCommand(claimClerk));
+        getCommand("trust").setExecutor(new TrustCommand(claimClerk));
+        getCommand("untrust").setExecutor(new UntrustCommand(claimClerk));
     }
 }

@@ -32,7 +32,7 @@ public class ClaimRegistrar implements Listener
     {
         this.plugin = plugin;
         this.storage = storage;
-        claims.addAll(storage.getClaims());
+        claims = storage.getClaims();
         lastUsedClaimId = System.currentTimeMillis();
     }
 

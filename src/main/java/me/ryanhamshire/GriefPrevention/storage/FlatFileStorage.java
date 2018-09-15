@@ -134,7 +134,7 @@ public class FlatFileStorage implements Storage
 		YamlConfiguration yaml = new YamlConfiguration();
 		yaml.set("lesserBoundaryCorner", claim.getLesserBoundaryCorner().toString());
         yaml.set("greaterBoundaryCorner", claim.getGreaterBoundaryCorner().toString());
-        yaml.set("owner", claim.getOwnerUUID());
+        yaml.set("owner", claim.getOwnerUUID().toString());
         yaml.set("trustees", claim.getTrustees()); //TODO: does this store enum's string or int value??
         yaml.set("publicPermission", claim.getPublicPermission());
         claimDataPool.execute(new SaveClaimDataThread(yaml.saveToString(), getClaimFile(claim), plugin.getLogger()));
