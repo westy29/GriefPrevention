@@ -47,6 +47,7 @@ public class PlayerData
     }
 
     //the number of claim blocks a player has available for claiming land
+    //utility method - requires a ClaimRegistrar...
 	public int getRemainingClaimBlocks(ClaimRegistrar claimRegistrar)
 	{
 		int remainingBlocks = this.getAccruedClaimBlocks() + this.getBonusClaimBlocks();

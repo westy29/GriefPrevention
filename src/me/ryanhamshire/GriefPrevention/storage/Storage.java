@@ -33,6 +33,8 @@ public interface Storage
 
     /**
      * Retrieves a set of all claims in storage
+     * Usually synchronous since this is called once on server start
+     *
      * @return a set of all claims
      */
     Set<Claim> getClaims();

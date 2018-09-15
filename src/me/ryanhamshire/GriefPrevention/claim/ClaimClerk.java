@@ -55,7 +55,7 @@ public class ClaimClerk implements Listener
     public boolean registerNewClaim(Player player, Location firstCorner, Location secondCorner)
     {
         PlayerData playerData = playerDataRegistrar.getOrCreatePlayerData(player.getUniqueId());
-        if (playerData.getRemainingClaimBlocks() < ClaimUtils.getArea(firstCorner, secondCorner))
+        if (playerData.getRemainingClaimBlocks(claimRegistrar) < ClaimUtils.getArea(firstCorner, secondCorner))
         {
             player.sendMessage("Not enough claim blocks");
             return false;
@@ -90,7 +90,7 @@ public class ClaimClerk implements Listener
     {
         PlayerData playerData = playerDataRegistrar.getOrCreatePlayerData(claim.getOwnerUUID());
 
-        if (playerData.getRemainingClaimBlocks() + claim.getArea() < ClaimUtils.getArea(firstCorner, secondCorner))
+        if (playerData.getRemainingClaimBlocks(claimRegistrar) + claim.getArea() < ClaimUtils.getArea(firstCorner, secondCorner))
         {
             player.sendMessage("Not enough claim blocks");
             return false;

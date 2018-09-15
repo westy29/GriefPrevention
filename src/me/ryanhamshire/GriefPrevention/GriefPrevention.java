@@ -20,6 +20,11 @@ package me.ryanhamshire.GriefPrevention;
 
 import me.ryanhamshire.GriefPrevention.claim.ClaimClerk;
 import me.ryanhamshire.GriefPrevention.claim.ClaimRegistrar;
+import me.ryanhamshire.GriefPrevention.command.AbandonClaimCommand;
+import me.ryanhamshire.GriefPrevention.command.CreateClaimCommand;
+import me.ryanhamshire.GriefPrevention.command.ExtendClaimCommand;
+import me.ryanhamshire.GriefPrevention.command.trust.TrustCommand;
+import me.ryanhamshire.GriefPrevention.command.trust.UntrustCommand;
 import me.ryanhamshire.GriefPrevention.listener.ClaimListener;
 import me.ryanhamshire.GriefPrevention.listener.ClaimTool;
 import me.ryanhamshire.GriefPrevention.player.PlayerDataRegistrar;
@@ -43,5 +48,11 @@ public class GriefPrevention extends JavaPlugin
 
         new ClaimListener(this, claimRegistrar);
         new ClaimTool(this);
+
+        getCommand("newclaim").setExecutor(new CreateClaimCommand(claimClerk));
+        getCommand("extendclaim").setExecutor(new ExtendClaimCommand(claimClerk));
+        getCommand("abandonclaim").setExecutor(new AbandonClaimCommand(claimClerk, claimRegistrar));
+        getCommand("trustcommand").setExecutor(new TrustCommand(claimClerk));
+        getCommand("untrustcommand").setExecutor(new UntrustCommand(claimClerk));
     }
 }

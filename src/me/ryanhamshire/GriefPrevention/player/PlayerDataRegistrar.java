@@ -64,11 +64,12 @@ public class PlayerDataRegistrar
     {
         if (!playerDataCache.containsKey(uuid))
             return false;
-        return storage.savePlayerData(playerDataCache.get(uuid));
+        storage.savePlayerData(playerDataCache.get(uuid));
+        return true;
     }
 
-    public boolean savePlayerData(PlayerData playerData)
+    public void savePlayerData(PlayerData playerData)
     {
-        return storage.savePlayerData(playerData);
+        storage.savePlayerData(playerData);
     }
 }
