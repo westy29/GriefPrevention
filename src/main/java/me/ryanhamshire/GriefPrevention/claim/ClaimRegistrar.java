@@ -193,7 +193,7 @@ public class ClaimRegistrar implements Listener
      * @throws Exception if the newly-created claim was not able to be saved.
      * @see CreateClaimResult
      */
-    synchronized public CreateClaimResult resizeClaim(Claim claim, Location firstCorner, Location secondCorner) throws Exception
+    public CreateClaimResult resizeClaim(Claim claim, Location firstCorner, Location secondCorner)
     {
         Location[] corners = ClaimUtils.retrieveSortedCorners(firstCorner, secondCorner);
 
@@ -270,7 +270,7 @@ public class ClaimRegistrar implements Listener
 
     //Used internally to register a claim
     //Registers both the claim and its chunk hash to the respective maps, as well as saving to storage
-    private void registerClaim(Claim newClaim) throws Exception
+    private void registerClaim(Claim newClaim)
     {
         storage.saveClaim(newClaim);
         this.claims.add(newClaim);

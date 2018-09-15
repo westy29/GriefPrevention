@@ -141,21 +141,10 @@ public class ClaimClerk implements Listener
      * @param newTrustees
      * @return false if there was an issue saving the claim (may need to undo changes)
      */
-    public boolean changeTrustees(Claim claim, Map<UUID, ClaimPermission> newTrustees)
+    public void changeTrustees(Claim claim, Map<UUID, ClaimPermission> newTrustees)
     {
         claim.getTrusteesMap().clear();
         claim.getTrusteesMap().putAll(newTrustees);
-
-        try
-        {
-            storage.saveClaim(claim);
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-            return false;
-        }
-
-        return true;
+        storage.saveClaim(claim);
     }
 }

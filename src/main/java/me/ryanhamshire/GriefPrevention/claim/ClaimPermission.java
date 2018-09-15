@@ -18,7 +18,6 @@
  
 package me.ryanhamshire.GriefPrevention.claim;
 
-//basic enum stuff
 public enum ClaimPermission 
 {
 	MANAGE(100),
@@ -28,7 +27,7 @@ public enum ClaimPermission
 
     private int weight;
 
-	private ClaimPermission(final int weight)
+	ClaimPermission(final int weight)
     {
         this.weight = weight;
     }
