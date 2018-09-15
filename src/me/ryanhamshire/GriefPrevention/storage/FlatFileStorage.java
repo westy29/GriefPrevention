@@ -127,7 +127,7 @@ public class FlatFileStorage implements Storage
         return new File(claimDataFolder.getPath() + File.separator + Long.toString(claim.getID()) + ".yml");
     }
 
-	public void saveClaim(Claim claim) throws Exception
+	public void saveClaim(Claim claim)
 	{
 		YamlConfiguration yaml = new YamlConfiguration();
 		yaml.set("lesserBoundaryCorner", claim.getLesserBoundaryCorner().toString());
@@ -138,10 +138,10 @@ public class FlatFileStorage implements Storage
         yaml.save(getClaimFile(claim));
 	}
 
-	public boolean deleteClaim(Claim claim)
+	public void deleteClaim(Claim claim)
 	{
 		File claimFile = getClaimFile(claim);
-		return !claimFile.exists() || claimFile.delete();
+		claimFile.delete();
 	}
 
 	public PlayerData getPlayerData(UUID uuid)

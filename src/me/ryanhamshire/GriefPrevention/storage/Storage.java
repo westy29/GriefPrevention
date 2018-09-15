@@ -30,10 +30,6 @@ import java.util.UUID;
  */
 public interface Storage
 {
-    /**
-     * @return Whether the implementing Storage class supports the asynchronous calls.
-     */
-    boolean supportsAsynchronousCalls();
 
     /**
      * Retrieves a set of all claims in storage
@@ -47,9 +43,7 @@ public interface Storage
      * @param claim
      * @throws Exception if it is unable to save the claim for whatever reason.
      */
-    void saveClaim(Claim claim) throws Exception;
-
-    void saveClaimAsynchronously(Claim claim); //callback
+    void saveClaim(Claim claim);
 
     /**
      * Deletes claim from storage
@@ -57,9 +51,7 @@ public interface Storage
      * @param claim
      * @return Whether the claim exists at the time this is returned. (Successfully deleted or never existed.)
      */
-    boolean deleteClaim(Claim claim);
-
-    void deleteClaimAsynchronously(Claim claim); //callback
+    void deleteClaim(Claim claim);
 
     /**
      * Retrieves the playerData for the specified player from storage. Creates a new one if none exists.
@@ -74,7 +66,10 @@ public interface Storage
      *
      * @param playerData
      */
-    void savePlayerData(PlayerData playerData) throws Exception;
+    void savePlayerData(PlayerData playerData);
 
-    void savePlayerDataAsynchronously(PlayerData playerData); //callback
+    /**
+     * Called when GriefPrevention is being disabled. Notifies the database to finish any saving tasks.
+     */
+    void close();
 }
