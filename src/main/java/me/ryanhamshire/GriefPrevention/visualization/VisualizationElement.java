@@ -17,37 +17,38 @@
  */
 
 package me.ryanhamshire.GriefPrevention.visualization;
+
 import org.bukkit.Location;
 import org.bukkit.block.data.BlockData;
 
 //represents a "fake" block sent to a player as part of a visualization
 public class VisualizationElement
 {
-	private Location location;
-	private BlockData visualizedBlock;
-	private BlockData realBlock;
+    private Location location;
+    private BlockData visualizedBlock;
+    private BlockData realBlock;
 
-	public VisualizationElement(Location location, BlockData visualizedBlock, BlockData realBlock)
-	{
-		this.location = location;
-		this.visualizedBlock = visualizedBlock;
-		this.realBlock = realBlock;
-	}
+    public VisualizationElement(Location location, BlockData visualizedBlock, BlockData realBlock)
+    {
+        this.location = location;
+        this.visualizedBlock = visualizedBlock;
+        this.realBlock = realBlock;
+    }
 
-	public Location getLocation()
-	{
-		return location;
-	}
+    public Location getLocation()
+    {
+        return location;
+    }
 
-	public BlockData getRealBlock()
-	{
-		return realBlock;
-	}
+    public BlockData getRealBlock()
+    {
+        return realBlock;
+    }
 
-	public BlockData getVisualizedBlock()
-	{
-		return visualizedBlock;
-	}
+    public BlockData getVisualizedBlock()
+    {
+        return visualizedBlock;
+    }
 
     public void setLocation(Location location)
     {

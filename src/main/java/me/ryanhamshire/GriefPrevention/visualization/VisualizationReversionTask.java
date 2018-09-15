@@ -15,28 +15,27 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
- 
- package me.ryanhamshire.GriefPrevention.visualization;
 
-import me.ryanhamshire.GriefPrevention.player.PlayerData;
+package me.ryanhamshire.GriefPrevention.visualization;
+
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 //applies a visualization for a player by sending him block change packets
 class VisualizationReversionTask extends BukkitRunnable
 {
-	private Player player;
-	private VisualizationManager visualizationManager;
+    private Player player;
+    private VisualizationManager visualizationManager;
 
-	public VisualizationReversionTask(Player player, VisualizationManager visualizationManager)
-	{
-		this.player = player;
-		this.visualizationManager = visualizationManager;
-	}
-	
-	@Override
-	public void run()
-	{
-	    visualizationManager.revert(player);
-	}
+    public VisualizationReversionTask(Player player, VisualizationManager visualizationManager)
+    {
+        this.player = player;
+        this.visualizationManager = visualizationManager;
+    }
+
+    @Override
+    public void run()
+    {
+        visualizationManager.revert(player);
+    }
 }

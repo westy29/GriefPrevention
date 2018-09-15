@@ -47,9 +47,7 @@ public abstract class ClaimManagementCommands implements CommandExecutor
         {
             //print remaining claim blocks, etc.
             return true;
-        }
-
-        else
+        } else
         {
             //print help
             return false;

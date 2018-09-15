@@ -21,7 +21,7 @@ import java.util.Map;
 
 /**
  * Created on 7/1/2018.
- *
+ * <p>
  * TODO: clear mode on hotbar change
  *
  * @author RoboMWM
@@ -107,7 +107,7 @@ public class ClaimTool implements Listener
         {
             result = iterator.next();
             Material type = result.getType();
-            if(type != Material.AIR &&
+            if (type != Material.AIR &&
                     (!passThroughWater || type != Material.WATER) &&
                     type != Material.TALL_GRASS &&
                     type != Material.SNOW) return result;

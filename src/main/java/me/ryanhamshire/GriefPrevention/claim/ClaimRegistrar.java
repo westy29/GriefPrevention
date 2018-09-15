@@ -56,6 +56,7 @@ public class ClaimRegistrar implements Listener
 
     /**
      * Deletes a claim entirely, from storage and in internal register
+     *
      * @param claim
      * @return if the deletion succeeded
      */
@@ -65,13 +66,12 @@ public class ClaimRegistrar implements Listener
         claims.remove(claim);
 
         Set<Long> chunkHashes = ClaimUtils.getChunkHashes(claim);
-        for(Long chunkHash : chunkHashes)
+        for (Long chunkHash : chunkHashes)
             this.chunksToClaimsMap.get(chunkHash).remove(claim);
 
         plugin.getServer().getPluginManager().callEvent(new ClaimDeletedEvent(claim));
         return true;
     }
-
 
 
     //Utilities useful for claims
@@ -85,15 +85,15 @@ public class ClaimRegistrar implements Listener
     public Claim getClaim(Location location, boolean ignoreDepth, Claim cachedClaim)
     {
         //check cachedClaim guess first.  if it's in the datastore and the location is inside it, we're done
-        if(cachedClaim != null && claims.contains(cachedClaim) && cachedClaim.contains(location, ignoreDepth))
+        if (cachedClaim != null && claims.contains(cachedClaim) && cachedClaim.contains(location, ignoreDepth))
             return cachedClaim;
 
         Set<Claim> claimsInChunk = this.chunksToClaimsMap.get(ClaimUtils.getChunkHash(location));
-        if(claimsInChunk == null)
+        if (claimsInChunk == null)
             return null;
-        for(Claim claim : claimsInChunk)
+        for (Claim claim : claimsInChunk)
         {
-            if(claim.contains(location, ignoreDepth))
+            if (claim.contains(location, ignoreDepth))
                 return claim;
         }
 
@@ -102,7 +102,7 @@ public class ClaimRegistrar implements Listener
 
     /**
      * Get a collection of all land claims.
-     *
+     * <p>
      * If you need to make changes, use provided methods like .deleteClaim() and .createClaim().
      * This will ensure primary memory (RAM) and secondary memory (disk, database) stay in sync
      *
@@ -115,6 +115,7 @@ public class ClaimRegistrar implements Listener
 
     /**
      * Get a collection of all land claims owned by a Player (via UUID)
+     *
      * @param uuid
      * @return
      */
@@ -130,7 +131,7 @@ public class ClaimRegistrar implements Listener
 
     /**
      * Get a collection of all land claims within the specified chunk coordinates.
-     *
+     * <p>
      * Note that there is no world parameter, so this will include all claims from all worlds in this chunk coordinate.
      *
      * @return a read-only access point for the list of all land claims
@@ -138,24 +139,24 @@ public class ClaimRegistrar implements Listener
     public Collection<Claim> getClaims(int chunkx, int chunkz)
     {
         Set<Claim> chunkClaims = this.chunksToClaimsMap.get(ClaimUtils.getChunkHash(chunkx, chunkz));
-        if(chunkClaims != null)
+        if (chunkClaims != null)
         {
             return Collections.unmodifiableCollection(chunkClaims);
-        }
-        else
+        } else
         {
             return Collections.unmodifiableCollection(new HashSet<>());
         }
     }
-    
+
     /**
      * Creates and registers a new claim
+     *
      * @param firstCorner
      * @param secondCorner
-     * @param ownerID the owner of this new claim. Null designates administrative claim.
+     * @param ownerID      the owner of this new claim. Null designates administrative claim.
      * @return a ClaimClaimResult
      * @throws IllegalArgumentException if corners' worlds don't match
-     * @throws Exception if the newly-created claim was not able to be saved.
+     * @throws Exception                if the newly-created claim was not able to be saved.
      * @see CreateClaimResult
      */
     public CreateClaimResult createClaim(Location firstCorner, Location secondCorner, UUID ownerID) throws Exception
@@ -163,13 +164,13 @@ public class ClaimRegistrar implements Listener
         Location[] corners = ClaimUtils.retrieveSortedCorners(firstCorner, secondCorner);
 
         //create a new claim instance (but don't save it, yet)
-        Claim claimCandidate = new Claim(corners[0], corners[1], ownerID,null, nextClaimId());
+        Claim claimCandidate = new Claim(corners[0], corners[1], ownerID, null, nextClaimId());
 
         //ensure this new claim won't overlap any existing claims
-        for(Claim claim : this.claims)
+        for (Claim claim : this.claims)
         {
             //if we find an existing claim which will be overlapped
-            if(ClaimUtils.overlaps(claimCandidate, claim))
+            if (ClaimUtils.overlaps(claimCandidate, claim))
             {
                 //Failed, return conflicting claim
                 return new CreateClaimResult(false, claim);
@@ -190,7 +191,7 @@ public class ClaimRegistrar implements Listener
      * @param secondCorner
      * @return a CreateClaimResult
      * @throws IllegalArgumentException if corners' worlds don't match
-     * @throws Exception if the newly-created claim was not able to be saved.
+     * @throws Exception                if the newly-created claim was not able to be saved.
      * @see CreateClaimResult
      */
     public CreateClaimResult resizeClaim(Claim claim, Location firstCorner, Location secondCorner)
@@ -201,17 +202,17 @@ public class ClaimRegistrar implements Listener
         corners[0].setY(claim.getLesserBoundaryCorner().getBlockY());
 
         //create a new claim instance (but don't save it, yet)
-        Claim claimCandidate = new Claim(corners[0], corners[1], claim.getOwnerUUID(),null, claim.getID());
+        Claim claimCandidate = new Claim(corners[0], corners[1], claim.getOwnerUUID(), null, claim.getID());
 
         //ensure this new claim won't overlap any existing claims
-        for(Claim existingClaim : this.claims)
+        for (Claim existingClaim : this.claims)
         {
             //skip claim we are resizing
             if (existingClaim == claim)
                 continue;
 
             //if we find an existing claim which will be overlapped
-            if(ClaimUtils.overlaps(existingClaim, claimCandidate))
+            if (ClaimUtils.overlaps(existingClaim, claimCandidate))
             {
                 //Failed, return conflicting claim
                 return new CreateClaimResult(false, existingClaim);
@@ -224,7 +225,7 @@ public class ClaimRegistrar implements Listener
 
         //Remove the claim from the chunkhash map (may be unnecessary but likely helps avoid checking invalidated claims in a chunk)
         Set<Long> chunkHashes = ClaimUtils.getChunkHashes(claim);
-        for(Long chunkHash : chunkHashes)
+        for (Long chunkHash : chunkHashes)
             this.chunksToClaimsMap.get(chunkHash).remove(claim);
 
         this.registerClaim(claim);
@@ -234,8 +235,9 @@ public class ClaimRegistrar implements Listener
 
     /**
      * Returns a set of claims near a given location
+     *
      * @param location
-     * @param radius specified in blocks
+     * @param radius   specified in blocks
      * @return a set of claims
      */
     Set<Claim> getNearbyClaims(Location location, int radius)
@@ -245,18 +247,18 @@ public class ClaimRegistrar implements Listener
         Chunk lesserChunk = location.getWorld().getChunkAt(location.subtract(radius, 0, radius));
         Chunk greaterChunk = location.getWorld().getChunkAt(location.add(radius, 0, radius));
 
-        for(int chunk_x = lesserChunk.getX(); chunk_x <= greaterChunk.getX(); chunk_x++)
+        for (int chunk_x = lesserChunk.getX(); chunk_x <= greaterChunk.getX(); chunk_x++)
         {
-            for(int chunk_z = lesserChunk.getZ(); chunk_z <= greaterChunk.getZ(); chunk_z++)
+            for (int chunk_z = lesserChunk.getZ(); chunk_z <= greaterChunk.getZ(); chunk_z++)
             {
                 Chunk chunk = location.getWorld().getChunkAt(chunk_x, chunk_z);
-                Long chunkID = ClaimUtils.getChunkHash(chunk.getBlock(0,  0,  0).getLocation());
+                Long chunkID = ClaimUtils.getChunkHash(chunk.getBlock(0, 0, 0).getLocation());
                 Set<Claim> claimsInChunk = this.chunksToClaimsMap.get(chunkID);
-                if(claimsInChunk != null)
+                if (claimsInChunk != null)
                 {
-                    for(Claim claim : claimsInChunk)
+                    for (Claim claim : claimsInChunk)
                     {
-                        if(claim.getLesserBoundaryCorner().getWorld().equals(location.getWorld()))
+                        if (claim.getLesserBoundaryCorner().getWorld().equals(location.getWorld()))
                         {
                             claims.add(claim);
                         }
@@ -275,10 +277,10 @@ public class ClaimRegistrar implements Listener
         storage.saveClaim(newClaim);
         this.claims.add(newClaim);
         Set<Long> chunkHashes = ClaimUtils.getChunkHashes(newClaim);
-        for(Long chunkHash : chunkHashes)
+        for (Long chunkHash : chunkHashes)
         {
             Set<Claim> claimsInChunk = this.chunksToClaimsMap.get(chunkHash);
-            if(claimsInChunk == null)
+            if (claimsInChunk == null)
             {
                 claimsInChunk = new HashSet<>();
                 this.chunksToClaimsMap.put(chunkHash, claimsInChunk);

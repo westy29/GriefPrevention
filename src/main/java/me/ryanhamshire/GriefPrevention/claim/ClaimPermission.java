@@ -15,19 +15,19 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
- 
+
 package me.ryanhamshire.GriefPrevention.claim;
 
-public enum ClaimPermission 
+public enum ClaimPermission
 {
-	MANAGE(100),
-	BUILD(75),
-	CONTAINER(50),
+    MANAGE(100),
+    BUILD(75),
+    CONTAINER(50),
     NONE(0);
 
     private int weight;
 
-	ClaimPermission(final int weight)
+    ClaimPermission(final int weight)
     {
         this.weight = weight;
     }

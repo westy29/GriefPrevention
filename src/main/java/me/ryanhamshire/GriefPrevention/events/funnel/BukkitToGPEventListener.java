@@ -36,6 +36,7 @@ import static org.bukkit.event.EventPriority.LOWEST;
 public class BukkitToGPEventListener implements Listener
 {
     private GriefPrevention plugin;
+
     public BukkitToGPEventListener(GriefPrevention griefPrevention)
     {
         this.plugin = griefPrevention;
@@ -74,6 +75,7 @@ public class BukkitToGPEventListener implements Listener
     {
         callEvent(new GPMutateBlockTypeEvent(event, event.getPlayer(), event.getBlock().getLocation(), event.getBlock()));
     }
+
     @EventHandler(priority = LOWEST)
     private void onBlockBreak(BlockBreakEvent event)
     {
@@ -86,6 +88,7 @@ public class BukkitToGPEventListener implements Listener
         //TODO: block location, or entity location? Big_Scary used entity location
         callEvent(new GPMutateBlockTypeEvent(event, event.getPlayer(), event.getEntity().getLocation(), event.getEntity()));
     }
+
     @EventHandler(priority = LOWEST)
     private void onPaintingBreak(HangingBreakEvent event)
     {
@@ -98,6 +101,7 @@ public class BukkitToGPEventListener implements Listener
 
         callEvent(new GPMutateBlockTypeEvent(event, destroyerEntity, event.getEntity().getLocation(), event.getEntity()));
     }
+
     @EventHandler(priority = LOWEST)
     private void onBlockLikeEntityDamage(EntityDamageByEntityEvent event)
     {
@@ -130,6 +134,7 @@ public class BukkitToGPEventListener implements Listener
         }
         event.blockList().removeAll(blocksToRemove);
     }
+
     @EventHandler(priority = LOWEST)
     private void onBlockExplode(BlockExplodeEvent event) //largely same as above, but block as source
     {
@@ -157,7 +162,7 @@ public class BukkitToGPEventListener implements Listener
     @EventHandler(priority = LOWEST)
     private void onFireSpread(BlockSpreadEvent event)
     {
-        if(event.getSource().getType() != Material.FIRE) //Ignore other blocks like vines, grass, etc.
+        if (event.getSource().getType() != Material.FIRE) //Ignore other blocks like vines, grass, etc.
             return;
         callEvent(new GPMutateBlockTypeEvent(event, event.getSource(), event.getBlock().getLocation(), event.getBlock()));
     }

@@ -20,7 +20,6 @@ public class PlayerDataRegistrar
     }
 
     /**
-     *
      * @param uuid
      * @return null if the PlayerData does not exist
      */
@@ -43,6 +42,7 @@ public class PlayerDataRegistrar
 
     /**
      * Creates and caches a new PlayerData if none exists in storage. Does not save this new PlayerData to storage.
+     *
      * @param uuid
      * @return a PlayerData object. Nonnull.
      */

@@ -17,19 +17,20 @@
  */
 
 package me.ryanhamshire.GriefPrevention.player;
+
 import me.ryanhamshire.GriefPrevention.claim.Claim;
 import me.ryanhamshire.GriefPrevention.claim.ClaimRegistrar;
 
 import java.util.UUID;
 
 //holds all of a player's claim-related attributes
-public class PlayerData 
+public class PlayerData
 {
-	//the player's uuid
-	private UUID uuid;
-	
-	//how many claim blocks the player has earned via play time
-	private int accruedClaimBlocks;
+    //the player's uuid
+    private UUID uuid;
+
+    //how many claim blocks the player has earned via play time
+    private int accruedClaimBlocks;
 
     //how many claim blocks the player has been gifted/purchased
     private int bonusClaimBlocks;
@@ -48,21 +49,21 @@ public class PlayerData
 
     //the number of claim blocks a player has available for claiming land
     //utility method - requires a ClaimRegistrar...
-	public int getRemainingClaimBlocks(ClaimRegistrar claimRegistrar)
-	{
-		int remainingBlocks = this.getAccruedClaimBlocks() + this.getBonusClaimBlocks();
+    public int getRemainingClaimBlocks(ClaimRegistrar claimRegistrar)
+    {
+        int remainingBlocks = this.getAccruedClaimBlocks() + this.getBonusClaimBlocks();
 
-		for(Claim claim : claimRegistrar.getClaims(this.uuid))
-			remainingBlocks -= claim.getArea();
-		
-		return remainingBlocks;
-	}
-	
-	//don't load storage from secondary storage until it's needed
-	public int getAccruedClaimBlocks()
-	{
-	    //TODO: accrual limit check?
-	    return accruedClaimBlocks;
+        for (Claim claim : claimRegistrar.getClaims(this.uuid))
+            remainingBlocks -= claim.getArea();
+
+        return remainingBlocks;
+    }
+
+    //don't load storage from secondary storage until it's needed
+    public int getAccruedClaimBlocks()
+    {
+        //TODO: accrual limit check?
+        return accruedClaimBlocks;
     }
 
     public void setAccruedClaimBlocks(int accruedClaimBlocks)

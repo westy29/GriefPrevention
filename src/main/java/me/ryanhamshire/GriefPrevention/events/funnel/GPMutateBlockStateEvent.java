@@ -5,9 +5,9 @@ package me.ryanhamshire.GriefPrevention.events.funnel;
  * Called when a block's state is modified.
  * Does NOT include blocks with toggleable (two) states, use GPToggleBlockStateEvent
  * Corresponds to /containertrust (a.k.a. /farmtrust, /chesttrust)
- *
+ * <p>
  * Crop farming (placing/breaking crops) is included here.
- *
+ * <p>
  * Includes:
  * Chest access
  * Item frame - rotation

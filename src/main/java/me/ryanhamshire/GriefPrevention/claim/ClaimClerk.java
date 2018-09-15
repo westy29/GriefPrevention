@@ -16,9 +16,11 @@ import java.util.UUID;
 
 /**
  * Created on 6/7/2018.
- *
+ * <p>
  * Utility class to register and access claims, and handle errors (somewhat) gracefully.
  * Provides a cache for getClaim calls.
+ * <p>
+ * TODO: replace sendMessage with calls to Message
  *
  * @author RoboMWM
  */
@@ -30,10 +32,10 @@ public class ClaimClerk implements Listener
 
     /**
      * Creates a new ClaimClerk, which helps assist in obtaining and performing actions on the claim and playerdata registrars.
-     *
+     * <p>
      * You really <i>shouldn't</i> be instantiating this unless you're performing unusual actions and would benefit from a separate getClaim cache.
      *
-     * @param plugin Used to cleanup caches created using getClaim. Can be null <i>only</i> if you never use getClaim or always pass null for the Player param in getClaim.
+     * @param plugin              Used to cleanup caches created using getClaim. Can be null <i>only</i> if you never use getClaim or always pass null for the Player param in getClaim.
      * @param claimRegistrar
      * @param playerDataRegistrar
      * @param storage
@@ -49,6 +51,7 @@ public class ClaimClerk implements Listener
 
     /**
      * Registers a new claim
+     *
      * @param firstCorner
      * @param secondCorner
      * @return true if successful, false otherwise
@@ -82,6 +85,7 @@ public class ClaimClerk implements Listener
 
     /**
      * Resizes a given claim
+     *
      * @param claim
      * @param firstCorner
      * @param secondCorner
@@ -127,7 +131,7 @@ public class ClaimClerk implements Listener
     /**
      * Gets the claim at a specific location
      *
-     * @param player The player for whom we're retrieving the claim for. Used for caching.
+     * @param player      The player for whom we're retrieving the claim for. Used for caching.
      * @param ignoreDepth Whether a location underneath the claim should return the claim.
      */
     public Claim getClaim(Player player, Location location, boolean ignoreDepth)
@@ -137,6 +141,7 @@ public class ClaimClerk implements Listener
 
     /**
      * Replaces the old map of trustees with the provided map, and saves the claim to storage
+     *
      * @param claim
      * @param newTrustees
      * @return false if there was an issue saving the claim (may need to undo changes)

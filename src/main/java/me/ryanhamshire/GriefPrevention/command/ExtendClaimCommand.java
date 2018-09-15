@@ -48,26 +48,24 @@ public class ExtendClaimCommand extends ClaimManagementCommands
         int newz2 = gc.getBlockZ();
 
         //if changing Z only
-        if(Math.abs(direction.getX()) < .3)
+        if (Math.abs(direction.getX()) < .3)
         {
-            if(direction.getZ() > 0)
+            if (direction.getZ() > 0)
             {
                 newz2 += amount;  //north
-            }
-            else
+            } else
             {
                 newz1 -= amount;  //south
             }
         }
 
         //if changing X only
-        else if(Math.abs(direction.getZ()) < .3)
+        else if (Math.abs(direction.getZ()) < .3)
         {
-            if(direction.getX() > 0)
+            if (direction.getX() > 0)
             {
                 newx2 += amount;  //east
-            }
-            else
+            } else
             {
                 newx1 -= amount;  //west
             }
@@ -76,20 +74,18 @@ public class ExtendClaimCommand extends ClaimManagementCommands
         //diagonals
         else
         {
-            if(direction.getX() > 0)
+            if (direction.getX() > 0)
             {
                 newx2 += amount;
-            }
-            else
+            } else
             {
                 newx1 -= amount;
             }
 
-            if(direction.getZ() > 0)
+            if (direction.getZ() > 0)
             {
                 newz2 += amount;
-            }
-            else
+            } else
             {
                 newz1 -= amount;
             }

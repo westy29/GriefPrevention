@@ -59,7 +59,7 @@ public class VisualizationManager
         visualization.removeElementsOutOfRange(visualization.getElements(), minx, minz, maxx, maxz);
 
         //send real block information for any remaining elements
-        for(VisualizationElement element : visualization.getElements())
+        for (VisualizationElement element : visualization.getElements())
         {
             player.sendBlockChange(element.getLocation(), element.getRealBlock());
         }
@@ -72,7 +72,7 @@ public class VisualizationManager
         Visualization visualization = new Visualization();
 
         //special visualization for administrative land claims
-        if(claim.isAdminClaim() && visualizationType == VisualizationType.Claim)
+        if (claim.isAdminClaim() && visualizationType == VisualizationType.Claim)
         {
             visualizationType = VisualizationType.AdminClaim;
         }
@@ -87,7 +87,7 @@ public class VisualizationManager
     {
         Visualization visualization = new Visualization();
 
-        for(Claim claim : claims)
+        for (Claim claim : claims)
         {
             visualization.addClaimElements(claim, height, type, locality);
         }

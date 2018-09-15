@@ -18,16 +18,6 @@
 
 package me.ryanhamshire.GriefPrevention.storage;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
-import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.logging.Logger;
-
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.claim.Claim;
 import me.ryanhamshire.GriefPrevention.claim.ClaimPermission;
@@ -35,6 +25,24 @@ import me.ryanhamshire.GriefPrevention.player.PlayerData;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.logging.Logger;
 
 //manages storage stored in the file system
 public class FlatFileStorage implements Storage
@@ -53,21 +61,21 @@ public class FlatFileStorage implements Storage
         playerDataFolder = new File(plugin.getDataFolder(), "PlayerData");
 
         //Generate respective storage folders
-        if(!playerDataFolder.exists() || !claimDataFolder.exists())
+        if (!playerDataFolder.exists() || !claimDataFolder.exists())
         {
             playerDataFolder.mkdirs();
             claimDataFolder.mkdirs();
         }
     }
 
-	public Set<Claim> getClaims()
-	{
+    public Set<Claim> getClaims()
+    {
         File[] files = claimDataFolder.listFiles();
         Set<Claim> claims = new HashSet<>();
 
-        for(int i = 0; i < files.length; i++)
-        {           
-            if(!files[i].isFile())  //avoids folders
+        for (int i = 0; i < files.length; i++)
+        {
+            if (!files[i].isFile())  //avoids folders
                 continue;
 
             try
@@ -75,7 +83,7 @@ public class FlatFileStorage implements Storage
                 claims.add(this.loadClaim(files[i]));
             }
             //if there's any problem with the file's content, log an error message and skip it
-            catch(Exception e)
+            catch (Exception e)
             {
                 plugin.getLogger().severe("Could not load claim " + files[i].getName());
                 continue;
@@ -83,27 +91,27 @@ public class FlatFileStorage implements Storage
         }
         return claims;
     }
-	
-	Claim loadClaim(File file) throws ClassCastException, NumberFormatException
-	{
+
+    Claim loadClaim(File file) throws ClassCastException, NumberFormatException
+    {
         Claim claim;
         long claimID = Long.parseLong(file.getName().split("\\.")[0]);
-	    YamlConfiguration yaml = YamlConfiguration.loadConfiguration(file);
-        
+        YamlConfiguration yaml = YamlConfiguration.loadConfiguration(file);
+
         //boundaries
         Location lesserBoundaryCorner = (Location)yaml.get("lesserBoundaryCorner");
         Location greaterBoundaryCorner = (Location)yaml.get("greaterBoundaryCorner");
-        
+
         //owner
         String ownerIdentifier = yaml.getString("owner");
         UUID ownerID = null;
-        if(!ownerIdentifier.isEmpty())
+        if (!ownerIdentifier.isEmpty())
         {
             try
             {
                 ownerID = UUID.fromString(ownerIdentifier);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 plugin.getLogger().info("Error - this is not a valid UUID: " + ownerIdentifier + " in claim file " + file.getName());
                 plugin.getLogger().info("  Converted land claim to administrative @ " + lesserBoundaryCorner.toString());
@@ -117,42 +125,42 @@ public class FlatFileStorage implements Storage
         {
             trustees.put(UUID.fromString(trustee), ClaimPermission.valueOf(trusteesSection.getString(trustee)));
         }
-        
+
         //instantiate
         claim = new Claim(lesserBoundaryCorner, greaterBoundaryCorner, ownerID, trustees, claimID);
-        
-        return claim;
-	}
 
-	private File getClaimFile(Claim claim) throws NumberFormatException
+        return claim;
+    }
+
+    private File getClaimFile(Claim claim) throws NumberFormatException
     {
         return new File(claimDataFolder.getPath() + File.separator + Long.toString(claim.getID()) + ".yml");
     }
 
-	public void saveClaim(Claim claim)
-	{
-		YamlConfiguration yaml = new YamlConfiguration();
-		yaml.set("lesserBoundaryCorner", claim.getLesserBoundaryCorner().toString());
+    public void saveClaim(Claim claim)
+    {
+        YamlConfiguration yaml = new YamlConfiguration();
+        yaml.set("lesserBoundaryCorner", claim.getLesserBoundaryCorner().toString());
         yaml.set("greaterBoundaryCorner", claim.getGreaterBoundaryCorner().toString());
         yaml.set("owner", claim.getOwnerUUID().toString());
         yaml.set("trustees", claim.getTrustees()); //TODO: does this store enum's string or int value??
         yaml.set("publicPermission", claim.getPublicPermission());
         claimDataPool.execute(new SaveClaimDataThread(yaml.saveToString(), getClaimFile(claim), plugin.getLogger()));
-	}
+    }
 
-	public void deleteClaim(Claim claim)
-	{
-		File claimFile = getClaimFile(claim);
-		claimFile.delete();
-	}
+    public void deleteClaim(Claim claim)
+    {
+        File claimFile = getClaimFile(claim);
+        claimFile.delete();
+    }
 
-	public PlayerData getPlayerData(UUID uuid)
-	{
-		File playerFile = new File(playerDataFolder.getPath() + File.separator + uuid.toString());
-		
-		//Return new PlayerData file if none exists
-		if(!playerFile.exists())
-		    return null;
+    public PlayerData getPlayerData(UUID uuid)
+    {
+        File playerFile = new File(playerDataFolder.getPath() + File.separator + uuid.toString());
+
+        //Return new PlayerData file if none exists
+        if (!playerFile.exists())
+            return null;
 
         try
         {
@@ -174,38 +182,38 @@ public class FlatFileStorage implements Storage
             rock.printStackTrace();
         }
         return null;
-	}
-	
-	//saves changes to player storage.
-	public void savePlayerData(PlayerData playerData)
-	{
-		//never save storage for the "administrative" account.  null for claim owner ID indicates administrative account
-		if(playerData == null || playerData.getUuid() == null)
-		    return;
-		
-		ArrayList<String> fileContent = new ArrayList<>();
-		try
-		{
-			//first line is accrued claim blocks
-			fileContent.add(Integer.toString(playerData.getAccruedClaimBlocks()));
-			
-			//second line is bonus claim blocks
-			fileContent.add(Integer.toString(playerData.getBonusClaimBlocks()));
-			
-			//write storage to file
+    }
+
+    //saves changes to player storage.
+    public void savePlayerData(PlayerData playerData)
+    {
+        //never save storage for the "administrative" account.  null for claim owner ID indicates administrative account
+        if (playerData == null || playerData.getUuid() == null)
+            return;
+
+        ArrayList<String> fileContent = new ArrayList<>();
+        try
+        {
+            //first line is accrued claim blocks
+            fileContent.add(Integer.toString(playerData.getAccruedClaimBlocks()));
+
+            //second line is bonus claim blocks
+            fileContent.add(Integer.toString(playerData.getBonusClaimBlocks()));
+
+            //write storage to file
             File playerDataFile = new File(playerDataFolder + File.separator + playerData.getUuid().toString());
             playerDataPool.execute(new SavePlayerDataThread(fileContent, playerDataFile, plugin.getLogger()));
-		}
-		catch(Throwable rock)
-		{
-			plugin.getLogger().severe("Error occurred while attempting to store playerData for UUID " + playerData.getUuid().toString());
-			rock.printStackTrace();
-			return;
-		}
-		return;
-	}
+        }
+        catch (Throwable rock)
+        {
+            plugin.getLogger().severe("Error occurred while attempting to store playerData for UUID " + playerData.getUuid().toString());
+            rock.printStackTrace();
+            return;
+        }
+        return;
+    }
 
-	public void close()
+    public void close()
     {
         playerDataPool.shutdown();
         claimDataPool.shutdown();

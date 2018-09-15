@@ -20,26 +20,26 @@ package me.ryanhamshire.GriefPrevention.claim;
 
 public class CreateClaimResult
 {
-	//whether or not the creation succeeded (it would fail if the new claim overlapped another existing claim)
-	private boolean success;
+    //whether or not the creation succeeded (it would fail if the new claim overlapped another existing claim)
+    private boolean success;
 
-	//when succeeded, this is a reference to the new claim
-	//when failed, this is a reference to the pre-existing, conflicting claim
-	private Claim claim;
+    //when succeeded, this is a reference to the new claim
+    //when failed, this is a reference to the pre-existing, conflicting claim
+    private Claim claim;
 
-	CreateClaimResult(boolean success, Claim claim)
-	{
-		this.success = success;
-		this.claim = claim;
-	}
+    CreateClaimResult(boolean success, Claim claim)
+    {
+        this.success = success;
+        this.claim = claim;
+    }
 
-	public boolean isSuccess()
-	{
-		return success;
-	}
+    public boolean isSuccess()
+    {
+        return success;
+    }
 
-	public Claim getClaim()
-	{
-		return claim;
-	}
+    public Claim getClaim()
+    {
+        return claim;
+    }
 }

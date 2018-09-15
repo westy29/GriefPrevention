@@ -44,7 +44,10 @@ public class CreateClaimCommand extends ClaimManagementCommands
             if (args.length > 0)
                 radius = Integer.parseInt(args[0]);
         }
-        catch (NumberFormatException ignored){}
+        catch (NumberFormatException e)
+        {
+            return false;
+        }
 
         Location firstCorner = player.getLocation().add(radius, 0, radius);
         Location secondCorner = player.getLocation().subtract(radius, 0, radius);

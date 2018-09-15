@@ -21,7 +21,6 @@ package me.ryanhamshire.GriefPrevention.storage;
 import me.ryanhamshire.GriefPrevention.claim.Claim;
 import me.ryanhamshire.GriefPrevention.player.PlayerData;
 
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 

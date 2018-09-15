@@ -12,7 +12,7 @@ import org.bukkit.metadata.Metadatable;
 
 /**
  * Foundation event
- *
+ * <p>
  * Created on 2/23/2017.
  *
  * @author RoboMWM
@@ -21,20 +21,25 @@ public class GPBaseEvent extends Event implements Cancellable
 {
     // Custom Event Requirements
     private static final HandlerList handlers = new HandlerList();
+
     public static HandlerList getHandlerList()
     {
         return handlers;
     }
+
     @Override
     public HandlerList getHandlers()
     {
         return handlers;
     }
+
     private boolean cancel = false;
+
     public boolean isCancelled()
     {
         return cancel;
     }
+
     public void setCancelled(boolean cancelled)
     {
         this.cancel = cancelled;
@@ -52,8 +57,9 @@ public class GPBaseEvent extends Event implements Cancellable
 
     /**
      * Called when something other than an entity is not the source of this event (e.g. another block)
+     *
      * @param baseEvent
-     * @param causer Can be null
+     * @param causer    Can be null
      * @param location
      * @param target
      */
@@ -92,6 +98,7 @@ public class GPBaseEvent extends Event implements Cancellable
 
     /**
      * Gets the causer entity.
+     *
      * @return null if no causer, or if causer is not an entity
      */
     public Entity getSourceEntity()
@@ -113,6 +120,7 @@ public class GPBaseEvent extends Event implements Cancellable
 
     /**
      * Gets location of target block/entity
+     *
      * @return
      */
     public Location getLocation()

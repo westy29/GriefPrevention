@@ -14,11 +14,15 @@ public class AccrueClaimBlocksEvent extends Event
 {
     // Custom Event Requirements
     private static final HandlerList handlers = new HandlerList();
-    public static HandlerList getHandlerList() {
+
+    public static HandlerList getHandlerList()
+    {
         return handlers;
     }
+
     @Override
-    public HandlerList getHandlers() {
+    public HandlerList getHandlers()
+    {
         return handlers;
     }
 
@@ -52,6 +56,7 @@ public class AccrueClaimBlocksEvent extends Event
 
     /**
      * Modify the amount of claim blocks to deliver to the player for this 10 minute interval
+     *
      * @param blocksToAccrue blocks to deliver
      */
     public void setBlocksToAccrue(int blocksToAccrue)
@@ -61,6 +66,7 @@ public class AccrueClaimBlocksEvent extends Event
 
     /**
      * Similar to setBlocksToAccrue(int), but automatically converting from a per-hour rate value to a 10-minute rate value
+     *
      * @param blocksToAccruePerHour the per-hour rate of blocks to deliver
      */
 
