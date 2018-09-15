@@ -19,15 +19,15 @@
 package me.ryanhamshire.GriefPrevention.storage;
 
 import java.io.File;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.OpenOption;
 import java.nio.file.StandardOpenOption;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.logging.Logger;
 
-import me.ryanhamshire.GriefPrevention.CustomLogEntryTypes;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.claim.Claim;
 import me.ryanhamshire.GriefPrevention.claim.ClaimPermission;
@@ -40,9 +40,11 @@ import org.bukkit.configuration.file.YamlConfiguration;
 public class FlatFileStorage implements Storage
 {
     private GriefPrevention plugin;
-
     private File claimDataFolder;
     private File playerDataFolder;
+
+    private ExecutorService playerDataPool = Executors.newCachedThreadPool();
+    private ExecutorService claimDataPool = Executors.newCachedThreadPool();
 
     public FlatFileStorage(GriefPrevention griefPrevention)
     {
@@ -135,7 +137,7 @@ public class FlatFileStorage implements Storage
         yaml.set("owner", claim.getOwnerUUID());
         yaml.set("trustees", claim.getTrustees()); //TODO: does this store enum's string or int value??
         yaml.set("publicPermission", claim.getPublicPermission());
-        yaml.save(getClaimFile(claim));
+        claimDataPool.execute(new SaveClaimDataThread(yaml.saveToString(), getClaimFile(claim), plugin.getLogger()));
 	}
 
 	public void deleteClaim(Claim claim)
@@ -175,53 +177,104 @@ public class FlatFileStorage implements Storage
 	}
 	
 	//saves changes to player storage.
-	public boolean savePlayerDataSync(PlayerData playerData)
+	public void savePlayerData(PlayerData playerData)
 	{
 		//never save storage for the "administrative" account.  null for claim owner ID indicates administrative account
 		if(playerData == null || playerData.getUuid() == null)
-		    return false;
+		    return;
 		
 		ArrayList<String> fileContent = new ArrayList<>();
 		try
 		{
 			//first line is accrued claim blocks
-			fileContent.add(String.valueOf(playerData.getAccruedClaimBlocks()));
+			fileContent.add(Integer.toString(playerData.getAccruedClaimBlocks()));
 			
 			//second line is bonus claim blocks
-			fileContent.add(String.valueOf(playerData.getBonusClaimBlocks()));
+			fileContent.add(Integer.toString(playerData.getBonusClaimBlocks()));
 			
 			//write storage to file
             File playerDataFile = new File(playerDataFolder + File.separator + playerData.getUuid().toString());
-            Files.write(playerDataFile.toPath(), fileContent, StandardCharsets.UTF_8, StandardOpenOption.CREATE);
+            playerDataPool.execute(new SavePlayerDataThread(fileContent, playerDataFile, plugin.getLogger()));
 		}
 		catch(Throwable rock)
 		{
 			plugin.getLogger().severe("Error occurred while attempting to store playerData for UUID " + playerData.getUuid().toString());
 			rock.printStackTrace();
-			return false;
+			return;
 		}
-		return true;
+		return;
 	}
 
-    @Override
-    public void savePlayerData(PlayerData playerData)
+	public void close()
     {
-        new SavePlayerDataThread(playerData).start();
+        playerDataPool.shutdown();
+        claimDataPool.shutdown();
+        boolean notified = false;
+        while (!playerDataPool.isTerminated() || !claimDataPool.isTerminated())
+        {
+            if (!notified)
+            {
+                notified = true;
+                plugin.getLogger().info("Waiting for save tasks to complete...");
+            }
+        }
+    }
+}
+
+class SavePlayerDataThread implements Runnable
+{
+    private List<String> lines;
+    private File file;
+    private Logger logger;
+
+    public SavePlayerDataThread(List<String> lines, File file, Logger logger)
+    {
+        this.lines = lines;
+        this.file = file;
     }
 
-    private class SavePlayerDataThread extends Thread
+    public void run()
     {
-        private PlayerData playerData;
-
-        SavePlayerDataThread(PlayerData playerData)
+        try
         {
-            this.playerData = playerData;
+            Files.write(file.toPath(), lines, StandardCharsets.UTF_8, StandardOpenOption.CREATE);
+        }
+        catch (IOException e)
+        {
+            //TODO: is logger thread safe?
+            logger.severe("Failed to save player data file " + file.toPath().toString());
+            e.printStackTrace();
         }
 
-        public void run()
+    }
+}
+
+class SaveClaimDataThread implements Runnable
+{
+    private String content;
+    private File file;
+    private Logger logger;
+
+    public SaveClaimDataThread(String content, File file, Logger logger)
+    {
+        this.content = content;
+        this.file = file;
+        this.logger = logger;
+    }
+
+    public void run()
+    {
+        try
         {
-            savePlayerDataSync(this.playerData);
+            Files.write(file.toPath(), Collections.singletonList(content), StandardCharsets.UTF_8, StandardOpenOption.CREATE);
         }
+        catch (IOException e)
+        {
+            //TODO: is logger thread safe?
+            logger.severe("Failed to save claim data file " + file.toPath().toString());
+            e.printStackTrace();
+        }
+
     }
 }
 
