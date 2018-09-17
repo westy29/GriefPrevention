@@ -14,11 +14,11 @@ public class VisualizationManager
 {
     public final static String METADATA_KEY = "GP_VISUALIZATION";
 
-    private JavaPlugin instance;
+    private JavaPlugin plugin;
 
     public VisualizationManager(JavaPlugin plugin)
     {
-        instance = plugin;
+        this.plugin = plugin;
     }
 
     //sends a visualization to a player
@@ -30,9 +30,9 @@ public class VisualizationManager
         if (visualization.getWorld() != player.getWorld())
             return;
 
-        new VisualizationApplicationTask(player, visualization, instance).runTask(instance);
+        new VisualizationApplicationTask(player, visualization, plugin).runTask(plugin);
 
-        new VisualizationReversionTask(player, this).runTaskLater(instance, 1200L); //1 minute
+        new VisualizationReversionTask(player, this).runTaskLater(plugin, 1200L); //1 minute
     }
 
     //reverts a visualization by sending another block change list, this time with the real world block values
@@ -42,7 +42,7 @@ public class VisualizationManager
             return;
 
         Visualization visualization = (Visualization)player.getMetadata(METADATA_KEY).get(0).value();
-        player.removeMetadata(METADATA_KEY, instance);
+        player.removeMetadata(METADATA_KEY, plugin);
 
         if (!player.isOnline())
             return;
@@ -67,7 +67,7 @@ public class VisualizationManager
 
     //convenience method to build a visualization from a claim
     //visualizationType determines the style (gold blocks, silver, red, diamond, etc)
-    public static Visualization FromClaim(Claim claim, int height, VisualizationType visualizationType, Location locality)
+    public Visualization fromClaim(Claim claim, VisualizationType visualizationType, Location locality)
     {
         Visualization visualization = new Visualization();
 
@@ -78,18 +78,18 @@ public class VisualizationManager
         }
 
         //add top level last so that it takes precedence (it shows on top when the child claim boundaries overlap with its boundaries)
-        visualization.addClaimElements(claim, height, visualizationType, locality);
+        visualization.addClaimElements(claim, visualizationType, locality);
 
         return visualization;
     }
 
-    public Visualization fromClaims(Iterable<Claim> claims, int height, VisualizationType type, Location locality)
+    public Visualization fromClaims(Iterable<Claim> claims, VisualizationType type, Location locality)
     {
         Visualization visualization = new Visualization();
 
         for (Claim claim : claims)
         {
-            visualization.addClaimElements(claim, height, type, locality);
+            visualization.addClaimElements(claim, type, locality);
         }
 
         return visualization;

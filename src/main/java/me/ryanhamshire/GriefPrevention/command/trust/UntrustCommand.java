@@ -47,10 +47,7 @@ public class UntrustCommand extends ClaimManagementCommands
             player.sendMessage("Revoked trust from " + trustee + " to this claim.");
         }
 
-        if (!claimClerk.changeTrustees(claim, trustees))
-        {
-            player.sendMessage("Failed to save claim.");
-        }
+        claimClerk.changeTrustees(claim, trustees);
 
         return true;
     }

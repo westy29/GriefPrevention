@@ -159,7 +159,7 @@ public class ClaimRegistrar implements Listener
      * @throws Exception                if the newly-created claim was not able to be saved.
      * @see CreateClaimResult
      */
-    public CreateClaimResult createClaim(Location firstCorner, Location secondCorner, UUID ownerID) throws Exception
+    public CreateClaimResult createClaim(Location firstCorner, Location secondCorner, UUID ownerID)
     {
         Location[] corners = ClaimUtils.retrieveSortedCorners(firstCorner, secondCorner);
 

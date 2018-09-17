@@ -64,10 +64,7 @@ public class TrustCommand extends ClaimManagementCommands
             player.sendMessage("Granted " + trustee + " " + permission.name() + " trust to this claim.");
         }
 
-        if (!claimClerk.changeTrustees(claim, trustees))
-        {
-            player.sendMessage("Failed to save claim.");
-        }
+        claimClerk.changeTrustees(claim, trustees);
 
         return true;
     }

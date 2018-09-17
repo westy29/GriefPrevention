@@ -1,8 +1,11 @@
 package me.ryanhamshire.GriefPrevention.claim;
 
+import me.ryanhamshire.GriefPrevention.message.Message;
 import me.ryanhamshire.GriefPrevention.player.PlayerData;
 import me.ryanhamshire.GriefPrevention.player.PlayerDataRegistrar;
 import me.ryanhamshire.GriefPrevention.storage.Storage;
+import me.ryanhamshire.GriefPrevention.visualization.VisualizationManager;
+import me.ryanhamshire.GriefPrevention.visualization.VisualizationType;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -29,6 +32,7 @@ public class ClaimClerk implements Listener
     private Storage storage;
     private ClaimRegistrar claimRegistrar;
     private PlayerDataRegistrar playerDataRegistrar;
+    private VisualizationManager visualizationManager;
 
     /**
      * Creates a new ClaimClerk, which helps assist in obtaining and performing actions on the claim and playerdata registrars.
@@ -40,13 +44,14 @@ public class ClaimClerk implements Listener
      * @param playerDataRegistrar
      * @param storage
      */
-    public ClaimClerk(JavaPlugin plugin, ClaimRegistrar claimRegistrar, PlayerDataRegistrar playerDataRegistrar, Storage storage)
+    public ClaimClerk(JavaPlugin plugin, ClaimRegistrar claimRegistrar, PlayerDataRegistrar playerDataRegistrar, Storage storage, VisualizationManager visualizationManager)
     {
         if (plugin != null)
             plugin.getServer().getPluginManager().registerEvents(this, plugin);
         this.claimRegistrar = claimRegistrar;
         this.playerDataRegistrar = playerDataRegistrar;
         this.storage = storage;
+        this.visualizationManager = visualizationManager;
     }
 
     /**
@@ -65,22 +70,18 @@ public class ClaimClerk implements Listener
             return false;
         }
 
-        try
+        CreateClaimResult claimResult = claimRegistrar.createClaim(firstCorner, secondCorner, player.getUniqueId());
+        if (!claimResult.isSuccess())
         {
-            CreateClaimResult claimResult = claimRegistrar.createClaim(firstCorner, secondCorner, player.getUniqueId());
-            if (claimResult.isSuccess())
-                return true;
-
             player.sendMessage("Overlaps another claim");
-            //send overlapped claim
-        }
-        catch (Exception e)
-        {
-            player.sendMessage("Error occurred while attempting to save your new claim, see console log for details.");
-            e.printStackTrace();
+            //TODO: send overlapped claim
             return false;
         }
-        return false;
+
+        Message.ClaimCreateSuccess.send(player);
+        visualizationManager.apply(player, visualizationManager.fromClaim(claimResult.getClaim(), VisualizationType.Claim, player.getLocation()));
+
+        return true;
     }
 
     /**

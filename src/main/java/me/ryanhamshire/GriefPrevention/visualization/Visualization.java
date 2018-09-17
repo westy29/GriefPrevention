@@ -54,7 +54,7 @@ public class Visualization
     //adds a claim's visualization to the current visualization
     //handy for combining several visualizations together, as when visualization a top level claim with several subdivisions inside
     //locality is a performance consideration.  only create visualization blocks for around 100 blocks of the locality
-    public void addClaimElements(Claim claim, int height, VisualizationType visualizationType, Location locality)
+    public void addClaimElements(Claim claim, VisualizationType visualizationType, Location locality)
     {
         Location smallXsmallZ = claim.getLesserBoundaryCorner();
         Location bigXbigZ = claim.getGreaterBoundaryCorner();

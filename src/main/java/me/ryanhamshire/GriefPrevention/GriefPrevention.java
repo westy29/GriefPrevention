@@ -30,6 +30,7 @@ import me.ryanhamshire.GriefPrevention.listener.ClaimTool;
 import me.ryanhamshire.GriefPrevention.player.PlayerDataRegistrar;
 import me.ryanhamshire.GriefPrevention.storage.FlatFileStorage;
 import me.ryanhamshire.GriefPrevention.storage.Storage;
+import me.ryanhamshire.GriefPrevention.visualization.VisualizationManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class GriefPrevention extends JavaPlugin
@@ -37,14 +38,16 @@ public class GriefPrevention extends JavaPlugin
     private ClaimRegistrar claimRegistrar;
     private PlayerDataRegistrar playerDataRegistrar;
     private Storage storage; //TODO: add setter, config-controlled
+    private VisualizationManager visualizationManager;
 
     public void onEnable()
     {
         storage = new FlatFileStorage(this);
         claimRegistrar = new ClaimRegistrar(this, storage);
         playerDataRegistrar = new PlayerDataRegistrar(storage);
+        visualizationManager = new VisualizationManager(this);
 
-        ClaimClerk claimClerk = new ClaimClerk(this, claimRegistrar, playerDataRegistrar, storage);
+        ClaimClerk claimClerk = new ClaimClerk(this, claimRegistrar, playerDataRegistrar, storage, visualizationManager);
 
         new ClaimListener(this, claimRegistrar);
         new ClaimTool(this);
