@@ -4,6 +4,7 @@ import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -46,7 +47,7 @@ public class BukkitToGPEventListener implements Listener
     {
         Cancellable baseEvent = null;
 
-        //GPevent.isCancelled() = baseevent.isCancelled()
+        //GPevent.cancel = baseevent.isCancelled()
         if (event.getBaseEvent() instanceof Cancellable)
         {
             baseEvent = (Cancellable)event.getBaseEvent();
@@ -55,7 +56,7 @@ public class BukkitToGPEventListener implements Listener
 
         plugin.getServer().getPluginManager().callEvent(event);
 
-        //baseevent.isCancelled() = GPevent.isCancelled()
+        //baseevent.cancel = GPevent.isCancelled()
         if (baseEvent != null)
         {
             baseEvent.setCancelled(event.isCancelled());
@@ -143,6 +144,8 @@ public class BukkitToGPEventListener implements Listener
     @EventHandler(priority = LOWEST)
     private void onEntityFormBlock(EntityBlockFormEvent event) //Frost walker
     {
+        if (event.getEntity().getType() == EntityType.SNOWMAN) //ignore snowmen
+            return;
         callEvent(new GPMutateBlockTypeEvent(event, event.getEntity(), event.getBlock().getLocation(), event.getBlock()));
     }
 

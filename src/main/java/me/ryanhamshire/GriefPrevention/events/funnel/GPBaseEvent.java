@@ -3,6 +3,7 @@ package me.ryanhamshire.GriefPrevention.events.funnel;
 import com.sun.istack.internal.Nullable;
 import me.ryanhamshire.GriefPrevention.claim.Claim;
 import org.bukkit.Location;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -55,8 +56,6 @@ public class GPBaseEvent extends Event implements Cancellable
     private Entity sourceEntity;
     private Location location;
     private Metadatable target;
-
-    private Claim claim;
 
     /**
      * Called when something other than an entity is not the source of this event (e.g. another block)
@@ -124,6 +123,14 @@ public class GPBaseEvent extends Event implements Cancellable
     {
         if (isPlayer())
             return (Player)sourceEntity;
+        return null;
+    }
+
+    //TODO: cache result
+    public Block getSourceBlock()
+    {
+        if (source instanceof Block)
+            return (Block)source;
         return null;
     }
 

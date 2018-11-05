@@ -42,7 +42,7 @@ public class ClaimListener implements Listener
         Claim claim = claimRegistrar.getClaim(event.getLocation(), false, claimCache.get(event.getSource()));
         if (claim == null)
         {
-            //call wilderness
+            //TODO: forward to wilderness rule handling, use return value as cancel status
             return;
         }
 
@@ -54,6 +54,7 @@ public class ClaimListener implements Listener
         }
 
         //Natural grief allowed (explosions, etc.)
+        //May remove sourceEntity check here since we really don't need to check the source if natural grief is allowed
         if (event.getSourceEntity() != null)
         {
             switch (event.getSourceEntity().getType())
@@ -68,6 +69,17 @@ public class ClaimListener implements Listener
             }
         }
 
-        //TODO: fire
+        //TODO: move to mutate state event?
+        //Extinguish fire within claim if it causes firespread to occur
+        //Many players used to GP with fireplaces aren't aware that they aren't built to fire safety regulations
+        //Also prevents a wildfire occurring if the claim is abandoned (manually or automatically)
+        if (event.getSourceBlock() != null)
+        {
+            switch (event.getSourceBlock().getType())
+            {
+                case FIRE:
+                    event.setCancelled(true);
+            }
+        }
     }
 }
