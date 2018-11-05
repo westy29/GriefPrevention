@@ -39,7 +39,7 @@ public class ClaimListener implements Listener
     @EventHandler
     private void onClaimBuildBreak(GPMutateBlockTypeEvent event)
     {
-        Claim claim = claimRegistrar.getClaim(event.getLocation(), false, claimCache.get(event.getCauser()));
+        Claim claim = claimRegistrar.getClaim(event.getLocation(), false, claimCache.get(event.getSource()));
         if (claim == null)
         {
             //call wilderness
@@ -49,7 +49,7 @@ public class ClaimListener implements Listener
         //Caused by player
         if (event.isPlayer())
         {
-            event.setCancelled(!claim.hasPermission(event.getPlayer(), ClaimPermission.BUILD));
+            event.setCancelled(!claim.hasPermission(event.getSourcePlayer(), ClaimPermission.BUILD));
             return;
         }
 

@@ -1,5 +1,6 @@
 package me.ryanhamshire.GriefPrevention.events.funnel;
 
+import com.sun.istack.internal.Nullable;
 import me.ryanhamshire.GriefPrevention.claim.Claim;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
@@ -35,20 +36,22 @@ public class GPBaseEvent extends Event implements Cancellable
 
     private boolean cancel = false;
 
+    @Override
     public boolean isCancelled()
     {
         return cancel;
     }
 
+    @Override
     public void setCancelled(boolean cancelled)
     {
         this.cancel = cancelled;
     }
 
     private Event baseEvent;
-    private Metadatable causer;
-    //Most of these events contain an entity as a causer.
-    //Thus, we'll store it as an entity to avoid needless instanceof calls
+    private Metadatable source;
+    //Most of these events are caused by an entity
+    //Thus, we'll store it to avoid needless instanceof calls
     private Entity sourceEntity;
     private Location location;
     private Metadatable target;
@@ -59,16 +62,16 @@ public class GPBaseEvent extends Event implements Cancellable
      * Called when something other than an entity is not the source of this event (e.g. another block)
      *
      * @param baseEvent
-     * @param causer    Can be null
+     * @param source    Can be null
      * @param location
      * @param target
      */
-    public GPBaseEvent(Event baseEvent, Metadatable causer, Location location, Metadatable target)
+    public GPBaseEvent(Event baseEvent, @Nullable Metadatable source, Location location, Metadatable target)
     {
         this.baseEvent = baseEvent;
         this.location = location;
         this.target = target;
-        this.causer = causer;
+        this.source = source;
     }
 
     /**
@@ -77,11 +80,11 @@ public class GPBaseEvent extends Event implements Cancellable
      * @param location
      * @param target
      */
-    public GPBaseEvent(Event baseEvent, Entity sourceEntity, Location location, Metadatable target)
+    public GPBaseEvent(Event baseEvent, @Nullable Entity sourceEntity, Location location, Metadatable target)
     {
         this.baseEvent = baseEvent;
         this.sourceEntity = sourceEntity;
-        this.causer = sourceEntity;
+        this.source = sourceEntity;
         this.location = location;
         this.target = target;
     }
@@ -91,27 +94,33 @@ public class GPBaseEvent extends Event implements Cancellable
         return baseEvent;
     }
 
-    public Metadatable getCauser()
+    /**
+     * Gets the thing (usually an entity or block) that caused this event.
+     *
+     * @return
+     */
+    public Metadatable getSource()
     {
-        return causer;
+        return source;
     }
 
     /**
-     * Gets the causer entity.
+     * Gets the entity that caused this event
      *
-     * @return null if no causer, or if causer is not an entity
+     * @return null if no source, or if source is not an entity
      */
     public Entity getSourceEntity()
     {
         return sourceEntity;
     }
 
+    //TODO: maybe should be private?
     public boolean isPlayer()
     {
         return sourceEntity != null && sourceEntity.getType() == EntityType.PLAYER;
     }
 
-    public Player getPlayer()
+    public Player getSourcePlayer()
     {
         if (isPlayer())
             return (Player)sourceEntity;
@@ -119,7 +128,7 @@ public class GPBaseEvent extends Event implements Cancellable
     }
 
     /**
-     * Gets location of target block/entity
+     * Gets location of block/entity affected by this event.
      *
      * @return
      */

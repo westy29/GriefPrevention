@@ -115,13 +115,6 @@ public class BukkitToGPEventListener implements Listener
     }
 
     @EventHandler(priority = LOWEST)
-    private void onVehicleDamage(VehicleDamageEvent event)
-    {
-        //TODO: entity damage
-        //callEvent(new GPMutateBlockTypeEvent(event, event.getAttacker(), event.getVehicle().getLocation(), event.getAttacker()));
-    }
-
-    @EventHandler(priority = LOWEST)
     private void onEntityExplode(EntityExplodeEvent event)
     {
         //Call an event for each block that's to-be-destroyed
@@ -165,5 +158,12 @@ public class BukkitToGPEventListener implements Listener
         if (event.getSource().getType() != Material.FIRE) //Ignore other blocks like vines, grass, etc.
             return;
         callEvent(new GPMutateBlockTypeEvent(event, event.getSource(), event.getBlock().getLocation(), event.getBlock()));
+    }
+
+    @EventHandler(priority = LOWEST)
+    private void onVehicleDamage(VehicleDamageEvent event)
+    {
+        //TODO: entity damage
+        //callEvent(new GPMutateBlockTypeEvent(event, event.getAttacker(), event.getVehicle().getLocation(), event.getAttacker()));
     }
 }
