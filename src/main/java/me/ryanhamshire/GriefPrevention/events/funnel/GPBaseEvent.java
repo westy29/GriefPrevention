@@ -1,7 +1,5 @@
 package me.ryanhamshire.GriefPrevention.events.funnel;
 
-import com.sun.istack.internal.Nullable;
-import me.ryanhamshire.GriefPrevention.claim.Claim;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
@@ -68,7 +66,7 @@ public class GPBaseEvent extends Event implements Cancellable
      * @param location
      * @param target
      */
-    public GPBaseEvent(Event baseEvent, @Nullable Metadatable source, Location location, Metadatable target)
+    public GPBaseEvent(Event baseEvent, Metadatable source, Location location, Metadatable target)
     {
         this.baseEvent = baseEvent;
         this.location = location;
@@ -82,7 +80,7 @@ public class GPBaseEvent extends Event implements Cancellable
      * @param location
      * @param target
      */
-    public GPBaseEvent(Event baseEvent, @Nullable Entity sourceEntity, Location location, Metadatable target)
+    public GPBaseEvent(Event baseEvent, Entity sourceEntity, Location location, Metadatable target)
     {
         this.baseEvent = baseEvent;
         this.sourceEntity = sourceEntity;
