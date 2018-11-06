@@ -69,10 +69,7 @@ public class ClaimListener implements Listener
             }
         }
 
-        //TODO: move to mutate state event?
-        //Extinguish fire within claim if it causes firespread to occur
-        //Many players used to GP with fireplaces aren't aware that they aren't built to fire safety regulations
-        //Also prevents a wildfire occurring if the claim is abandoned (manually or automatically)
+
         if (event.getSourceBlock() != null)
         {
             switch (event.getSourceBlock().getType())

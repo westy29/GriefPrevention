@@ -12,6 +12,8 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.bukkit.metadata.Metadatable;
 
+import java.util.Map;
+
 /**
  * Foundation event
  * <p>
@@ -56,6 +58,7 @@ public class GPBaseEvent extends Event implements Cancellable
     private Entity sourceEntity;
     private Location location;
     private Metadatable target;
+    private Map<EventOption, Boolean> options;
 
     /**
      * Called when something other than an entity is not the source of this event (e.g. another block)
@@ -147,5 +150,16 @@ public class GPBaseEvent extends Event implements Cancellable
     public Metadatable getTarget()
     {
         return target;
+    }
+
+    //TODO: setter
+    public boolean getOption(EventOption option)
+    {
+        if (options == null)
+            return true;
+        Boolean b = options.get(option);
+        if (b != null)
+            return b;
+        return true;
     }
 }

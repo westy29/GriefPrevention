@@ -43,6 +43,11 @@ public class BukkitToGPEventListener implements Listener
         this.plugin = griefPrevention;
     }
 
+    /**
+     *
+     * @param event
+     * @return true if event was canceled
+     */
     private boolean callEvent(GPBaseEvent event)
     {
         Cancellable baseEvent = null;
@@ -160,7 +165,13 @@ public class BukkitToGPEventListener implements Listener
     {
         if (event.getSource().getType() != Material.FIRE) //Ignore other blocks like vines, grass, etc.
             return;
-        callEvent(new GPMutateBlockTypeEvent(event, event.getSource(), event.getBlock().getLocation(), event.getBlock()));
+        GPBaseEvent gpEvent = (new GPMutateBlockTypeEvent(event, event.getSource(), event.getBlock().getLocation(), event.getBlock()));
+
+        //Extinguish fire within claim if it causes firespread to occur
+        //Many players used to GP with fireplaces aren't aware that they aren't built to fire safety regulations
+        //Also prevents a wildfire occurring if the claim is abandoned (manually or automatically)
+        if (callEvent(gpEvent) && gpEvent.getOption(EventOption.REMOVE_SOURCE_FIRE_BLOCK))
+            event.getSource().setType(Material.AIR, false);
     }
 
     @EventHandler(priority = LOWEST)
