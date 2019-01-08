@@ -145,7 +145,7 @@ public class FlatFileStorage implements Storage
         yaml.set("owner", claim.getOwnerUUID().toString());
         yaml.set("trustees", claim.getTrustees()); //TODO: does this store enum's string or int value??
         yaml.set("publicPermission", claim.getPublicPermission());
-        claimDataPool.execute(new SaveClaimDataThread(yaml.saveToString(), getClaimFile(claim), plugin.getLogger()));
+        claimDataPool.execute(new SaveFileThread(yaml.saveToString(), getClaimFile(claim), plugin.getLogger(), "claim"));
     }
 
     public void deleteClaim(Claim claim)
@@ -158,7 +158,6 @@ public class FlatFileStorage implements Storage
     {
         File playerFile = new File(playerDataFolder.getPath() + File.separator + uuid.toString());
 
-        //Return new PlayerData file if none exists
         if (!playerFile.exists())
             return null;
 
@@ -176,10 +175,10 @@ public class FlatFileStorage implements Storage
 
             return new PlayerData(uuid, accrued, bonus);
         }
-        catch (Throwable rock)
+        catch (Exception e)
         {
             plugin.getLogger().severe("Failed to load playerData for UUID " + uuid.toString());
-            rock.printStackTrace();
+            e.printStackTrace();
         }
         return null;
     }
@@ -202,7 +201,7 @@ public class FlatFileStorage implements Storage
 
             //write storage to file
             File playerDataFile = new File(playerDataFolder + File.separator + playerData.getUuid().toString());
-            playerDataPool.execute(new SavePlayerDataThread(fileContent, playerDataFile, plugin.getLogger()));
+            playerDataPool.execute(new SaveFileThread(fileContent, playerDataFile, plugin.getLogger(), "player"));
         }
         catch (Throwable rock)
         {
@@ -229,60 +228,56 @@ public class FlatFileStorage implements Storage
     }
 }
 
-class SavePlayerDataThread implements Runnable
+//Replace with futures to return status?
+
+class SaveFileThread implements Runnable
 {
-    private List<String> lines;
+    private List<String> content;
     private File file;
     private Logger logger;
+    private String type;
 
-    public SavePlayerDataThread(List<String> lines, File file, Logger logger)
-    {
-        this.lines = lines;
-        this.file = file;
-    }
-
-    public void run()
-    {
-        try
-        {
-            Files.write(file.toPath(), lines, StandardCharsets.UTF_8, StandardOpenOption.CREATE);
-        }
-        catch (IOException e)
-        {
-            //TODO: is logger thread safe?
-            logger.severe("Failed to save player data file " + file.toPath().toString());
-            e.printStackTrace();
-        }
-
-    }
-}
-
-class SaveClaimDataThread implements Runnable
-{
-    private String content;
-    private File file;
-    private Logger logger;
-
-    public SaveClaimDataThread(String content, File file, Logger logger)
+    public SaveFileThread(List<String> content, File file, Logger logger, String type)
     {
         this.content = content;
         this.file = file;
         this.logger = logger;
     }
 
+    public SaveFileThread(String content, File file, Logger logger, String type)
+    {
+        this(Collections.singletonList(content), file, logger, type);
+    }
+
     public void run()
     {
         try
         {
-            Files.write(file.toPath(), Collections.singletonList(content), StandardCharsets.UTF_8, StandardOpenOption.CREATE);
+            Files.write(file.toPath(), content, StandardCharsets.UTF_8, StandardOpenOption.CREATE);
         }
         catch (IOException e)
         {
             //TODO: is logger thread safe?
-            logger.severe("Failed to save claim data file " + file.toPath().toString());
+            logger.severe("Failed to save " + type + " file " + file.toPath().toString());
             e.printStackTrace();
         }
 
+    }
+}
+
+class DeleteFileThread implements Runnable
+{
+    private File file;
+
+    DeleteFileThread(File file)
+    {
+        this.file = file;
+    }
+
+    @Override
+    public void run()
+    {
+        file.delete();
     }
 }
 

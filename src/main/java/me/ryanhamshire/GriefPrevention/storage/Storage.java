@@ -42,7 +42,6 @@ public interface Storage
      * Saves claim to storage
      *
      * @param claim
-     * @throws Exception if it is unable to save the claim for whatever reason.
      */
     void saveClaim(Claim claim);
 
@@ -50,7 +49,6 @@ public interface Storage
      * Deletes claim from storage
      *
      * @param claim
-     * @return Whether the claim exists at the time this is returned. (Successfully deleted or never existed.)
      */
     void deleteClaim(Claim claim);
 
@@ -58,7 +56,7 @@ public interface Storage
      * Retrieves the playerData for the specified player from storage. Creates a new one if none exists.
      *
      * @param uuid player's uuid
-     * @return
+     * @return An instantiated PlayerData object, or null if not found
      */
     PlayerData getPlayerData(UUID uuid);
 

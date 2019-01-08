@@ -48,7 +48,7 @@ public class ClaimRegistrar implements Listener
         return currentTime;
     }
 
-    public void changeOwner(Claim claim, UUID newOwnerID) throws Exception
+    public void changeOwner(Claim claim, UUID newOwnerID)
     {
         claim.setOwnerUUID(newOwnerID);
         storage.saveClaim(claim);
@@ -142,10 +142,9 @@ public class ClaimRegistrar implements Listener
         if (chunkClaims != null)
         {
             return Collections.unmodifiableCollection(chunkClaims);
-        } else
-        {
-            return Collections.unmodifiableCollection(new HashSet<>());
         }
+
+        return Collections.unmodifiableCollection(new HashSet<>());
     }
 
     /**

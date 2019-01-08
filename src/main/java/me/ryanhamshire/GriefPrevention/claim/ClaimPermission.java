@@ -20,20 +20,13 @@ package me.ryanhamshire.GriefPrevention.claim;
 
 public enum ClaimPermission
 {
-    MANAGE(100),
-    BUILD(75),
-    CONTAINER(50),
-    NONE(0);
-
-    private int weight;
-
-    ClaimPermission(final int weight)
-    {
-        this.weight = weight;
-    }
+    MANAGE,
+    BUILD,
+    CONTAINER,
+    NONE;
 
     public boolean includes(ClaimPermission other)
     {
-        return this.weight >= other.weight;
+        return this.ordinal() >= other.ordinal();
     }
 }
