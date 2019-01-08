@@ -1,6 +1,6 @@
 package me.ryanhamshire.GriefPrevention.claim;
 
-import me.ryanhamshire.GriefPrevention.events.ClaimDeletedEvent;
+import me.ryanhamshire.GriefPrevention.event.ClaimDeletedEvent;
 import me.ryanhamshire.GriefPrevention.storage.Storage;
 import org.bukkit.Chunk;
 import org.bukkit.Location;

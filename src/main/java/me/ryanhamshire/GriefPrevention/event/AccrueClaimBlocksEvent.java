@@ -1,4 +1,4 @@
-package me.ryanhamshire.GriefPrevention.events;
+package me.ryanhamshire.GriefPrevention.event;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;

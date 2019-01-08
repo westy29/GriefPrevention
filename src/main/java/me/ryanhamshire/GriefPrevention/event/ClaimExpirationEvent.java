@@ -1,30 +1,31 @@
-package me.ryanhamshire.GriefPrevention.events;
+package me.ryanhamshire.GriefPrevention.event;
 
+import me.ryanhamshire.GriefPrevention.claim.Claim;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
-import org.bukkit.event.block.BlockBreakEvent;
 
-//if cancelled, GriefPrevention will allow a block to be broken which it would not have otherwise
-public class PreventBlockBreakEvent extends Event implements Cancellable
+//if cancelled, the claim will not be deleted
+public class ClaimExpirationEvent extends Event implements Cancellable
 {
     private static final HandlerList handlers = new HandlerList();
     private boolean cancelled = false;
-    private BlockBreakEvent innerEvent;
 
     public static HandlerList getHandlerList()
     {
         return handlers;
     }
 
-    public PreventBlockBreakEvent(BlockBreakEvent innerEvent)
+    Claim claim;
+
+    public ClaimExpirationEvent(Claim claim)
     {
-        this.innerEvent = innerEvent;
+        this.claim = claim;
     }
 
-    public BlockBreakEvent getInnerEvent()
+    public Claim getClaim()
     {
-        return this.innerEvent;
+        return this.claim;
     }
 
     @Override

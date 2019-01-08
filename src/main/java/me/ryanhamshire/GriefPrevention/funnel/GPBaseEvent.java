@@ -1,4 +1,4 @@
-package me.ryanhamshire.GriefPrevention.events.funnel;
+package me.ryanhamshire.GriefPrevention.funnel;
 
 import org.bukkit.Location;
 import org.bukkit.block.Block;

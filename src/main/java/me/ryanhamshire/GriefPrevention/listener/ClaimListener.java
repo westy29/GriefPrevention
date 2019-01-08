@@ -3,7 +3,7 @@ package me.ryanhamshire.GriefPrevention.listener;
 import me.ryanhamshire.GriefPrevention.claim.Claim;
 import me.ryanhamshire.GriefPrevention.claim.ClaimPermission;
 import me.ryanhamshire.GriefPrevention.claim.ClaimRegistrar;
-import me.ryanhamshire.GriefPrevention.events.funnel.GPMutateBlockTypeEvent;
+import me.ryanhamshire.GriefPrevention.funnel.GPMutateBlockTypeEvent;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;

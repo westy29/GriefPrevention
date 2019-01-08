@@ -1,15 +1,17 @@
-package me.ryanhamshire.GriefPrevention.events;
+package me.ryanhamshire.GriefPrevention.event;
 
 import me.ryanhamshire.GriefPrevention.claim.Claim;
+import org.bukkit.Location;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
-//if cancelled, the claim will not be deleted
-public class ClaimExpirationEvent extends Event implements Cancellable
+//if destination field is set, then GriefPrevention will send the player to that location instead of searching for one
+public class SaveTrappedPlayerEvent extends Event implements Cancellable
 {
     private static final HandlerList handlers = new HandlerList();
     private boolean cancelled = false;
+    private Location destination = null;
 
     public static HandlerList getHandlerList()
     {
@@ -18,9 +20,19 @@ public class ClaimExpirationEvent extends Event implements Cancellable
 
     Claim claim;
 
-    public ClaimExpirationEvent(Claim claim)
+    public SaveTrappedPlayerEvent(Claim claim)
     {
         this.claim = claim;
+    }
+
+    public Location getDestination()
+    {
+        return destination;
+    }
+
+    public void setDestination(Location destination)
+    {
+        this.destination = destination;
     }
 
     public Claim getClaim()
