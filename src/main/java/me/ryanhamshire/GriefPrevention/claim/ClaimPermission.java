@@ -23,7 +23,7 @@ public enum ClaimPermission
     MANAGE,
     BUILD,
     CONTAINER,
-    NONE;
+    TOGGLE; //similar to "access"
 
     public boolean includes(ClaimPermission other)
     {
