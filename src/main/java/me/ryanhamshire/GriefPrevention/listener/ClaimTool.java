@@ -32,8 +32,9 @@ public class ClaimTool implements Listener
 
     private Map<Player, FirstCorner> firstCornerMap = new HashMap<>();
 
-    public ClaimTool(JavaPlugin plugin)
+    public ClaimTool(JavaPlugin plugin, ClaimClerk claimClerk)
     {
+        this.claimClerk = claimClerk;
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
