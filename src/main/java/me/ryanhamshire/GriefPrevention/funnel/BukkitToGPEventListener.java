@@ -27,7 +27,14 @@ import java.util.List;
 import static org.bukkit.event.EventPriority.LOWEST;
 
 /**
- * Fires the respective funnel GP events, and handles cancellation
+ * What is the "funnel" package?
+ * It simply collects and abstracts Bukkit API events into simpler events for GP to respond to.
+ * I.e., all events that cause blocks to be broken (BlockBreakEvent, BlockFromToEvent, BlockExplodeEvent, EntityExplodeEvent, etc.) are fired as a "GPMutateTypeEvent".
+ * These GP-labeled events cancel the wrapped Bukkit event when canceled.
+ *
+ * This not only simplifies GP's event handling, but allows addons to undo or alter GP's behavior if desired.
+ *
+ * TODO: Explain above better
  * TODO: listen at lowest priority?
  * TODO: call events even if canceled?
  * Created on 2/23/2017.
