@@ -66,18 +66,18 @@ public class ClaimClerk implements Listener
         PlayerData playerData = playerDataRegistrar.getOrCreatePlayerData(player.getUniqueId());
         if (playerData.getRemainingClaimBlocks(claimRegistrar) < ClaimUtils.getArea(firstCorner, secondCorner))
         {
-            Message.NotEnoughClaimBlocks.send(player);
+            Message.CLAIM_FAIL_INSUFFICIENT_CLAIMBLOCKS.send(player);
             return false;
         }
 
         CreateClaimResult claimResult = claimRegistrar.createClaim(firstCorner, secondCorner, player.getUniqueId());
         if (!claimResult.isSuccess())
         {
-            Message.OverlapsAnotherClaim.send(player);
+            Message.CLAIM_FAIL_OVERLAPS.send(player);
             return false;
         }
 
-        Message.ClaimCreateSuccess.send(player);
+        Message.CLAIM_CREATED.send(player);
         visualizationManager.apply(player, visualizationManager.fromClaim(claimResult.getClaim(), VisualizationType.Claim, player.getLocation()));
 
         return true;
@@ -97,7 +97,7 @@ public class ClaimClerk implements Listener
 
         if (playerData.getRemainingClaimBlocks(claimRegistrar) + claim.getArea() < ClaimUtils.getArea(firstCorner, secondCorner))
         {
-            Message.ClaimCreateSuccess.send(player);
+            Message.CLAIM_CREATED.send(player);
             return false;
         }
 
@@ -107,11 +107,11 @@ public class ClaimClerk implements Listener
             if (claimResult.isSuccess())
                 return true;
 
-            Message.OverlapsAnotherClaim.send(player);
+            Message.CLAIM_FAIL_OVERLAPS.send(player);
         }
         catch (Exception e)
         {
-            Message.ErrorSavingResizedClaim.send(player);
+            player.sendMessage("Error occurred while attempting to save your resized claim, see console log for details."); //todo: better error handling?
             e.printStackTrace();
             return false;
         }

@@ -11,20 +11,20 @@ import org.bukkit.metadata.Metadatable;
  * Block-like entities include item frames, armor stands, paintings, etc.
  * Corresponds to /trust (build trust)
  * <p>
- * Exception to this is placing/breaking crops - see GPMutateBlockStateEvent
+ * Exception to this is placing/breaking crops - see GPBlockChangeStateEvent
  * <p>
  * Created on 2/23/2017.
  *
  * @author RoboMWM
  */
-public class GPMutateBlockTypeEvent extends GPBaseEvent
+public class GPBlockChangeTypeEvent extends GPBaseEvent
 {
-    public GPMutateBlockTypeEvent(Event baseEvent, Entity sourceEntity, Location location, Metadatable target)
+    public GPBlockChangeTypeEvent(Event baseEvent, Entity sourceEntity, Location location, Metadatable target)
     {
         super(baseEvent, sourceEntity, location, target);
     }
 
-    public GPMutateBlockTypeEvent(Event baseEvent, Metadatable source, Location location, Metadatable target)
+    public GPBlockChangeTypeEvent(Event baseEvent, Metadatable source, Location location, Metadatable target)
     {
         super(baseEvent, source, location, target);
     }

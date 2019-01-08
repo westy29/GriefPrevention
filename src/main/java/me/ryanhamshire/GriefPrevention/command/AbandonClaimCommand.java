@@ -29,9 +29,9 @@ public class AbandonClaimCommand extends ClaimManagementCommands
         //TODO: ask user to confirm
 
         if (!claimRegistrar.deleteClaim(claim))
-            Message.ErrorInDeletingClaim.send(player);
+            player.sendMessage("Error in deleting your claim.");
         else
-            Message.ClaimAbandoned.send(player);
+            Message.CLAIM_ABANDONED.send(player);
         return true;
     }
 }

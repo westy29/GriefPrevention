@@ -25,14 +25,12 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 public enum Message
 {
-    ClaimCreateSuccess("Claim created! Use /trust to share it with friends."),
-    NotEnoughClaimBlocks("Not enough claim blocks."),
-    OverlapsAnotherClaim("Overlaps another claim."),
-    ErrorSavingResizedClaim("Error occurred while attempting to save your resized claim, see console log for details."),
-    ErrorInDeletingClaim("Error in deleting your claim."),
-    ClaimAbandoned("Claim abandoned."),
+    CLAIM_CREATED("Claim created! Use /trust to share it with friends."),
+    CLAIM_FAIL_INSUFFICIENT_CLAIMBLOCKS("Not enough claim blocks."),
+    CLAIM_FAIL_OVERLAPS("Overlaps another claim."),
+    CLAIM_ABANDONED("Claim abandoned."),
     NoClaimHere("No claim here."),
-    NotYourClaim("Not your claim.");
+    CLAIM_PERMISSION_CHANGE_DENIED("Not your claim.");
     private String message;
     private static JavaPlugin plugin;
 

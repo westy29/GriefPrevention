@@ -41,7 +41,7 @@ public abstract class ClaimManagementCommands implements CommandExecutor
 
         if (claim.getOwnerUUID() != player.getUniqueId()) //TODO: include /permissiontrust
         {
-            Message.NotYourClaim.send(player);
+            Message.CLAIM_PERMISSION_CHANGE_DENIED.send(player);
             return true;
         }
 
