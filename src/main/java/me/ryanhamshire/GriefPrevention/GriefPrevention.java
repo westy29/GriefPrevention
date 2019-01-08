@@ -27,11 +27,15 @@ import me.ryanhamshire.GriefPrevention.command.trust.TrustCommand;
 import me.ryanhamshire.GriefPrevention.command.trust.UntrustCommand;
 import me.ryanhamshire.GriefPrevention.listener.ClaimListener;
 import me.ryanhamshire.GriefPrevention.listener.ClaimTool;
+import me.ryanhamshire.GriefPrevention.message.Message;
 import me.ryanhamshire.GriefPrevention.player.PlayerDataRegistrar;
 import me.ryanhamshire.GriefPrevention.storage.FlatFileStorage;
 import me.ryanhamshire.GriefPrevention.storage.Storage;
 import me.ryanhamshire.GriefPrevention.visualization.VisualizationManager;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.io.File;
 
 public class GriefPrevention extends JavaPlugin
 {
@@ -42,7 +46,9 @@ public class GriefPrevention extends JavaPlugin
 
     public void onEnable()
     {
-        storage = new FlatFileStorage(this);
+        initializeMessages(new File(getDataFolder() + File.separator + "messages.yml"));
+
+        initializeStorage();
         claimRegistrar = new ClaimRegistrar(this, storage);
         playerDataRegistrar = new PlayerDataRegistrar(storage);
         visualizationManager = new VisualizationManager(this);
@@ -57,5 +63,16 @@ public class GriefPrevention extends JavaPlugin
         getCommand("abandonclaim").setExecutor(new AbandonClaimCommand(claimClerk, claimRegistrar));
         getCommand("trust").setExecutor(new TrustCommand(claimClerk));
         getCommand("untrust").setExecutor(new UntrustCommand(claimClerk));
+    }
+
+    public void initializeMessages(File messagesFile)
+    {
+        YamlConfiguration messagesYaml = Message.initialize(getServer().getPluginManager(), YamlConfiguration.loadConfiguration(messagesFile));
+        UsefulUtil.saveStringToFile(this, messagesFile, messagesYaml.saveToString());
+    }
+
+    public void initializeStorage() //TODO: pass in config for alternate storage option
+    {
+        this.storage = new FlatFileStorage(this);
     }
 }

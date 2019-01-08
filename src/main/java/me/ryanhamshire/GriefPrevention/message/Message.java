@@ -20,6 +20,7 @@ package me.ryanhamshire.GriefPrevention.message;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -32,16 +33,16 @@ public enum Message
     NoClaimHere("No claim here."),
     CLAIM_PERMISSION_CHANGE_DENIED("Not your claim.");
     private String message;
-    private static JavaPlugin plugin;
+    private static PluginManager pluginManager;
 
     Message(String defaultMessage)
     {
         this.message = defaultMessage;
     }
 
-    public static YamlConfiguration initialize(JavaPlugin plugin, YamlConfiguration messagesFile)
+    public static YamlConfiguration initialize(PluginManager pluginManager, YamlConfiguration messagesFile)
     {
-        Message.plugin = plugin;
+        Message.pluginManager = pluginManager;
         for (Message message : Message.values())
         {
             String messageFromFile = messagesFile.getString(message.name());
@@ -58,15 +59,8 @@ public enum Message
     {
         if (message.isEmpty())
             return;
-        new BukkitRunnable()
-        {
-            @Override
-            public void run()
-            {
-                //TODO: GPSendMessageEvent
-                sender.sendMessage(message);
-            }
-        }.runTaskAsynchronously(plugin);
+        //TODO: GPSendMessageEvent
+        sender.sendMessage(message);
     }
 
     public void send(CommandSender sender, String... args)
@@ -74,22 +68,13 @@ public enum Message
         if (message.isEmpty())
             return;
 
-        new BukkitRunnable()
-        {
+        String formattedMessage = getMessage();
 
-            String formattedMessage = getMessage();
-            @Override
-            public void run()
-            {
-                for (int i = 0; i < args.length; i++)
-                {
-                    formattedMessage = formattedMessage.replaceAll("\\{" + i + "}", args[i]);
-                }
+        for (int i = 0; i < args.length; i++)
+            formattedMessage = formattedMessage.replaceAll("\\{" + i + "}", args[i]);
 
-                //TODO: GPSendMessageEvent
-                sender.sendMessage(formattedMessage);
-            }
-        }.runTaskAsynchronously(plugin);
+        //TODO: GPSendMessageEvent
+        sender.sendMessage(formattedMessage);
     }
 
     public String getMessage()
