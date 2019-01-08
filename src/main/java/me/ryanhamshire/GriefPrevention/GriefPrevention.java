@@ -56,13 +56,15 @@ public class GriefPrevention extends JavaPlugin
         ClaimClerk claimClerk = new ClaimClerk(this, claimRegistrar, playerDataRegistrar, storage, visualizationManager);
 
         new ClaimListener(this, claimRegistrar);
-        new ClaimTool(this);
+        new ClaimTool(this, claimClerk);
 
         getCommand("newclaim").setExecutor(new CreateClaimCommand(claimClerk));
         getCommand("extendclaim").setExecutor(new ExtendClaimCommand(claimClerk));
         getCommand("abandonclaim").setExecutor(new AbandonClaimCommand(claimClerk, claimRegistrar));
         getCommand("trust").setExecutor(new TrustCommand(claimClerk));
         getCommand("untrust").setExecutor(new UntrustCommand(claimClerk));
+
+        new Metrics(this);
     }
 
     public void initializeMessages(File messagesFile)
