@@ -25,7 +25,8 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * TODO: Should this interface be synchronous (and instead make it up to whatever's using this interface to call methods asynchronously)?
+ * TODO: use futures, so method calls can be done synchronously or asynchronously
+ * 
  * As of right now:
  * Storing data is asynchronous (void return, close() method)
  * Retrieving data is synchronous.
