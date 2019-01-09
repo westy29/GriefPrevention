@@ -26,13 +26,11 @@ public class VisualizationElement
 {
     private Location location;
     private BlockData visualizedBlock;
-    private BlockData realBlock;
 
-    public VisualizationElement(Location location, BlockData visualizedBlock, BlockData realBlock)
+    public VisualizationElement(Location location, BlockData visualizedBlock)
     {
         this.location = location;
         this.visualizedBlock = visualizedBlock;
-        this.realBlock = realBlock;
     }
 
     public Location getLocation()
@@ -42,7 +40,7 @@ public class VisualizationElement
 
     public BlockData getRealBlock()
     {
-        return realBlock;
+        return location.getBlock().getBlockData();
     }
 
     public BlockData getVisualizedBlock()
@@ -53,10 +51,5 @@ public class VisualizationElement
     public void setLocation(Location location)
     {
         this.location = location;
-    }
-
-    public void setRealBlock(BlockData realBlock)
-    {
-        this.realBlock = realBlock;
     }
 }
