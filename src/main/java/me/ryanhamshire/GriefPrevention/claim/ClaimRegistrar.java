@@ -58,9 +58,8 @@ public class ClaimRegistrar implements Listener
      * Deletes a claim entirely, from storage and in internal register
      *
      * @param claim
-     * @return if the deletion succeeded
      */
-    public boolean deleteClaim(Claim claim)
+    public void deleteClaim(Claim claim)
     {
         storage.deleteClaim(claim);
         claims.remove(claim);
@@ -70,7 +69,6 @@ public class ClaimRegistrar implements Listener
             this.chunksToClaimsMap.get(chunkHash).remove(claim);
 
         plugin.getServer().getPluginManager().callEvent(new ClaimDeletedEvent(claim));
-        return true;
     }
 
 

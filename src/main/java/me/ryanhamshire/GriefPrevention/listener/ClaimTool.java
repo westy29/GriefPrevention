@@ -12,8 +12,11 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.BlockIterator;
 
 import java.util.HashMap;
@@ -22,20 +25,27 @@ import java.util.Map;
 /**
  * Created on 7/1/2018.
  * <p>
- * TODO: clear mode on hotbar change
  *
  * @author RoboMWM
  */
 public class ClaimTool implements Listener
 {
+    private Plugin plugin;
     private ClaimClerk claimClerk;
 
     private Map<Player, FirstCorner> firstCornerMap = new HashMap<>();
 
-    public ClaimTool(JavaPlugin plugin, ClaimClerk claimClerk)
+    public ClaimTool(Plugin plugin, ClaimClerk claimClerk)
     {
+        this.plugin = plugin;
         this.claimClerk = claimClerk;
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
+    private void onHotbarChange(PlayerItemHeldEvent event)
+    {
+        firstCornerMap.remove(event.getPlayer());
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
@@ -68,14 +78,15 @@ public class ClaimTool implements Listener
 
         if (block == null)
         {
-            player.sendMessage("No block found! (Or too far away.)");
-            return; //TODO: error message
+            player.sendMessage("No block found! (Or too far away.)"); //TODO: message
+            return;
         }
 
         //If clicking within a claim, inspect (and reset claim creation/extension)
         Claim claim = claimClerk.getClaim(player, block.getLocation(), false);
         if (claim != null)
         {
+            player.sendMessage("Overlaps a claim"); //TODO: message (probably same as "overlaps" enum)
             //todo: if already clicked one corner, show overlap
             //todo: visualize
             return; //TODO: except when extending corner
@@ -85,8 +96,20 @@ public class ClaimTool implements Listener
         {
             //TODO: determine claim mode
             firstCornerMap.put(player, new FirstCorner(block.getLocation(), ToolMode.CREATE, null));
-            player.sendBlockChange(block.getLocation(), Material.DIAMOND_BLOCK.createBlockData()); //TODO: proper/resetable visualization
-            return; //todo: instructions
+            final Block finalBlock = block;
+
+            //TODO: proper/resetable visualization
+            new BukkitRunnable()
+            {
+                @Override
+                public void run()
+                {
+                    player.sendBlockChange(finalBlock.getLocation(), Material.DIAMOND_BLOCK.createBlockData());
+                }
+            }.runTask(plugin);
+
+            player.sendMessage("Entered claim creation mode, now select opposite corner."); //TODO: message
+            return;
         }
 
         FirstCorner firstCorner = firstCornerMap.remove(player);

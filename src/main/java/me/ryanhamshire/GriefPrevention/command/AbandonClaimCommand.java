@@ -5,6 +5,7 @@ import me.ryanhamshire.GriefPrevention.claim.ClaimClerk;
 import me.ryanhamshire.GriefPrevention.claim.ClaimRegistrar;
 import me.ryanhamshire.GriefPrevention.message.Message;
 
+import me.ryanhamshire.GriefPrevention.visualization.VisualizationManager;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 
@@ -16,8 +17,9 @@ import org.bukkit.entity.Player;
 public class AbandonClaimCommand extends ClaimManagementCommands
 {
     private ClaimRegistrar claimRegistrar;
+    private VisualizationManager visualizationManager;
 
-    public AbandonClaimCommand(ClaimClerk claimClerk, ClaimRegistrar claimRegistrar)
+    public AbandonClaimCommand(ClaimClerk claimClerk, ClaimRegistrar claimRegistrar, VisualizationManager visualizationManager)
     {
         super(claimClerk);
         this.claimRegistrar = claimRegistrar;
@@ -28,10 +30,11 @@ public class AbandonClaimCommand extends ClaimManagementCommands
     {
         //TODO: ask user to confirm
 
-        if (!claimRegistrar.deleteClaim(claim))
-            player.sendMessage("Error in deleting your claim.");
-        else
-            Message.CLAIM_ABANDONED.send(player);
+        claimRegistrar.deleteClaim(claim);
+
+        Message.CLAIM_ABANDONED.send(player);
+        visualizationManager.revert(player);
+
         return true;
     }
 }

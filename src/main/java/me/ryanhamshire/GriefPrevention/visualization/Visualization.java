@@ -89,7 +89,7 @@ public class Visualization
                 break;
         }
 
-        //initialize visualization elements without Y values and real storage
+        //initialize visualization elements without Y values
         //that will be added later for only the visualization elements within visualization range
 
         //locality
