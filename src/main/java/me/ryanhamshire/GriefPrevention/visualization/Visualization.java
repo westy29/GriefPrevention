@@ -30,6 +30,7 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Lightable;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.ListIterator;
 
 //represents a visualization sent to a player
@@ -96,65 +97,67 @@ public class Visualization
         int minz = locality.getBlockZ() - 75;
         int maxx = locality.getBlockX() + 75;
         int maxz = locality.getBlockZ() + 75;
+        int y = locality.getBlockY();
 
         final int STEP = 10;
 
         //top line
-        newElements.add(new VisualizationElement(new Location(world, smallx, 0, bigz), cornerBlockData, Material.AIR.createBlockData()));
-        newElements.add(new VisualizationElement(new Location(world, smallx + 1, 0, bigz), accentBlockData, Material.AIR.createBlockData()));
+        newElements.add(new VisualizationElement(new Location(world, smallx, y, bigz), cornerBlockData, Material.AIR.createBlockData()));
+        newElements.add(new VisualizationElement(new Location(world, smallx + 1, y, bigz), accentBlockData, Material.AIR.createBlockData()));
         for (int x = smallx + STEP; x < bigx - STEP / 2; x += STEP)
         {
             if (x > minx && x < maxx)
-                newElements.add(new VisualizationElement(new Location(world, x, 0, bigz), accentBlockData, Material.AIR.createBlockData()));
+                newElements.add(new VisualizationElement(new Location(world, x, y, bigz), accentBlockData, Material.AIR.createBlockData()));
         }
-        newElements.add(new VisualizationElement(new Location(world, bigx - 1, 0, bigz), accentBlockData, Material.AIR.createBlockData()));
+        newElements.add(new VisualizationElement(new Location(world, bigx - 1, y, bigz), accentBlockData, Material.AIR.createBlockData()));
 
         //bottom line
-        newElements.add(new VisualizationElement(new Location(world, smallx + 1, 0, smallz), accentBlockData, Material.AIR.createBlockData()));
+        newElements.add(new VisualizationElement(new Location(world, smallx + 1, y, smallz), accentBlockData, Material.AIR.createBlockData()));
         for (int x = smallx + STEP; x < bigx - STEP / 2; x += STEP)
         {
             if (x > minx && x < maxx)
-                newElements.add(new VisualizationElement(new Location(world, x, 0, smallz), accentBlockData, Material.AIR.createBlockData()));
+                newElements.add(new VisualizationElement(new Location(world, x, y, smallz), accentBlockData, Material.AIR.createBlockData()));
         }
-        newElements.add(new VisualizationElement(new Location(world, bigx - 1, 0, smallz), accentBlockData, Material.AIR.createBlockData()));
+        newElements.add(new VisualizationElement(new Location(world, bigx - 1, y, smallz), accentBlockData, Material.AIR.createBlockData()));
 
         //left line
-        newElements.add(new VisualizationElement(new Location(world, smallx, 0, smallz), cornerBlockData, Material.AIR.createBlockData()));
-        newElements.add(new VisualizationElement(new Location(world, smallx, 0, smallz + 1), accentBlockData, Material.AIR.createBlockData()));
+        newElements.add(new VisualizationElement(new Location(world, smallx, y, smallz), cornerBlockData, Material.AIR.createBlockData()));
+        newElements.add(new VisualizationElement(new Location(world, smallx, y, smallz + 1), accentBlockData, Material.AIR.createBlockData()));
         for (int z = smallz + STEP; z < bigz - STEP / 2; z += STEP)
         {
             if (z > minz && z < maxz)
-                newElements.add(new VisualizationElement(new Location(world, smallx, 0, z), accentBlockData, Material.AIR.createBlockData()));
+                newElements.add(new VisualizationElement(new Location(world, smallx, y, z), accentBlockData, Material.AIR.createBlockData()));
         }
-        newElements.add(new VisualizationElement(new Location(world, smallx, 0, bigz - 1), accentBlockData, Material.AIR.createBlockData()));
+        newElements.add(new VisualizationElement(new Location(world, smallx, y, bigz - 1), accentBlockData, Material.AIR.createBlockData()));
 
         //right line
-        newElements.add(new VisualizationElement(new Location(world, bigx, 0, smallz), cornerBlockData, Material.AIR.createBlockData()));
-        newElements.add(new VisualizationElement(new Location(world, bigx, 0, smallz + 1), accentBlockData, Material.AIR.createBlockData()));
+        newElements.add(new VisualizationElement(new Location(world, bigx, y, smallz), cornerBlockData, Material.AIR.createBlockData()));
+        newElements.add(new VisualizationElement(new Location(world, bigx, y, smallz + 1), accentBlockData, Material.AIR.createBlockData()));
         for (int z = smallz + STEP; z < bigz - STEP / 2; z += STEP)
         {
             if (z > minz && z < maxz)
-                newElements.add(new VisualizationElement(new Location(world, bigx, 0, z), accentBlockData, Material.AIR.createBlockData()));
+                newElements.add(new VisualizationElement(new Location(world, bigx, y, z), accentBlockData, Material.AIR.createBlockData()));
         }
-        newElements.add(new VisualizationElement(new Location(world, bigx, 0, bigz - 1), accentBlockData, Material.AIR.createBlockData()));
-        newElements.add(new VisualizationElement(new Location(world, bigx, 0, bigz), cornerBlockData, Material.AIR.createBlockData()));
+        newElements.add(new VisualizationElement(new Location(world, bigx, y, bigz - 1), accentBlockData, Material.AIR.createBlockData()));
+        newElements.add(new VisualizationElement(new Location(world, bigx, y, bigz), cornerBlockData, Material.AIR.createBlockData()));
 
         //remove any out of range elements
         this.removeElementsOutOfRange(newElements, minx, minz, maxx, maxz);
 
-        //remove any elements outside the claim
-        for (int i = 0; i < newElements.size(); i++)
+        Iterator<VisualizationElement> elementIterator = newElements.iterator();
+
+        while (elementIterator.hasNext())
         {
-            VisualizationElement element = newElements.get(i);
+            VisualizationElement element = elementIterator.next();
+
+            //remove any elements outside the claim TODO: I'm guessing this is to resolve visualizing claims from other worlds on shift+click inspect?
             if (!ClaimUtils.isWithin(claim, element.getLocation(), true))
             {
-                newElements.remove(i--);
+                elementIterator.remove();
+                continue;
             }
-        }
 
-        //set Y values and real block information for any remaining visualization blocks
-        for (VisualizationElement element : newElements)
-        {
+            //set Y values and real block information for any remaining visualization blocks
             element.setLocation(getVisibleLocation(element.getLocation(), waterIsTransparent));
             element.setRealBlock(element.getLocation().getBlock().getBlockData());
         }
