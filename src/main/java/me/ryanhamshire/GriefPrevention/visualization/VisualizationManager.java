@@ -62,6 +62,7 @@ public class VisualizationManager
         //send real block information for any remaining elements
         for (VisualizationElement element : visualization.getElements())
         {
+            GriefPrevention.log("reverting visualization for " + player.getName());
             player.sendBlockChange(element.getLocation(), element.getRealBlock());
         }
     }

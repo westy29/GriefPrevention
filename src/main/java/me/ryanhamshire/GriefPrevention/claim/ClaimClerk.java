@@ -11,6 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.HashMap;
@@ -22,6 +23,8 @@ import java.util.UUID;
  * <p>
  * Utility class to register and access claims, and handle errors (somewhat) gracefully.
  * Provides a cache for getClaim calls.
+ *
+ * Could also be called a "storage assistant" at this point, really.
  * <p>
  * TODO: replace sendMessage with calls to Message
  *
@@ -44,7 +47,7 @@ public class ClaimClerk implements Listener
      * @param playerDataRegistrar
      * @param storage
      */
-    public ClaimClerk(JavaPlugin plugin, ClaimRegistrar claimRegistrar, PlayerDataRegistrar playerDataRegistrar, Storage storage, VisualizationManager visualizationManager)
+    public ClaimClerk(Plugin plugin, ClaimRegistrar claimRegistrar, PlayerDataRegistrar playerDataRegistrar, Storage storage, VisualizationManager visualizationManager)
     {
         if (plugin != null)
             plugin.getServer().getPluginManager().registerEvents(this, plugin);
@@ -59,29 +62,27 @@ public class ClaimClerk implements Listener
      *
      * @param firstCorner
      * @param secondCorner
-     * @return true if successful, false otherwise
      */
-    public boolean registerNewClaim(Player player, Location firstCorner, Location secondCorner)
+    public void registerNewClaim(Player player, Location firstCorner, Location secondCorner)
     {
+        //TODO: taskchain + queue. Convert function into chain, then put chain into queue to be executed asynchronously. Prevents any lag due to I/O while still serving those who ordered first.
         //TODO: permission check
         PlayerData playerData = playerDataRegistrar.getOrCreatePlayerData(player.getUniqueId());
         if (playerData.getRemainingClaimBlocks(claimRegistrar) < ClaimUtils.getArea(firstCorner, secondCorner))
         {
             Message.CLAIM_FAIL_INSUFFICIENT_CLAIMBLOCKS.send(player);
-            return false;
+            return;
         }
 
         CreateClaimResult claimResult = claimRegistrar.createClaim(firstCorner, secondCorner, player.getUniqueId());
         if (!claimResult.isSuccess())
         {
             Message.CLAIM_FAIL_OVERLAPS.send(player);
-            return false;
+            return;
         }
 
         Message.CLAIM_CREATED.send(player);
         visualizationManager.apply(player, visualizationManager.fromClaim(claimResult.getClaim(), VisualizationType.Claim, player.getLocation()));
-
-        return true;
     }
 
     /**

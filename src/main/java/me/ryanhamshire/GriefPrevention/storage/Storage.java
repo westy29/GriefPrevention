@@ -26,6 +26,8 @@ import java.util.UUID;
 
 /**
  * Stores and retrieves storage from storage.
+ * Storing data should always be performed asynchronously.
+ * Retrieving data is not asynchronous.
  */
 public interface Storage
 {
