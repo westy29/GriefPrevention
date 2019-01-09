@@ -13,10 +13,14 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Created on 6/7/2018.
@@ -36,6 +40,7 @@ public class ClaimClerk implements Listener
     private ClaimRegistrar claimRegistrar;
     private PlayerDataRegistrar playerDataRegistrar;
     private VisualizationManager visualizationManager;
+    private BlockingQueue<BukkitRunnable> tasks = new LinkedBlockingQueue<>();
 
     /**
      * Creates a new ClaimClerk, which helps assist in obtaining and performing actions on the claim and playerdata registrars.
@@ -55,6 +60,24 @@ public class ClaimClerk implements Listener
         this.playerDataRegistrar = playerDataRegistrar;
         this.storage = storage;
         this.visualizationManager = visualizationManager;
+        new BukkitRunnable()
+        {
+            @Override
+            public void run()
+            {
+                while (true)
+                {
+                    try
+                    {
+                        tasks.take().run();
+                    }
+                    catch (InterruptedException e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }.runTaskAsynchronously(plugin);
     }
 
     /**
@@ -65,24 +88,32 @@ public class ClaimClerk implements Listener
      */
     public void registerNewClaim(Player player, Location firstCorner, Location secondCorner)
     {
-        //TODO: taskchain + queue. Convert function into chain, then put chain into queue to be executed asynchronously. Prevents any lag due to I/O while still serving those who ordered first.
         //TODO: permission check
-        PlayerData playerData = playerDataRegistrar.getOrCreatePlayerData(player.getUniqueId());
-        if (playerData.getRemainingClaimBlocks(claimRegistrar) < ClaimUtils.getArea(firstCorner, secondCorner))
-        {
-            Message.CLAIM_FAIL_INSUFFICIENT_CLAIMBLOCKS.send(player);
-            return;
-        }
 
-        CreateClaimResult claimResult = claimRegistrar.createClaim(firstCorner, secondCorner, player.getUniqueId());
-        if (!claimResult.isSuccess())
+        tasks.add(new BukkitRunnable()
         {
-            Message.CLAIM_FAIL_OVERLAPS.send(player);
-            return;
-        }
+            @Override
+            public void run()
+            {
+                PlayerData playerData = playerDataRegistrar.getOrCreatePlayerData(player.getUniqueId());
+                if (playerData.getRemainingClaimBlocks(claimRegistrar) < ClaimUtils.getArea(firstCorner, secondCorner))
+                {
+                    Message.CLAIM_FAIL_INSUFFICIENT_CLAIMBLOCKS.send(player);
+                    return;
+                }
 
-        Message.CLAIM_CREATED.send(player);
-        visualizationManager.apply(player, visualizationManager.fromClaim(claimResult.getClaim(), VisualizationType.Claim, player.getLocation()));
+                CreateClaimResult claimResult = claimRegistrar.createClaim(firstCorner, secondCorner, player.getUniqueId());
+                if (!claimResult.isSuccess())
+                {
+                    Message.CLAIM_FAIL_OVERLAPS.send(player);
+                    return;
+                }
+
+                Message.CLAIM_CREATED.send(player);
+                visualizationManager.apply(player, visualizationManager.fromClaim(claimResult.getClaim(), VisualizationType.Claim, player.getLocation()));
+            }
+        });
+
     }
 
     /**
