@@ -1,5 +1,6 @@
 package me.ryanhamshire.GriefPrevention.visualization;
 
+import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.claim.Claim;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -77,7 +78,6 @@ public class VisualizationManager
             visualizationType = VisualizationType.AdminClaim;
         }
 
-        //add top level last so that it takes precedence (it shows on top when the child claim boundaries overlap with its boundaries)
         visualization.addClaimElements(claim, visualizationType, locality);
 
         return visualization;

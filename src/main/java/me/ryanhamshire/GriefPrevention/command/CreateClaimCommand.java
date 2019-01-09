@@ -27,9 +27,7 @@ public class CreateClaimCommand extends ClaimManagementCommands
 
         Player player = (Player)sender;
 
-        execute(player, cmd, args, null);
-
-        return true;
+        return execute(player, cmd, args, null);
     }
 
     @Override

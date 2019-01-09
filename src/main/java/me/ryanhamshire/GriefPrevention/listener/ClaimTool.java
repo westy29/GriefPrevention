@@ -45,7 +45,7 @@ public class ClaimTool implements Listener
 
         Player player = event.getPlayer();
 
-        if (event.getAction() != Action.RIGHT_CLICK_AIR || event.getAction() != Action.RIGHT_CLICK_BLOCK)
+        if (event.getAction() != Action.RIGHT_CLICK_AIR && event.getAction() != Action.RIGHT_CLICK_BLOCK)
             return;
 
         //Ignore left clicks
@@ -67,7 +67,10 @@ public class ClaimTool implements Listener
             block = getTargetBlock(player, 100); //TODO: use view distance(?)
 
         if (block == null)
+        {
+            player.sendMessage("No block found! (Or too far away.)");
             return; //TODO: error message
+        }
 
         //If clicking within a claim, inspect (and reset claim creation/extension)
         Claim claim = claimClerk.getClaim(player, block.getLocation(), false);
@@ -82,6 +85,7 @@ public class ClaimTool implements Listener
         {
             //TODO: determine claim mode
             firstCornerMap.put(player, new FirstCorner(block.getLocation(), ToolMode.CREATE, null));
+            player.sendBlockChange(block.getLocation(), Material.DIAMOND_BLOCK.createBlockData()); //TODO: proper/resetable visualization
             return; //todo: instructions
         }
 

@@ -113,10 +113,10 @@ commands:
       usage: /ExtendClaim <numberOfBlocks>
       aliases: [expandclaim, resizeclaim]
       permission: griefprevention.claims
-    claim:
+    newclaim:
       description: Creates a land claim centered at your current location.
       usage: /Claim [optional radius]
-      aliases: [createclaim, makeclaim, newclaim]
+      aliases: [createclaim, makeclaim]
       permission: griefprevention.claims
     buyclaimblocks:
       description: Purchases additional claim blocks with server money.  Doesn't work on servers without a Vault-compatible economy plugin.
@@ -323,12 +323,6 @@ permissions:
     griefprevention.visualizenearbyclaims:
         description: Allows a player to see all nearby claims at once.
         default: op
-    griefprevention.gpblockinfo:
-        description: Grants access to /GPBlockInfo.
-        default: op
-    griefprevention.overrideclaimcountlimit:
-        description: Allows players to create more claims than the limit specified by the config.
-        default: op
     griefprevention.separate:
         description: Grants access to /Separate and /UnSeparate.
         default: op
@@ -347,18 +341,6 @@ permissions:
     griefprevention.eavesdropimmune:
         description: Players with this permission can't have their private messages eavesdropped.
         default: op
-    griefprevention.fasteraccrual:
-        description: Players with this permission accrue claim blocks at the faster rate specified in the config file.
-        default: false
-    griefprevention.fastestaccrual:
-        description: Players with this permission accrue claim blocks at the fastest rate specified in the config file.
-        default: false
-    griefprevention.moreaccrued:
-        description: Players with this permission can accrue more claim blocks (limit specified in the config file).
-        default: false
-    griefprevention.mostaccrued:
-        description: Players with this permission can accrue more claim blocks (limit specified in the config file).
-        default: false
     griefprevention.siegeteleport:
         description: Players with this permission can teleport into and out of besieged areas.
         default: op

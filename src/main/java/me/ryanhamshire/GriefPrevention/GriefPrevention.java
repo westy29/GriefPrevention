@@ -67,6 +67,17 @@ public class GriefPrevention extends JavaPlugin
         new Metrics(this);
     }
 
+    public static void log(Object object)
+    {
+        System.out.println("[GPv20] " + String.valueOf(object));
+    }
+
+    @Override
+    public void onDisable()
+    {
+        storage.close();
+    }
+
     public void initializeMessages(File messagesFile)
     {
         YamlConfiguration messagesYaml = Message.initialize(getServer().getPluginManager(), YamlConfiguration.loadConfiguration(messagesFile));

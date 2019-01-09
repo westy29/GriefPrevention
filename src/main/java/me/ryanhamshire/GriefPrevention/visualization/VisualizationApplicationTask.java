@@ -18,6 +18,7 @@
 
 package me.ryanhamshire.GriefPrevention.visualization;
 
+import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import org.bukkit.entity.Player;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -47,11 +48,11 @@ class VisualizationApplicationTask extends BukkitRunnable
         {
             //send the player a fake block change event
             if (!element.getLocation().getChunk().isLoaded()) continue;  //cheap distance check
+            GriefPrevention.log("applying visualization for " + player.getName() + " at " + element.getLocation() + " with " + element.getVisualizedBlock().getAsString());
             player.sendBlockChange(element.getLocation(), element.getVisualizedBlock());
         }
 
         //remember the visualization applied to this player for later (so it can be inexpensively reverted)
-        //TODO: use metadata
         player.setMetadata(VisualizationManager.METADATA_KEY, new FixedMetadataValue(instance, visualization));
         //playerData.currentVisualization = visualization;
     }

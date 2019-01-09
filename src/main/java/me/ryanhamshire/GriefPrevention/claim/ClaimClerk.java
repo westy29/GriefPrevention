@@ -39,7 +39,7 @@ public class ClaimClerk implements Listener
      * <p>
      * You really <i>shouldn't</i> be instantiating this unless you're performing unusual actions and would benefit from a separate getClaim cache.
      *
-     * @param plugin              Used to cleanup caches created using getClaim. Can be null <i>only</i> if you never use getClaim or always pass null for the Player param in getClaim.
+     * @param plugin Used to cleanup caches created using getClaim. Can be null <i>only</i> if you never use getClaim or always pass null for the Player param in getClaim.
      * @param claimRegistrar
      * @param playerDataRegistrar
      * @param storage
@@ -63,6 +63,7 @@ public class ClaimClerk implements Listener
      */
     public boolean registerNewClaim(Player player, Location firstCorner, Location secondCorner)
     {
+        //TODO: permission check
         PlayerData playerData = playerDataRegistrar.getOrCreatePlayerData(player.getUniqueId());
         if (playerData.getRemainingClaimBlocks(claimRegistrar) < ClaimUtils.getArea(firstCorner, secondCorner))
         {
