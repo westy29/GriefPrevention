@@ -19,6 +19,7 @@
 package me.ryanhamshire.GriefPrevention.claim;
 
 import org.bukkit.Location;
+import org.bukkit.Warning;
 import org.bukkit.entity.Player;
 
 import java.util.Collections;
@@ -61,6 +62,7 @@ public class Claim
         return Collections.unmodifiableMap(trustees);
     }
 
+    @Deprecated
     public ClaimPermission getPermission(Player player)
     {
         if (ownerUUID == player.getUniqueId())
@@ -77,8 +79,8 @@ public class Claim
             return true;
         ClaimPermission permission = trustees.get(player.getUniqueId());
         if (permission == null)
-            return publicPermission.includes(permissionToCheck);
-        return permission.includes(permissionToCheck);
+            return publicPermission.contains(permissionToCheck);
+        return permission.contains(permissionToCheck);
     }
 
     public ClaimPermission getPublicPermission()
@@ -104,8 +106,9 @@ public class Claim
     /**
      * Returns the UUID of the player that owns this claim. For admin claims, this will return null
      *
-     * @return the owner's UUID
+     * @return the owner's UUID, or null for admin claims
      */
+    @Warning(reason = "Can be null! Use hasPermission instead for permission checks.")
     public UUID getOwnerUUID()
     {
         return ownerUUID;

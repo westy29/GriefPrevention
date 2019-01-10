@@ -133,7 +133,7 @@ public class ClaimTool implements Listener
         Claim claim = claimClerk.getClaim(player, location, false);
         if (claim != null)
         {
-            if (ClaimUtils.isCorner(claim, location))
+            if (claim.hasPermission(player, null) && ClaimUtils.isCorner(claim, location))
             {
                 firstCornerMap.put(player, new FirstCorner(location, ToolMode.EXTEND, claim));
                 player.sendMessage("Resizing claim. Click where you want to move this corner."); //TODO: message

@@ -11,12 +11,14 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class PlayerDataRegistrar
 {
+    private int defaultAccruedBlocks;
     private Storage storage;
     private ConcurrentHashMap<UUID, PlayerData> playerDataCache = new ConcurrentHashMap<UUID, PlayerData>();
 
-    public PlayerDataRegistrar(Storage storage)
+    public PlayerDataRegistrar(Storage storage, int defaultAccruedBlocks)
     {
         this.storage = storage;
+        this.defaultAccruedBlocks = defaultAccruedBlocks;
     }
 
     /**
@@ -52,8 +54,7 @@ public class PlayerDataRegistrar
 
         if (playerData == null)
         {
-            //TODO: fill with config defaults
-            playerData = new PlayerData(uuid, 1000, 0);
+            playerData = new PlayerData(uuid, defaultAccruedBlocks, 0);
             playerDataCache.put(uuid, playerData);
         }
 

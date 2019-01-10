@@ -25,8 +25,10 @@ public enum ClaimPermission
     CONTAINER,
     TOGGLE; //similar to "access"
 
-    public boolean includes(ClaimPermission other)
+    public boolean contains(ClaimPermission other)
     {
-        return this.ordinal() >= other.ordinal();
+        if (other == null)
+            return false;
+        return this.ordinal() <= other.ordinal();
     }
 }

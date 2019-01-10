@@ -228,6 +228,8 @@ public class ClaimRegistrar implements Listener
         for (Long chunkHash : chunkHashes)
             this.chunksToClaimsMap.get(chunkHash).remove(claim);
 
+        //TODO: fire ClaimResizeEvent
+
         this.registerClaim(claim);
 
         return new CreateClaimResult(true, claim);

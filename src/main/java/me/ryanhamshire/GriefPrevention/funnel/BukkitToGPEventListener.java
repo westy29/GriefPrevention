@@ -98,7 +98,6 @@ public class BukkitToGPEventListener implements Listener
     @EventHandler(priority = LOWEST)
     private void onPaintingPlace(HangingPlaceEvent event)
     {
-        //TODO: block location, or entity location? Big_Scary used entity location
         callEvent(new GPBlockChangeTypeEvent(event, event.getPlayer(), event.getEntity().getLocation(), event.getEntity()));
     }
 

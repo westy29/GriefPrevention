@@ -32,6 +32,7 @@ import me.ryanhamshire.GriefPrevention.player.PlayerDataRegistrar;
 import me.ryanhamshire.GriefPrevention.storage.FlatFileStorage;
 import me.ryanhamshire.GriefPrevention.storage.Storage;
 import me.ryanhamshire.GriefPrevention.visualization.VisualizationManager;
+import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -50,17 +51,17 @@ public class GriefPrevention extends JavaPlugin
 
         initializeStorage();
         claimRegistrar = new ClaimRegistrar(this, storage);
-        playerDataRegistrar = new PlayerDataRegistrar(storage);
+        playerDataRegistrar = new PlayerDataRegistrar(storage, 1000); //TODO: config
         visualizationManager = new VisualizationManager(this);
 
         ClaimClerk claimClerk = new ClaimClerk(this, claimRegistrar, playerDataRegistrar, storage, visualizationManager);
 
         new ClaimListener(this, claimRegistrar);
-        new ClaimTool(this, claimClerk);
+        new ClaimTool(this, claimClerk, visualizationManager, Material.GOLDEN_SHOVEL); //TODO: config
 
         getCommand("newclaim").setExecutor(new CreateClaimCommand(claimClerk));
         getCommand("extendclaim").setExecutor(new ExtendClaimCommand(claimClerk));
-        getCommand("abandonclaim").setExecutor(new AbandonClaimCommand(claimClerk, claimRegistrar));
+        getCommand("abandonclaim").setExecutor(new AbandonClaimCommand(claimClerk, claimRegistrar, visualizationManager));
         getCommand("trust").setExecutor(new TrustCommand(claimClerk));
         getCommand("untrust").setExecutor(new UntrustCommand(claimClerk));
 

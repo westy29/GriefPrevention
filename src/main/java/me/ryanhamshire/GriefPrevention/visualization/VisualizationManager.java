@@ -24,9 +24,18 @@ public class VisualizationManager
 
     public void apply(Player player, Claim claim)
     {
-        VisualizationType type = VisualizationType.Claim;
-        if (claim.isAdminClaim())
+        apply(player, claim, false);
+    }
+
+    public void apply(Player player, Claim claim, boolean error)
+    {
+        VisualizationType type;
+        if (error)
+            type = VisualizationType.ErrorClaim;
+        else if (claim.isAdminClaim())
             type = VisualizationType.AdminClaim;
+        else
+            type = VisualizationType.Claim;
         Visualization visualization = fromClaim(claim, type, player.getLocation());
         apply(player, visualization);
     }

@@ -30,7 +30,6 @@ import java.util.concurrent.LinkedBlockingQueue;
  *
  * Could also be called a "storage assistant" at this point, really.
  * <p>
- * TODO: replace sendMessage with calls to Message
  *
  * @author RoboMWM
  */
@@ -80,6 +79,8 @@ public class ClaimClerk implements Listener
         }.runTaskAsynchronously(plugin);
     }
 
+    //TODO: convert create, resize to tasks (for custom messages, checks, etc.)
+
     /**
      * Registers a new claim
      *
@@ -103,14 +104,19 @@ public class ClaimClerk implements Listener
                 }
 
                 CreateClaimResult claimResult = claimRegistrar.createClaim(firstCorner, secondCorner, player.getUniqueId());
-                if (!claimResult.isSuccess())
+                if (claimResult.isSuccess())
                 {
-                    Message.CLAIM_FAIL_OVERLAPS.send(player);
+                    Message.CLAIM_CREATED.send(player);
+                    visualizationManager.apply(player, visualizationManager.fromClaim(claimResult.getClaim(), VisualizationType.Claim, player.getLocation()));
                     return;
                 }
 
-                Message.CLAIM_CREATED.send(player);
-                visualizationManager.apply(player, visualizationManager.fromClaim(claimResult.getClaim(), VisualizationType.Claim, player.getLocation()));
+                if (claimResult.getClaim() == null)
+                    return;
+
+                Message.CLAIM_FAIL_OVERLAPS.send(player);
+                visualizationManager.apply(player, claimResult.getClaim(), true);
+                //TODO: suggest merge if overlapping claim is owned by player
             }
         });
 
@@ -124,31 +130,42 @@ public class ClaimClerk implements Listener
      * @param secondCorner
      * @return
      */
-    public boolean resizeClaim(Player player, Claim claim, Location firstCorner, Location secondCorner)
+    public void resizeClaim(Player player, Claim claim, Location firstCorner, Location secondCorner)
     {
-        PlayerData playerData = playerDataRegistrar.getOrCreatePlayerData(claim.getOwnerUUID());
-
-        if (playerData.getRemainingClaimBlocks(claimRegistrar) + claim.getArea() < ClaimUtils.getArea(firstCorner, secondCorner))
+        if (!claim.hasPermission(player, ClaimPermission.MANAGE))
         {
-            Message.CLAIM_CREATED.send(player);
-            return false;
+            player.sendMessage("You don't own this claim!"); //TODO: message
+            return;
         }
 
-        try
+        tasks.add(new BukkitRunnable()
         {
-            CreateClaimResult claimResult = claimRegistrar.resizeClaim(claim, firstCorner, secondCorner);
-            if (claimResult.isSuccess())
-                return true;
+            @Override
+            public void run()
+            {
+                PlayerData playerData = playerDataRegistrar.getOrCreatePlayerData(claim.getOwnerUUID());
 
-            Message.CLAIM_FAIL_OVERLAPS.send(player);
-        }
-        catch (Exception e)
-        {
-            player.sendMessage("Error occurred while attempting to save your resized claim, see console log for details."); //todo: better error handling?
-            e.printStackTrace();
-            return false;
-        }
-        return false;
+                if (playerData.getRemainingClaimBlocks(claimRegistrar) + claim.getArea() < ClaimUtils.getArea(firstCorner, secondCorner))
+                {
+                    Message.CLAIM_CREATED.send(player);
+                    return;
+                }
+
+                CreateClaimResult claimResult = claimRegistrar.resizeClaim(claim, firstCorner, secondCorner);
+                if (claimResult.isSuccess())
+                {
+                    player.sendMessage("Claim resized. You now have x claimblocks remaining"); //TODO: message
+                    return;
+                }
+
+                if (claimResult.getClaim() == null)
+                    return;
+
+                Message.CLAIM_FAIL_OVERLAPS.send(player);
+                visualizationManager.apply(player, claimResult.getClaim(), true);
+                //TODO: suggest merge if overlapping claim is owned by player
+            }
+        });
     }
 
     //For caching last-known claim

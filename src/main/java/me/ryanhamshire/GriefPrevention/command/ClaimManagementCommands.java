@@ -2,6 +2,7 @@ package me.ryanhamshire.GriefPrevention.command;
 
 import me.ryanhamshire.GriefPrevention.claim.Claim;
 import me.ryanhamshire.GriefPrevention.claim.ClaimClerk;
+import me.ryanhamshire.GriefPrevention.claim.ClaimPermission;
 import me.ryanhamshire.GriefPrevention.message.Message;
 
 import org.bukkit.command.Command;
@@ -39,7 +40,7 @@ public abstract class ClaimManagementCommands implements CommandExecutor
             return true;
         }
 
-        if (claim.getOwnerUUID() != player.getUniqueId()) //TODO: include /permissiontrust
+        if (claim.hasPermission(player, ClaimPermission.MANAGE))
         {
             Message.CLAIM_PERMISSION_CHANGE_DENIED.send(player);
             return true;
