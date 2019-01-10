@@ -16,6 +16,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -35,27 +36,46 @@ public class ClaimTool implements Listener
     private Plugin plugin;
     private ClaimClerk claimClerk;
     private VisualizationManager visualizationManager;
+    private Material toolType;
 
     private Map<Player, FirstCorner> firstCornerMap = new HashMap<>();
 
-    public ClaimTool(Plugin plugin, ClaimClerk claimClerk, VisualizationManager visualizationManager)
+    public ClaimTool(Plugin plugin, ClaimClerk claimClerk, VisualizationManager visualizationManager, Material toolType)
     {
         this.plugin = plugin;
         this.claimClerk = claimClerk;
         this.visualizationManager = visualizationManager;
+        this.toolType = toolType;
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
     private void onHotbarChange(PlayerItemHeldEvent event)
     {
+        //TODO: permission check
+        Player player = event.getPlayer();
         firstCornerMap.remove(event.getPlayer());
+        ItemStack item = player.getInventory().getItem(event.getNewSlot());
+        if (item == null || item.getType() != toolType)
+            return;
+
+        new BukkitRunnable()
+        {
+            @Override
+            public void run()
+            {
+                ItemStack stack = player.getInventory().getItemInMainHand();
+                if (stack == null || stack.getType() != toolType)
+                    return;
+                player.sendMessage("You have x number of claimblocks yada yada."); //TODO: message
+            }
+        }.runTaskLater(plugin, 15L);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
     private void onPlayerRightClickShovel(PlayerInteractEvent event)
     {
-        //TODO: prevent accidental "spamming" use of claim tool (small cooldown)
+        //TODO: prevent accidental doubleclicks (add small cooldown)
 
         Player player = event.getPlayer();
 
@@ -67,7 +87,6 @@ public class ClaimTool implements Listener
             return;
 
         //TODO: configurable.
-        //TODO: 1.13
         if (event.getItem().getType() != Material.GOLDEN_SHOVEL)
             return;
 
