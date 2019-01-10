@@ -183,16 +183,19 @@ public class ClaimRegistrar implements Listener
     }
 
     /**
-     * @param claim
+     * @param claim Claim to resize
      * @param firstCorner
      * @param secondCorner
-     * @return a CreateClaimResult
+     * @return a CreateClaimResult, or null if the claim does not exist in the registrar
      * @throws IllegalArgumentException if corners' worlds don't match
      * @throws Exception                if the newly-created claim was not able to be saved.
      * @see CreateClaimResult
      */
     public CreateClaimResult resizeClaim(Claim claim, Location firstCorner, Location secondCorner)
     {
+        if (!claims.contains(claim))
+            return null;
+
         Location[] corners = ClaimUtils.retrieveSortedCorners(firstCorner, secondCorner);
 
         //retain original depth

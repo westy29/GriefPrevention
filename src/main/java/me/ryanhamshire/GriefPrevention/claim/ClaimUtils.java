@@ -170,6 +170,23 @@ public class ClaimUtils
         return claim.contains(location, includeHeight);
     }
 
+    public static boolean isCorner(Claim claim, Location location)
+    {
+        Location firstCorner = claim.getLesserBoundaryCorner();
+        Location secondCorner = claim.getGreaterBoundaryCorner();
+        int x = location.getBlockX();
+        int z = location.getBlockZ();
+        int x1 = firstCorner.getBlockX();
+        int x2 = secondCorner.getBlockX();
+        int z1 = firstCorner.getBlockZ();
+        int z2 = secondCorner.getBlockZ();
+
+        if (x == x1 || x == x2)
+            return z == z1 || z == z2;
+
+        return false;
+    }
+
     /**
      * Determines if a location is near a given claim
      * Distance in this case is a band around the outside of the claim rather then euclidean distance

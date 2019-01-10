@@ -2,6 +2,8 @@ package me.ryanhamshire.GriefPrevention.listener;
 
 import me.ryanhamshire.GriefPrevention.claim.Claim;
 import me.ryanhamshire.GriefPrevention.claim.ClaimClerk;
+import me.ryanhamshire.GriefPrevention.claim.ClaimUtils;
+import me.ryanhamshire.GriefPrevention.visualization.VisualizationManager;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -32,13 +34,15 @@ public class ClaimTool implements Listener
 {
     private Plugin plugin;
     private ClaimClerk claimClerk;
+    private VisualizationManager visualizationManager;
 
     private Map<Player, FirstCorner> firstCornerMap = new HashMap<>();
 
-    public ClaimTool(Plugin plugin, ClaimClerk claimClerk)
+    public ClaimTool(Plugin plugin, ClaimClerk claimClerk, VisualizationManager visualizationManager)
     {
         this.plugin = plugin;
         this.claimClerk = claimClerk;
+        this.visualizationManager = visualizationManager;
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
@@ -82,33 +86,13 @@ public class ClaimTool implements Listener
             return;
         }
 
-        //If clicking within a claim, inspect (and reset claim creation/extension)
-        Claim claim = claimClerk.getClaim(player, block.getLocation(), false);
-        if (claim != null)
-        {
-            player.sendMessage("Overlaps a claim"); //TODO: message (probably same as "overlaps" enum)
-            //todo: if already clicked one corner, show overlap
-            //todo: visualize
-            return; //TODO: except when extending corner
-        }
 
         if (!firstCornerMap.containsKey(player))
         {
+            setFirstCorner(player, block.getLocation());
+
             //TODO: determine claim mode
-            firstCornerMap.put(player, new FirstCorner(block.getLocation(), ToolMode.CREATE, null));
-            final Block finalBlock = block;
 
-            //TODO: proper/resetable visualization
-            new BukkitRunnable()
-            {
-                @Override
-                public void run()
-                {
-                    player.sendBlockChange(finalBlock.getLocation(), Material.DIAMOND_BLOCK.createBlockData());
-                }
-            }.runTask(plugin);
-
-            player.sendMessage("Entered claim creation mode, now select opposite corner."); //TODO: message
             return;
         }
 
@@ -124,11 +108,44 @@ public class ClaimTool implements Listener
         }
     }
 
+    private void setFirstCorner(Player player, Location location)
+    {
+        //If clicking within claim, see if we can validly enter resizing mode.
+        Claim claim = claimClerk.getClaim(player, location, false);
+        if (claim != null)
+        {
+            if (ClaimUtils.isCorner(claim, location))
+            {
+                firstCornerMap.put(player, new FirstCorner(location, ToolMode.EXTEND, claim));
+                player.sendMessage("Resizing claim. Click where you want to move this corner."); //TODO: message
+                player.sendBlockChange(location, location.getBlock().getBlockData());
+                return;
+            }
+
+            player.sendMessage("There is a claim here already! Click a corner to resize a claim, or click elsewhere to create a new claim."); //TODO: message
+            visualizationManager.apply(player, claim);
+            return;
+        }
+
+        firstCornerMap.put(player, new FirstCorner(location, ToolMode.CREATE, null));
+
+        new BukkitRunnable()
+        {
+            @Override
+            public void run()
+            {
+                player.sendBlockChange(location, Material.DIAMOND_BLOCK.createBlockData());
+            }
+        }.runTask(plugin);
+
+        player.sendMessage("Entered claim creation mode, now select opposite corner."); //TODO: message
+    }
+
     private Block getTargetBlock(Player player, int maxDistance) throws IllegalStateException
     {
         Location eye = player.getEyeLocation();
         Material eyeMaterial = eye.getBlock().getType();
-        boolean passThroughWater = (eyeMaterial == Material.WATER || eyeMaterial == Material.WATER);
+        boolean passThroughWater = (eyeMaterial == Material.WATER);
         BlockIterator iterator = new BlockIterator(player.getLocation(), player.getEyeHeight(), maxDistance);
         Block result = player.getLocation().getBlock().getRelative(BlockFace.UP);
         while (iterator.hasNext())

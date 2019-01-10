@@ -168,7 +168,9 @@ public class ClaimClerk implements Listener
      */
     public Claim getClaim(Player player, Location location, boolean ignoreDepth)
     {
-        return claimRegistrar.getClaim(location, ignoreDepth, lastAccessedClaim.get(player));
+        Claim claim = claimRegistrar.getClaim(location, ignoreDepth, lastAccessedClaim.get(player));
+        lastAccessedClaim.put(player, claim);
+        return claim;
     }
 
     /**

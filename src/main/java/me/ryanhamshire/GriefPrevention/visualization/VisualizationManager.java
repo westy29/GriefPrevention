@@ -22,6 +22,15 @@ public class VisualizationManager
         this.plugin = plugin;
     }
 
+    public void apply(Player player, Claim claim)
+    {
+        VisualizationType type = VisualizationType.Claim;
+        if (claim.isAdminClaim())
+            type = VisualizationType.AdminClaim;
+        Visualization visualization = fromClaim(claim, type, player.getLocation());
+        apply(player, visualization);
+    }
+
     //sends a visualization to a player
     public void apply(Player player, Visualization visualization)
     {
