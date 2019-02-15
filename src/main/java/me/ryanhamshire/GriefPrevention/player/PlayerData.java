@@ -59,10 +59,8 @@ public class PlayerData
         return remainingBlocks;
     }
 
-    //don't load storage from secondary storage until it's needed
     public int getAccruedClaimBlocks()
     {
-        //TODO: accrual limit check?
         return accruedClaimBlocks;
     }
 

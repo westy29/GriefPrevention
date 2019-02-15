@@ -28,6 +28,11 @@ public enum Permission
         return player.hasPermission(value);
     }
 
+    public boolean hasNot(Player player)
+    {
+        return !has(player);
+    }
+
     public boolean hasNot(Player player, Message error)
     {
         if (has(player))

@@ -26,11 +26,9 @@ import java.util.UUID;
 import java.util.concurrent.Future;
 
 /**
- * TODO: use futures, so method calls can be done synchronously or asynchronously
- * 
+ *
  * As of right now:
  * Storing data is asynchronous (void return, close() method)
- * Retrieving data is synchronous.
  */
 public interface Storage
 {

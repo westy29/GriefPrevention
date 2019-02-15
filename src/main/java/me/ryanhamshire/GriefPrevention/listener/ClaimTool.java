@@ -3,6 +3,8 @@ package me.ryanhamshire.GriefPrevention.listener;
 import me.ryanhamshire.GriefPrevention.claim.Claim;
 import me.ryanhamshire.GriefPrevention.claim.ClaimClerk;
 import me.ryanhamshire.GriefPrevention.claim.ClaimUtils;
+import me.ryanhamshire.GriefPrevention.enums.Message;
+import me.ryanhamshire.GriefPrevention.enums.Permission;
 import me.ryanhamshire.GriefPrevention.visualization.VisualizationManager;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -52,8 +54,11 @@ public class ClaimTool implements Listener
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
     private void onHotbarChange(PlayerItemHeldEvent event)
     {
-        //TODO: permission check
         Player player = event.getPlayer();
+
+        if (Permission.CLAIM_CREATE.hasNot(player))
+            return;
+
         firstCornerMap.remove(event.getPlayer());
         ItemStack item = player.getInventory().getItem(event.getNewSlot());
         if (item == null || item.getType() != toolType)
@@ -67,7 +72,7 @@ public class ClaimTool implements Listener
                 ItemStack stack = player.getInventory().getItemInMainHand();
                 if (stack == null || stack.getType() != toolType)
                     return;
-                player.sendMessage("You have x number of claimblocks yada yada."); //TODO: message
+                player.sendMessage("You have x number of claimblocks available yada yada."); //TODO: message
             }
         }.runTaskLater(plugin, 15L);
     }
@@ -78,6 +83,9 @@ public class ClaimTool implements Listener
         //TODO: prevent accidental doubleclicks (add small cooldown)
 
         Player player = event.getPlayer();
+
+        if (Permission.CLAIM_CREATE.hasNot(player))
+            return;
 
         if (event.getAction() != Action.RIGHT_CLICK_AIR && event.getAction() != Action.RIGHT_CLICK_BLOCK)
             return;
@@ -101,7 +109,7 @@ public class ClaimTool implements Listener
 
         if (block == null)
         {
-            player.sendMessage("No block found! (Or too far away.)"); //TODO: message
+            Message.TOOL_NO_BLOCK_FOUND.send(player);
             return;
         }
 
@@ -136,12 +144,12 @@ public class ClaimTool implements Listener
             if (claim.hasPermission(player, null) && ClaimUtils.isCorner(claim, location))
             {
                 firstCornerMap.put(player, new FirstCorner(location, ToolMode.EXTEND, claim));
-                player.sendMessage("Resizing claim. Click where you want to move this corner."); //TODO: message
+                Message.CLAIMTOOL_RESIZE_START.send(player);
                 player.sendBlockChange(location, location.getBlock().getBlockData());
                 return;
             }
 
-            player.sendMessage("There is a claim here already! Click a corner to resize a claim, or click elsewhere to create a new claim."); //TODO: message
+            Message.CLAIM_FAIL_OVERLAPS.send(player);
             visualizationManager.apply(player, claim);
             return;
         }
@@ -157,7 +165,7 @@ public class ClaimTool implements Listener
             }
         }.runTask(plugin);
 
-        player.sendMessage("Entered claim creation mode, now select opposite corner."); //TODO: message
+        Message.CLAIMTOOL_CREATE_START.send(player);
     }
 
     private Block getTargetBlock(Player player, int maxDistance) throws IllegalStateException

@@ -26,13 +26,17 @@ import org.bukkit.plugin.PluginManager;
 public enum Message
 {
     CLAIM_CREATED("&aClaim created! Use /trust to share it with friends."),
+    CLAIMTOOL_CREATE_START("&bEntered claim creation mode, now click the opposite corner to create a claim."),
     CLAIM_FAIL_INSUFFICIENT_CLAIMBLOCKS("&cYou do not have enough claim blocks to do this. You have {0} claimblocks."),
     CLAIM_FAIL_OVERLAPS("Overlaps another claim."),
     CLAIM_FAIL_NO_PERMISSION("&cYou currently do not have the power to claim."),
     CLAIM_RESIZED("&aClaim resized. You now have {0} claimblocks remaining."),
+    CLAIMTOOL_RESIZE_START("&bResizing claim. Click where you want to move this corner."),
     CLAIM_ABANDONED("Claim abandoned."),
     NoClaimHere("No claim here."),
-    CLAIM_NO_TRUST_MANAGE("&cYou are not trusted to manage this claim.");
+    CLAIM_NO_TRUST_MANAGE("&cYou are not trusted to manage this claim."),
+    TOOL_NO_BLOCK_FOUND("No block found! (Or too far away.)");
+
     private String message;
 
     Message(String defaultMessage)
