@@ -40,8 +40,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 import java.util.logging.Logger;
 
 //manages storage stored in the file system
@@ -154,33 +157,40 @@ public class FlatFileStorage implements Storage
         claimFile.delete();
     }
 
-    public PlayerData getPlayerData(UUID uuid)
+    public Future<PlayerData> getPlayerData(UUID uuid)
     {
         File playerFile = new File(playerDataFolder.getPath() + File.separator + uuid.toString());
 
-        if (!playerFile.exists())
-            return null;
-
-        try
+        return new FutureTask<PlayerData>(new Callable<PlayerData>()
         {
-            //read the file content and immediately close it
-            List<String> lines = Files.readAllLines(playerFile.toPath());
-            Iterator<String> iterator = lines.iterator();
+            @Override
+            public PlayerData call() throws Exception
+            {
+                if (!playerFile.exists())
+                    return null;
 
-            //first line is accrued claim blocks
-            int accrued = Integer.parseInt(iterator.next());
+                try
+                {
+                    //read the file content and immediately close it
+                    List<String> lines = Files.readAllLines(playerFile.toPath());
+                    Iterator<String> iterator = lines.iterator();
 
-            //second line is any bonus claim blocks granted by administrators
-            int bonus = Integer.parseInt(iterator.next());
+                    //first line is accrued claim blocks
+                    int accrued = Integer.parseInt(iterator.next());
 
-            return new PlayerData(uuid, accrued, bonus);
-        }
-        catch (Exception e)
-        {
-            plugin.getLogger().severe("Failed to load playerData for UUID " + uuid.toString());
-            e.printStackTrace();
-        }
-        return null;
+                    //second line is any bonus claim blocks granted by administrators
+                    int bonus = Integer.parseInt(iterator.next());
+
+                    return new PlayerData(uuid, accrued, bonus);
+                }
+                catch (Exception e)
+                {
+                    plugin.getLogger().severe("Failed to load playerData for UUID " + uuid.toString());
+                    e.printStackTrace();
+                }
+                return null;
+            }
+        });
     }
 
     //saves changes to player storage.

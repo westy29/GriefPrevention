@@ -16,33 +16,32 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.ryanhamshire.GriefPrevention.message;
+package me.ryanhamshire.GriefPrevention.enums;
 
+import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.PluginManager;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
 
 public enum Message
 {
-    CLAIM_CREATED("Claim created! Use /trust to share it with friends."),
-    CLAIM_FAIL_INSUFFICIENT_CLAIMBLOCKS("Not enough claim blocks."),
+    CLAIM_CREATED("&aClaim created! Use /trust to share it with friends."),
+    CLAIM_FAIL_INSUFFICIENT_CLAIMBLOCKS("&cYou do not have enough claim blocks to do this. You have {0} claimblocks."),
     CLAIM_FAIL_OVERLAPS("Overlaps another claim."),
+    CLAIM_FAIL_NO_PERMISSION("&cYou currently do not have the power to claim."),
+    CLAIM_RESIZED("&aClaim resized. You now have {0} claimblocks remaining."),
     CLAIM_ABANDONED("Claim abandoned."),
     NoClaimHere("No claim here."),
     CLAIM_PERMISSION_CHANGE_DENIED("Not your claim.");
     private String message;
-    private static PluginManager pluginManager;
 
     Message(String defaultMessage)
     {
-        this.message = defaultMessage;
+        this.message = ChatColor.translateAlternateColorCodes('&', defaultMessage);
     }
 
-    public static YamlConfiguration initialize(PluginManager pluginManager, YamlConfiguration messagesFile)
+    public static YamlConfiguration initialize(YamlConfiguration messagesFile)
     {
-        Message.pluginManager = pluginManager;
         for (Message message : Message.values())
         {
             String messageFromFile = messagesFile.getString(message.name());

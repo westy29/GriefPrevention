@@ -23,6 +23,7 @@ import me.ryanhamshire.GriefPrevention.player.PlayerData;
 
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.Future;
 
 /**
  * TODO: use futures, so method calls can be done synchronously or asynchronously
@@ -62,7 +63,7 @@ public interface Storage
      * @param uuid player's uuid
      * @return An instantiated PlayerData object, or null if not found
      */
-    PlayerData getPlayerData(UUID uuid);
+    Future<PlayerData> getPlayerData(UUID uuid);
 
     /**
      * Saves the playerData to storage

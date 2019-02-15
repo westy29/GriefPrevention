@@ -27,7 +27,7 @@ import me.ryanhamshire.GriefPrevention.command.trust.TrustCommand;
 import me.ryanhamshire.GriefPrevention.command.trust.UntrustCommand;
 import me.ryanhamshire.GriefPrevention.listener.ClaimListener;
 import me.ryanhamshire.GriefPrevention.listener.ClaimTool;
-import me.ryanhamshire.GriefPrevention.message.Message;
+import me.ryanhamshire.GriefPrevention.enums.Message;
 import me.ryanhamshire.GriefPrevention.player.PlayerDataRegistrar;
 import me.ryanhamshire.GriefPrevention.storage.FlatFileStorage;
 import me.ryanhamshire.GriefPrevention.storage.Storage;

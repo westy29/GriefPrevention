@@ -3,7 +3,7 @@ package me.ryanhamshire.GriefPrevention.command;
 import me.ryanhamshire.GriefPrevention.claim.Claim;
 import me.ryanhamshire.GriefPrevention.claim.ClaimClerk;
 import me.ryanhamshire.GriefPrevention.claim.ClaimPermission;
-import me.ryanhamshire.GriefPrevention.message.Message;
+import me.ryanhamshire.GriefPrevention.enums.Message;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;

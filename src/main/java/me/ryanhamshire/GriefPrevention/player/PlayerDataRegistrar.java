@@ -1,9 +1,14 @@
 package me.ryanhamshire.GriefPrevention.player;
 
+import com.sun.xml.internal.ws.util.CompletedFuture;
 import me.ryanhamshire.GriefPrevention.storage.Storage;
 
 import java.util.UUID;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 
 /**
  * @author RoboMWM
@@ -25,21 +30,25 @@ public class PlayerDataRegistrar
      * @param uuid
      * @return null if the PlayerData does not exist
      */
-    public PlayerData getPlayerData(UUID uuid)
+    public Future<PlayerData> getPlayerData(UUID uuid)
     {
         //first, look in cache
         PlayerData playerData = this.playerDataCache.get(uuid);
-
-        if (playerData == null)
+        if (playerData != null)
         {
-            playerData = storage.getPlayerData(uuid);
-
-            //cache if found
-            if (playerData != null)
-                playerDataCache.put(uuid, playerData);
+            return new CompletedFuture<>(playerData, null);
         }
 
-        return playerData;
+        return new FutureTask<PlayerData>(() ->
+        {
+            PlayerData playerData1 = storage.getPlayerData(uuid).get();
+
+            //cache if found
+            if (playerData1 != null)
+                playerDataCache.put(uuid, playerData1);
+            return playerData;
+        });
+
     }
 
     /**
@@ -48,17 +57,21 @@ public class PlayerDataRegistrar
      * @param uuid
      * @return a PlayerData object. Nonnull.
      */
-    public PlayerData getOrCreatePlayerData(UUID uuid)
+    public Future<PlayerData> getOrCreatePlayerData(UUID uuid)
     {
-        PlayerData playerData = getPlayerData(uuid);
-
-        if (playerData == null)
+        return new FutureTask<>(() ->
         {
-            playerData = new PlayerData(uuid, defaultAccruedBlocks, 0);
-            playerDataCache.put(uuid, playerData);
-        }
+            PlayerData playerData = getPlayerData(uuid).get();
 
-        return playerData;
+            if (playerData == null)
+            {
+                playerData = new PlayerData(uuid, defaultAccruedBlocks, 0);
+                playerDataCache.put(uuid, playerData);
+            }
+
+            return playerData;
+        });
+
     }
 
     public boolean savePlayerData(UUID uuid)
