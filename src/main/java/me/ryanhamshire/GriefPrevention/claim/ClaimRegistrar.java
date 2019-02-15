@@ -39,7 +39,7 @@ public class ClaimRegistrar implements Listener
     /**
      * @return the "next" available claim ID.
      */
-    public long nextClaimId()
+    public synchronized long nextClaimId()
     {
         long currentTime = System.currentTimeMillis();
         if (currentTime == lastUsedClaimId)
@@ -48,18 +48,12 @@ public class ClaimRegistrar implements Listener
         return currentTime;
     }
 
-    public void changeOwner(Claim claim, UUID newOwnerID)
-    {
-        claim.setOwnerUUID(newOwnerID);
-        storage.saveClaim(claim);
-    }
-
     /**
      * Deletes a claim entirely, from storage and in internal register
      *
      * @param claim
      */
-    public void deleteClaim(Claim claim)
+    public synchronized void deleteClaim(Claim claim)
     {
         storage.deleteClaim(claim);
         claims.remove(claim);
@@ -80,7 +74,7 @@ public class ClaimRegistrar implements Listener
      * @param ignoreDepth Whether a location underneath the claim should return the claim.
      * @param cachedClaim can be NULL, but will help performance if you have a reasonable guess about which claim the location is in
      */
-    public Claim getClaim(Location location, boolean ignoreDepth, Claim cachedClaim)
+    public synchronized Claim getClaim(Location location, boolean ignoreDepth, Claim cachedClaim)
     {
         //check cachedClaim guess first.  if it's in the datastore and the location is inside it, we're done
         if (cachedClaim != null && claims.contains(cachedClaim) && cachedClaim.contains(location, ignoreDepth))
@@ -106,7 +100,7 @@ public class ClaimRegistrar implements Listener
      *
      * @return a read-only access point for the list of all land claims
      */
-    public Collection<Claim> getClaims()
+    public synchronized Collection<Claim> getClaims()
     {
         return Collections.unmodifiableCollection(this.claims);
     }
@@ -117,7 +111,7 @@ public class ClaimRegistrar implements Listener
      * @param uuid
      * @return
      */
-    public Collection<Claim> getClaims(UUID uuid)
+    public synchronized Collection<Claim> getClaims(UUID uuid)
     {
         Set<Claim> claims = new HashSet<>();
         for (Claim claim : this.claims)
@@ -156,7 +150,7 @@ public class ClaimRegistrar implements Listener
      * @throws Exception                if the newly-created claim was not able to be saved.
      * @see CreateClaimResult
      */
-    public CreateClaimResult createClaim(Location firstCorner, Location secondCorner, UUID ownerID)
+    public synchronized CreateClaimResult createClaim(Location firstCorner, Location secondCorner, UUID ownerID)
     {
         Location[] corners = ClaimUtils.retrieveSortedCorners(firstCorner, secondCorner);
 
@@ -191,7 +185,7 @@ public class ClaimRegistrar implements Listener
      * @throws Exception                if the newly-created claim was not able to be saved.
      * @see CreateClaimResult
      */
-    public CreateClaimResult resizeClaim(Claim claim, Location firstCorner, Location secondCorner)
+    public synchronized CreateClaimResult resizeClaim(Claim claim, Location firstCorner, Location secondCorner)
     {
         if (!claims.contains(claim))
             return null;
@@ -242,7 +236,7 @@ public class ClaimRegistrar implements Listener
      * @param radius   specified in blocks
      * @return a set of claims
      */
-    Set<Claim> getNearbyClaims(Location location, int radius)
+    public synchronized Set<Claim> getNearbyClaims(Location location, int radius)
     {
         Set<Claim> claims = new HashSet<Claim>();
 

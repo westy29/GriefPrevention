@@ -2,6 +2,8 @@ package me.ryanhamshire.GriefPrevention.command;
 
 import me.ryanhamshire.GriefPrevention.claim.Claim;
 import me.ryanhamshire.GriefPrevention.claim.ClaimClerk;
+import me.ryanhamshire.GriefPrevention.enums.Message;
+import me.ryanhamshire.GriefPrevention.enums.Permission;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -33,7 +35,8 @@ public class CreateClaimCommand extends ClaimManagementCommands
     @Override
     public boolean execute(Player player, Command cmd, String[] args, Claim claim)
     {
-        //TODO: permission checks
+        if (Permission.CLAIM_CREATE.hasNot(player, Message.CLAIM_FAIL_NO_PERMISSION))
+            return true;
 
         int radius = 10; //TODO: replace with config
 

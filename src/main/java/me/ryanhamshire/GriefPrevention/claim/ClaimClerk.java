@@ -81,8 +81,6 @@ public class ClaimClerk implements Listener
         }.runTaskAsynchronously(plugin);
     }
 
-    //TODO: convert create, resize to tasks (for custom messages, checks, etc.)
-
     /**
      * Registers a new claim
      *
@@ -91,9 +89,6 @@ public class ClaimClerk implements Listener
      */
     public Future<Boolean> registerNewClaim(Player player, Location firstCorner, Location secondCorner)
     {
-        if (Permission.CLAIM_CREATE.hasNot(player, Message.CLAIM_FAIL_NO_PERMISSION))
-            return new CompletedFuture<>(false, null);
-
         FutureTask<Boolean> task = new FutureTask<>(() ->
         {
             PlayerData playerData = playerDataRegistrar.getOrCreatePlayerData(player.getUniqueId()).get();
@@ -139,7 +134,7 @@ public class ClaimClerk implements Listener
 
         if (!claim.hasPermission(player, ClaimPermission.MANAGE))
         {
-            player.sendMessage("You don't own this claim!"); //TODO: message
+            Message.CLAIM_NO_TRUST_MANAGE.send(player);
             return new CompletedFuture<>(false, null);
         }
 
@@ -156,7 +151,7 @@ public class ClaimClerk implements Listener
             CreateClaimResult claimResult = claimRegistrar.resizeClaim(claim, firstCorner, secondCorner);
             if (claimResult.isSuccess())
             {
-                player.sendMessage("Claim resized. You now have x claimblocks remaining"); //TODO: message
+                Message.CLAIM_RESIZED.send(player, Integer.toString(playerData.getRemainingClaimBlocks(claimRegistrar)));
                 return true;
             }
 

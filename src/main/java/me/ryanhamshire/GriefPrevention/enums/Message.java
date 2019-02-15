@@ -32,7 +32,7 @@ public enum Message
     CLAIM_RESIZED("&aClaim resized. You now have {0} claimblocks remaining."),
     CLAIM_ABANDONED("Claim abandoned."),
     NoClaimHere("No claim here."),
-    CLAIM_PERMISSION_CHANGE_DENIED("Not your claim.");
+    CLAIM_NO_TRUST_MANAGE("&cYou are not trusted to manage this claim.");
     private String message;
 
     Message(String defaultMessage)

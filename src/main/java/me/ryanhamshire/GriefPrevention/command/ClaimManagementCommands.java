@@ -42,7 +42,7 @@ public abstract class ClaimManagementCommands implements CommandExecutor
 
         if (claim.hasPermission(player, ClaimPermission.MANAGE))
         {
-            Message.CLAIM_PERMISSION_CHANGE_DENIED.send(player);
+            Message.CLAIM_NO_TRUST_MANAGE.send(player);
             return true;
         }
 
