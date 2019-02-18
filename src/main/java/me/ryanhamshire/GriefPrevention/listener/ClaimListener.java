@@ -36,13 +36,13 @@ public class ClaimListener implements Listener
         claimCache.remove(event.getPlayer());
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     private void onClaimBuildBreak(GPBlockChangeTypeEvent event)
     {
         Claim claim = claimRegistrar.getClaim(event.getLocation(), false, claimCache.get(event.getSource()));
         if (claim == null)
         {
-            //TODO: forward to wilderness rule handling, use return value as cancel status
+            event.setCancelled(applyWildernessRules(event));
             return;
         }
 
@@ -53,22 +53,8 @@ public class ClaimListener implements Listener
             return;
         }
 
-        //Natural grief allowed (explosions, etc.)
-        //May remove sourceEntity check here since we really don't need to check the source if natural grief is allowed
-        if (event.getSourceEntity() != null)
-        {
-            switch (event.getSourceEntity().getType())
-            {
-                case PRIMED_TNT:
-                case CREEPER:
-                case ENDERMAN:
-                case WITHER:
-                case FIREBALL:
-                    event.setCancelled(!claim.isNaturalGriefAllowed());
-                    return;
-            }
-        }
-
+        //Allow if natural grief is enabled
+        event.setCancelled(!claim.isNaturalGriefAllowed());
 
         if (event.getSourceBlock() != null)
         {
@@ -78,5 +64,13 @@ public class ClaimListener implements Listener
                     event.setCancelled(true);
             }
         }
+    }
+
+    private boolean applyWildernessRules(GPBlockChangeTypeEvent event)
+    {
+        //fire spread & burn
+        //explosions above sea level
+        //etc.
+        return false;
     }
 }

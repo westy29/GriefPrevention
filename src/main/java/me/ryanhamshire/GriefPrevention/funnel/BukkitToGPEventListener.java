@@ -109,9 +109,18 @@ public class BukkitToGPEventListener implements Listener
         {
             HangingBreakByEntityEvent entityEvent = (HangingBreakByEntityEvent)event;
             destroyerEntity = entityEvent.getRemover();
+            callEvent(new GPBlockChangeTypeEvent(event, destroyerEntity, event.getEntity().getLocation(), event.getEntity()));
+            return;
         }
 
-        callEvent(new GPBlockChangeTypeEvent(event, destroyerEntity, event.getEntity().getLocation(), event.getEntity()));
+        //Only call event for instances where the hanging entity is directly destroyed (else you have floating stuff when the block is removed, etc.)
+        switch (event.getCause())
+        {
+            case ENTITY:
+            case EXPLOSION:
+                callEvent(new GPBlockChangeTypeEvent(event, destroyerEntity, event.getEntity().getLocation(), event.getEntity()));
+        }
+
     }
 
     @EventHandler(priority = LOWEST)
