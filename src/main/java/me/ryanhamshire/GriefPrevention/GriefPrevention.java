@@ -28,6 +28,7 @@ import me.ryanhamshire.GriefPrevention.command.trust.UntrustCommand;
 import me.ryanhamshire.GriefPrevention.listener.ClaimListener;
 import me.ryanhamshire.GriefPrevention.listener.ClaimTool;
 import me.ryanhamshire.GriefPrevention.enums.Message;
+import me.ryanhamshire.GriefPrevention.listener.PlayerEventHandler;
 import me.ryanhamshire.GriefPrevention.player.PlayerDataRegistrar;
 import me.ryanhamshire.GriefPrevention.storage.FlatFileStorage;
 import me.ryanhamshire.GriefPrevention.storage.Storage;
@@ -58,6 +59,9 @@ public class GriefPrevention extends JavaPlugin
 
         new ClaimListener(this, claimRegistrar);
         new ClaimTool(this, claimClerk, visualizationManager, Material.GOLDEN_SHOVEL); //TODO: config
+        new PlayerEventHandler(this, playerDataRegistrar);
+
+        //register commands
 
         getCommand("newclaim").setExecutor(new CreateClaimCommand(claimClerk));
         getCommand("extendclaim").setExecutor(new ExtendClaimCommand(claimClerk));

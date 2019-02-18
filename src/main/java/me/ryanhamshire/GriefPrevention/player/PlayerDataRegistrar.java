@@ -39,7 +39,7 @@ public class PlayerDataRegistrar
             return new CompletedFuture<>(playerData, null);
         }
 
-        return new FutureTask<PlayerData>(() ->
+        return new FutureTask<>(() ->
         {
             PlayerData playerData1 = storage.getPlayerData(uuid).get();
 
@@ -71,7 +71,6 @@ public class PlayerDataRegistrar
 
             return playerData;
         });
-
     }
 
     public boolean savePlayerData(UUID uuid)
