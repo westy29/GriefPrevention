@@ -9,7 +9,9 @@ import org.bukkit.configuration.file.YamlConfiguration;
  */
 public enum Config
 {
-    CLAIM__NEW_CLAIM_RADIUS(5, DataType.INT);
+    CLAIM__NEW_CLAIM_RADIUS(5, DataType.INT),
+    CLAIM__CLAIM_TOOL("GOLDEN_SHOVEL", DataType.STRING),
+    CLAIM__INSPECT_TOOL("STICK", DataType.STRING);
 
     private final DataType type;
     private Object value;
