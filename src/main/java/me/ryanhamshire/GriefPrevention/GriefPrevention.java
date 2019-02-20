@@ -85,7 +85,7 @@ public class GriefPrevention extends JavaPlugin
 
     public void initializeMessages(File messagesFile)
     {
-        YamlConfiguration messagesYaml = Message.initialize(getServer().getPluginManager(), YamlConfiguration.loadConfiguration(messagesFile));
+        YamlConfiguration messagesYaml = Message.initialize(YamlConfiguration.loadConfiguration(messagesFile));
         UsefulUtil.saveStringToFile(this, messagesFile, messagesYaml.saveToString());
     }
 
