@@ -3,37 +3,24 @@ package me.ryanhamshire.GriefPrevention.enums;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 /**
- * Created on 2/19/2019.
+ * Created on 7/3/2019.
+ *
+ * Initializes config files. May move to another class later.
  *
  * @author RoboMWM
  */
-public enum Config
+public class ConfigInitializer
 {
-    CLAIM__NEW_CLAIM_RADIUS(5, DataType.INT),
-    CLAIM__CLAIM_TOOL("GOLDEN_SHOVEL", DataType.STRING),
-    CLAIM__INSPECT_TOOL("STICK", DataType.STRING);
-
-    private final DataType type;
-    private Object value;
-    private final String key;
-
-    Config(Object value, DataType type)
-    {
-        this.type = type;
-        this.value = value;
-        this.key = name().substring(name().indexOf("__") + 1).replaceAll("__", ".");
-    }
-
     public static YamlConfiguration initialize(YamlConfiguration file, String prefix)
     {
-        for (Config thing : Config.values())
+        for (ClaimConfig thing : ClaimConfig.values())
         {
             if (!thing.name().startsWith(prefix))
                 continue;
 
             Object value = null;
 
-            switch (thing.type)
+            switch (thing.getConfigType().getType())
             {
                 case INT:
                     value = file.getInt(thing.key);
@@ -55,12 +42,4 @@ public enum Config
         file.options().copyDefaults(true);
         return file;
     }
-
-}
-
-enum DataType
-{
-    STRING,
-    INT,
-    DOUBLE;
 }
