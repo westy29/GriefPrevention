@@ -8,14 +8,28 @@ package me.ryanhamshire.GriefPrevention.enums;
 public class ConfigType
 {
     private final DataType type;
-    private Object value;
+    private final int intValue;
+    private final double doubleValue;
+    private final String stringValue;
     private final String key;
 
-    public ConfigType(Object value, DataType type, String name)
+//    public ConfigType(Object value, DataType type, String name)
+//    {
+//        this.type = type;
+//        this.value = value;
+//        this.key = name;
+//    }
+
+    public ConfigType(int value, String name)
     {
-        this.type = type;
-        this.value = value;
+        this.type = DataType.INT;
+        this.intValue = value;
         this.key = name;
+    }
+
+    public int getInt()
+    {
+        return intValue;
     }
 
     public DataType getType()
@@ -23,9 +37,19 @@ public class ConfigType
         return type;
     }
 
-    public Object getValue()
+    public <Any> Any getValue()
     {
-        return value;
+        switch (type)
+        {
+            case INT:
+                return (Any)(Integer)intValue;
+            case DOUBLE:
+                return doubleValue;
+            case STRING:
+                return stringValue;
+            default:
+                return null;
+        }
     }
 }
 
