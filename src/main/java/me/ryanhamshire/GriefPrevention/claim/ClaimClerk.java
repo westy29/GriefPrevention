@@ -1,6 +1,5 @@
 package me.ryanhamshire.GriefPrevention.claim;
 
-import com.sun.xml.internal.ws.util.CompletedFuture;
 import me.ryanhamshire.GriefPrevention.enums.Message;
 import me.ryanhamshire.GriefPrevention.enums.Permission;
 import me.ryanhamshire.GriefPrevention.player.PlayerData;
@@ -20,6 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -130,12 +130,12 @@ public class ClaimClerk implements Listener
     public Future<Boolean> resizeClaim(Player player, Claim claim, Location firstCorner, Location secondCorner)
     {
         if (Permission.CLAIM_CREATE.hasNot(player, Message.CLAIM_FAIL_NO_PERMISSION))
-            return new CompletedFuture<>(false, null);
+            return new CompletableFuture<>();
 
         if (!claim.hasPermission(player, ClaimPermission.MANAGE))
         {
             Message.CLAIM_NO_TRUST_MANAGE.send(player);
-            return new CompletedFuture<>(false, null);
+            return new CompletableFuture<>();
         }
 
         FutureTask<Boolean> task = new FutureTask<>(() ->

@@ -1,6 +1,5 @@
 package me.ryanhamshire.GriefPrevention.player;
 
-import com.sun.xml.internal.ws.util.CompletedFuture;
 import me.ryanhamshire.GriefPrevention.storage.Storage;
 
 import java.util.UUID;
@@ -36,7 +35,7 @@ public class PlayerDataRegistrar
         PlayerData playerData = this.playerDataCache.get(uuid);
         if (playerData != null)
         {
-            return new CompletedFuture<>(playerData, null);
+            return new CompletableFuture<>();
         }
 
         return new FutureTask<>(() ->

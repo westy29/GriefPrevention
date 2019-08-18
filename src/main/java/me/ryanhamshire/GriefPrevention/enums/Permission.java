@@ -28,6 +28,7 @@ public enum Permission
         return player.hasPermission(value);
     }
 
+    @Deprecated
     public boolean hasNot(Player player)
     {
         return !has(player);
