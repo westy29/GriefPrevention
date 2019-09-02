@@ -1,10 +1,8 @@
 package me.ryanhamshire.GriefPrevention.config;
 
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.plugin.Plugin;
 
 import java.util.AbstractMap;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -21,9 +19,21 @@ public class ConfigNodeFactory
      * @param section The YamlConfiguration to load
      * @return
      */
-    public AbstractMap.SimpleEntry<YamlConfiguration, ConfigNode> createConfigNode(Logger log, YamlConfiguration section)
+    public AbstractMap.SimpleEntry<YamlConfiguration, ConfigNode> createConfigNode(Logger log, ConfigFile configFile, YamlConfiguration section)
     {
-        Map<String, ConfigOption> options = new HashMap<>();
+        ConfigNode node;
+        Map<String, ConfigOption> options;
+
+        switch (configFile)
+        {
+            case CLAIM:
+                node = new ClaimConfigNode();
+                break;
+            default:
+                throw new UnsupportedOperationException("Not implemented yet.");
+        }
+
+        options = node.options;
 
         for (Map.Entry<String, ConfigOption> entry : options.entrySet())
         {
@@ -51,6 +61,6 @@ public class ConfigNodeFactory
             configuration.set(entry.getKey(), entry.getValue().getValue());
         }
 
-        return new AbstractMap.SimpleEntry<>(section, new ConfigNode(options));
+        return new AbstractMap.SimpleEntry<>(section, node);
     }
 }
