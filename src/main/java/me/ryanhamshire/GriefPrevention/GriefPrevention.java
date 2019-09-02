@@ -25,9 +25,12 @@ import me.ryanhamshire.GriefPrevention.command.CreateClaimCommand;
 import me.ryanhamshire.GriefPrevention.command.ExtendClaimCommand;
 import me.ryanhamshire.GriefPrevention.command.trust.TrustCommand;
 import me.ryanhamshire.GriefPrevention.command.trust.UntrustCommand;
+import me.ryanhamshire.GriefPrevention.config.ConfigFile;
+import me.ryanhamshire.GriefPrevention.config.ConfigNode;
+import me.ryanhamshire.GriefPrevention.config.ConfigNodeFactory;
+import me.ryanhamshire.GriefPrevention.enums.Message;
 import me.ryanhamshire.GriefPrevention.listener.ClaimListener;
 import me.ryanhamshire.GriefPrevention.listener.ClaimTool;
-import me.ryanhamshire.GriefPrevention.enums.Message;
 import me.ryanhamshire.GriefPrevention.listener.PlayerEventHandler;
 import me.ryanhamshire.GriefPrevention.player.PlayerDataRegistrar;
 import me.ryanhamshire.GriefPrevention.storage.FlatFileStorage;
@@ -38,6 +41,8 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.AbstractMap;
 
 public class GriefPrevention extends JavaPlugin
 {
@@ -68,6 +73,21 @@ public class GriefPrevention extends JavaPlugin
         getCommand("abandonclaim").setExecutor(new AbandonClaimCommand(claimClerk, claimRegistrar, visualizationManager));
         getCommand("trust").setExecutor(new TrustCommand(claimClerk));
         getCommand("untrust").setExecutor(new UntrustCommand(claimClerk));
+
+        //Config
+        File claimsConfigFile = new File(getDataFolder() + File.separator + "claim_config.yml");
+        YamlConfiguration claimsConfig = YamlConfiguration.loadConfiguration(claimsConfigFile);
+        AbstractMap.SimpleEntry<YamlConfiguration, ConfigNode> claimsConfigNode = new ConfigNodeFactory().createConfigNode(getLogger(), ConfigFile.CLAIM, claimsConfig);
+        claimsConfig = claimsConfigNode.getKey();
+        try
+        {
+            claimsConfig.save(claimsConfigFile);
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+
 
         new Metrics(this);
     }
