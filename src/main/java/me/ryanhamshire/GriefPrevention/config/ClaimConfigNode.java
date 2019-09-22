@@ -7,7 +7,7 @@ package me.ryanhamshire.GriefPrevention.config;
  */
 public class ClaimConfigNode extends ConfigNode
 {
-    public ConfigOption<Integer> NEW_CLAIM_RADIUS = createOption("new_claim_radius", 5);
-    public ConfigOption<String> CLAIM_TOOL = createOption("claim_tool", "GOLDEN_SHOVEL");
-    public ConfigOption<String> INSPECT_TOOL = createOption("inspect_tool", "STICK");
+    public ConfigEntry<Integer> NEW_CLAIM_RADIUS = createOption("new_claim_radius", 5);
+    public ConfigEntry<String> CLAIM_TOOL = createOption("claim_tool", "GOLDEN_SHOVEL");
+    public ConfigEntry<String> INSPECT_TOOL = createOption("inspect_tool", "STICK");
 }

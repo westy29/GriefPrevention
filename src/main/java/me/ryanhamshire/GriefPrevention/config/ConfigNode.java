@@ -10,19 +10,19 @@ import java.util.Map;
  */
 public abstract class ConfigNode
 {
-    Map<String, ConfigOption> options = new HashMap<>();
+    Map<String, ConfigEntry> entries = new HashMap<>();
 
-    protected ConfigOption<String> createOption(String key, String value)
+    protected ConfigEntry<String> createOption(String key, String value)
     {
-        ConfigOption<String> option = new ConfigOption<>(key, value);
-        options.put(key, option);
+        ConfigEntry<String> option = new ConfigEntry<>(key, value);
+        entries.put(key, option);
         return option;
     }
 
-    protected ConfigOption<Integer> createOption(String key, Integer value)
+    protected ConfigEntry<Integer> createOption(String key, Integer value)
     {
-        ConfigOption<Integer> option = new ConfigOption<>(key, value);
-        options.put(key, option);
+        ConfigEntry<Integer> option = new ConfigEntry<>(key, value);
+        entries.put(key, option);
         return option;
     }
 }

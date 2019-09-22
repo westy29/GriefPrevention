@@ -1,11 +1,11 @@
 package me.ryanhamshire.GriefPrevention.config;
 
-public class ConfigOption<T>
+public class ConfigEntry<T>
 {
     T value;
     String key;
 
-    ConfigOption(String key, T value)
+    ConfigEntry(String key, T value)
     {
         this.key = key;
         this.value = value;

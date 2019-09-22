@@ -22,7 +22,8 @@ public class ConfigNodeFactory
     public AbstractMap.SimpleEntry<YamlConfiguration, ConfigNode> createConfigNode(Logger log, ConfigFile configFile, YamlConfiguration section)
     {
         ConfigNode node;
-        Map<String, ConfigOption> options;
+        Map<String, ConfigEntry> options;
+        YamlConfiguration configuration = new YamlConfiguration();
 
         switch (configFile)
         {
@@ -33,14 +34,13 @@ public class ConfigNodeFactory
                 throw new UnsupportedOperationException("Not implemented yet.");
         }
 
-        options = node.options;
+        options = node.entries;
 
-        for (Map.Entry<String, ConfigOption> entry : options.entrySet())
+        for (Map.Entry<String, ConfigEntry> entry : options.entrySet())
         {
             Object configValue = section.get(entry.getKey());
 
             //Add missing or invalid config node
-            YamlConfiguration configuration = new YamlConfiguration();
             if (configValue == null)
             {
                 log.info("missing config node " + entry.getKey());
@@ -61,6 +61,6 @@ public class ConfigNodeFactory
             configuration.set(entry.getKey(), entry.getValue().getValue());
         }
 
-        return new AbstractMap.SimpleEntry<>(section, node);
+        return new AbstractMap.SimpleEntry<>(configuration, node);
     }
 }
