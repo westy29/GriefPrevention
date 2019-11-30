@@ -1,8 +1,8 @@
 package me.ryanhamshire.GriefPrevention.config;
 
 import me.ryanhamshire.GriefPrevention.mock.MockConfigNode;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Created on 9/22/2019.
@@ -13,7 +13,7 @@ public class TestConfigNode
 {
     private MockConfigNode configNode;
 
-    @Before
+    @BeforeEach
     public void createConfigNode()
     {
         configNode = new MockConfigNode();
