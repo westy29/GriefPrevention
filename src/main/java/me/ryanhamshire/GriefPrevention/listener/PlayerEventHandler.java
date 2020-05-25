@@ -3,7 +3,9 @@ package me.ryanhamshire.GriefPrevention.listener;
 import me.ryanhamshire.GriefPrevention.player.PlayerDataRegistrar;
 import me.ryanhamshire.GriefPrevention.util.TaskQueue;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -27,5 +29,12 @@ public class PlayerEventHandler implements Listener
         this.plugin = plugin;
         this.playerDataRegistrar = playerDataRegistrar;
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
+    }
+
+    @EventHandler
+    public void onJoin(PlayerJoinEvent event)
+    {
+        //TODO: perform async
+        playerDataRegistrar.getOrCreatePlayerData(event.getPlayer().getUniqueId());
     }
 }

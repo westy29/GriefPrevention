@@ -64,7 +64,7 @@ public class ClaimClerk implements Listener
      */
     public Claim registerNewClaim(Player player, Location firstCorner, Location secondCorner)
     {
-        PlayerData playerData = playerDataRegistrar.getOrCreatePlayerData(player.getUniqueId());
+        PlayerData playerData = playerDataRegistrar.getPlayerData(player.getUniqueId());
         if (playerData.getRemainingClaimBlocks(claimRegistrar) < ClaimUtils.getArea(firstCorner, secondCorner))
         {
             Message.CLAIM_FAIL_INSUFFICIENT_CLAIMBLOCKS.send(player);
@@ -108,7 +108,7 @@ public class ClaimClerk implements Listener
         }
 
 
-        PlayerData playerData = playerDataRegistrar.getOrCreatePlayerData(claim.getOwnerUUID());
+        PlayerData playerData = playerDataRegistrar.getPlayerData(claim.getOwnerUUID());
 
         if (playerData.getRemainingClaimBlocks(claimRegistrar) + claim.getArea() < ClaimUtils.getArea(firstCorner, secondCorner))
         {
