@@ -13,16 +13,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Created on 6/7/2018.
@@ -41,7 +35,6 @@ public class ClaimClerk implements Listener
     private ClaimRegistrar claimRegistrar;
     private PlayerDataRegistrar playerDataRegistrar;
     private VisualizationManager visualizationManager;
-    private BlockingQueue<Runnable> tasks = new LinkedBlockingQueue<>();
 
     /**
      * Creates a new ClaimClerk, which helps assist in obtaining and performing actions on the claim and playerdata registrars.
@@ -61,24 +54,6 @@ public class ClaimClerk implements Listener
         this.playerDataRegistrar = playerDataRegistrar;
         this.storage = storage;
         this.visualizationManager = visualizationManager;
-        new BukkitRunnable()
-        {
-            @Override
-            public void run()
-            {
-                while (true)
-                {
-                    try
-                    {
-                        tasks.take().run();
-                    }
-                    catch (InterruptedException e)
-                    {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }.runTaskAsynchronously(plugin);
     }
 
     /**
@@ -87,36 +62,30 @@ public class ClaimClerk implements Listener
      * @param firstCorner
      * @param secondCorner
      */
-    public Future<Boolean> registerNewClaim(Player player, Location firstCorner, Location secondCorner)
+    public Claim registerNewClaim(Player player, Location firstCorner, Location secondCorner)
     {
-        FutureTask<Boolean> task = new FutureTask<>(() ->
+        PlayerData playerData = playerDataRegistrar.getOrCreatePlayerData(player.getUniqueId());
+        if (playerData.getRemainingClaimBlocks(claimRegistrar) < ClaimUtils.getArea(firstCorner, secondCorner))
         {
-            PlayerData playerData = playerDataRegistrar.getOrCreatePlayerData(player.getUniqueId()).get();
-            if (playerData.getRemainingClaimBlocks(claimRegistrar) < ClaimUtils.getArea(firstCorner, secondCorner))
-            {
-                Message.CLAIM_FAIL_INSUFFICIENT_CLAIMBLOCKS.send(player);
-                return false;
-            }
+            Message.CLAIM_FAIL_INSUFFICIENT_CLAIMBLOCKS.send(player);
+            return null;
+        }
 
-            CreateClaimResult claimResult = claimRegistrar.createClaim(firstCorner, secondCorner, player.getUniqueId());
-            if (claimResult.isSuccess())
-            {
-                Message.CLAIM_CREATED.send(player);
-                visualizationManager.apply(player, visualizationManager.fromClaim(claimResult.getClaim(), VisualizationType.Claim, player.getLocation()));
-                return true;
-            }
+        CreateClaimResult claimResult = claimRegistrar.createClaim(firstCorner, secondCorner, player.getUniqueId());
+        if (claimResult.isSuccess())
+        {
+            Message.CLAIM_CREATED.send(player);
+            visualizationManager.apply(player, visualizationManager.fromClaim(claimResult.getClaim(), VisualizationType.Claim, player.getLocation()));
+            return claimResult.getClaim();
+        }
 
-            if (claimResult.getClaim() == null) //Another plugin canceled the event
-                return false;
+        if (claimResult.getClaim() == null) //Another plugin canceled the event
+            return null;
 
-            Message.CLAIM_FAIL_OVERLAPS.send(player);
-            visualizationManager.apply(player, claimResult.getClaim(), true);
-            //TODO: suggest merge if overlapping claim is owned by player
-            return false;
-        });
-
-        tasks.add(task);
-        return task;
+        Message.CLAIM_FAIL_OVERLAPS.send(player);
+        visualizationManager.apply(player, claimResult.getClaim(), true);
+        //TODO: suggest merge if overlapping claim is owned by player
+        return null;
     }
 
     /**
@@ -127,45 +96,40 @@ public class ClaimClerk implements Listener
      * @param secondCorner
      * @return
      */
-    public Future<Boolean> resizeClaim(Player player, Claim claim, Location firstCorner, Location secondCorner)
+    public Claim resizeClaim(Player player, Claim claim, Location firstCorner, Location secondCorner)
     {
         if (Permission.CLAIM_CREATE.hasNot(player, Message.CLAIM_FAIL_NO_PERMISSION))
-            return new CompletableFuture<>();
+            return null;
 
         if (!claim.hasPermission(player, ClaimPermission.MANAGE))
         {
             Message.CLAIM_NO_TRUST_MANAGE.send(player);
-            return new CompletableFuture<>();
+            return null;
         }
 
-        FutureTask<Boolean> task = new FutureTask<>(() ->
+
+        PlayerData playerData = playerDataRegistrar.getOrCreatePlayerData(claim.getOwnerUUID());
+
+        if (playerData.getRemainingClaimBlocks(claimRegistrar) + claim.getArea() < ClaimUtils.getArea(firstCorner, secondCorner))
         {
-            PlayerData playerData = playerDataRegistrar.getOrCreatePlayerData(claim.getOwnerUUID()).get();
+            Message.CLAIM_FAIL_INSUFFICIENT_CLAIMBLOCKS.send(player);
+            return null;
+        }
 
-            if (playerData.getRemainingClaimBlocks(claimRegistrar) + claim.getArea() < ClaimUtils.getArea(firstCorner, secondCorner))
-            {
-                Message.CLAIM_FAIL_INSUFFICIENT_CLAIMBLOCKS.send(player);
-                return false;
-            }
+        CreateClaimResult claimResult = claimRegistrar.resizeClaim(claim, firstCorner, secondCorner);
+        if (claimResult.isSuccess())
+        {
+            Message.CLAIM_RESIZED.send(player, Integer.toString(playerData.getRemainingClaimBlocks(claimRegistrar)));
+            return claimResult.getClaim();
+        }
 
-            CreateClaimResult claimResult = claimRegistrar.resizeClaim(claim, firstCorner, secondCorner);
-            if (claimResult.isSuccess())
-            {
-                Message.CLAIM_RESIZED.send(player, Integer.toString(playerData.getRemainingClaimBlocks(claimRegistrar)));
-                return true;
-            }
+        if (claimResult.getClaim() == null)
+            return null;
 
-            if (claimResult.getClaim() == null)
-                return false;
-
-            Message.CLAIM_FAIL_OVERLAPS.send(player);
-            visualizationManager.apply(player, claimResult.getClaim(), true);
-            //TODO: suggest merge if overlapping claim is owned by player
-            return false;
-        });
-
-        tasks.add(task);
-        return task;
+        Message.CLAIM_FAIL_OVERLAPS.send(player);
+        visualizationManager.apply(player, claimResult.getClaim(), true);
+        //TODO: suggest merge if overlapping claim is owned by player
+        return null;
     }
 
     //For caching last-known claim

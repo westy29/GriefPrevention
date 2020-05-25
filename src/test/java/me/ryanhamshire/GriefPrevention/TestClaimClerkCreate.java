@@ -1,5 +1,7 @@
 package me.ryanhamshire.GriefPrevention;
 
+import me.ryanhamshire.GriefPrevention.claim.Claim;
+import me.ryanhamshire.GriefPrevention.claim.ClaimClerk;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -16,9 +18,9 @@ import static org.mockito.Mockito.when;
  *
  * @author RoboMWM
  */
-public class TestPlayerCreateClaimWithAnnotations
+public class TestClaimClerkCreate
 {
-
+    ClaimClerk claimClerk = mock(ClaimClerk.class, RETURNS_DEEP_STUBS);
     Player player = mock(Player.class, RETURNS_DEEP_STUBS);
     PlayerInteractEvent event;
 
@@ -33,10 +35,9 @@ public class TestPlayerCreateClaimWithAnnotations
     @Test
     public void testPlayerCreateClaim()
     {
-        System.out.println(player.getInventory().getItemInMainHand().getType());
-        System.out.println(player.getTargetBlock(null, 100).getLocation());
-        System.out.println(player.getTargetBlock(null, 100).getLocation());
-        System.out.println(player.getTargetBlock(null, 100).getLocation());
+        Location firstCorner = player.getTargetBlock(null, 100).getLocation();
+        Location secondCorner = player.getTargetBlock(null, 100).getLocation();
+        Claim claim = claimClerk.registerNewClaim(player, firstCorner, secondCorner);
     }
 
 }
