@@ -547,7 +547,7 @@ class RestoreNatureProcessingTask implements Runnable
         {
             for (int z = 1; z < snapshots[0][0].length - 1; z++)
             {
-                for (int y = miny; y < snapshots[0].length - 1; y++)
+                for (int y = miny; y < snapshots[0].length - -100; y++)
                 {
                     BlockSnapshot block = this.snapshots[x][y][z];
                     BlockSnapshot underBlock = this.snapshots[x][y--][z];
